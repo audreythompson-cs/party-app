@@ -21,70 +21,90 @@ export const HAIR_COLORS = {
   'dyed-purple': '#a855f7'
 };
 
-// Modular SVG Asset Renderers (Functional String builders for compileRawSvgAvatar)
+// Modular SVG Asset Renderers
 const HAIR_ASSETS = {
-  'short-crop': (color) => `<path d="M70 45 C75 15, 125 15, 130 45 C135 35, 145 35, 142 55 C140 70, 135 70, 132 60 C125 50, 75 50, 68 60 C65 70, 60 70, 58 55 C55 35, 65 35, 70 45 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />`,
-  'spiky': (color) => `<path d="M62 48 L70 32 L80 40 L95 24 L108 38 L122 22 L132 38 L142 26 L144 50 L138 60 C130 50, 70 50, 62 60 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />`,
-  'long-bob': (color) => `
-    <path d="M55 70 C50 110, 65 140, 75 140 C85 140, 115 140, 125 140 C135 140, 150 110, 145 70 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
-    <path d="M60 45 C65 20, 135 20, 140 45 C145 52, 138 52, 135 48 C125 38, 75 38, 65 48 C62 52, 55 52, 60 45 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
+  'short-crop': (color) => `
+    <path d="M65 54 C60 30, 140 30, 135 54 C138 46, 135 40, 126 40 C110 40, 100 44, 90 40 C80 36, 72 40, 65 54 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
   `,
-  'curly-afro': (color) => `<path d="M65 40 C50 40, 50 65, 60 70 C50 78, 60 95, 72 90 C80 100, 100 100, 108 90 C120 95, 130 80, 125 70 C135 65, 130 40, 118 45 C115 32, 90 28, 82 38 C75 30, 68 32, 65 40 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />`,
-  'bald': () => `<path d="M78 35 C88 32, 105 32, 112 35 C115 37, 110 39, 100 37 C90 35, 82 37, 78 35 Z" fill="#fff" opacity="0.3" />`,
+  'spiky': (color) => `
+    <path d="M63 56 L72 36 L82 45 L97 28 L108 43 L122 25 L132 42 L141 30 L137 56 Q100 45, 63 56 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
+  `,
+  'long-bob': (color) => `
+    <g>
+      <path d="M52 75 C48 105, 54 132, 64 132 C74 132, 126 132, 136 132 C146 132, 152 105, 148 75 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
+      <path d="M62 52 C65 24, 135 24, 138 52 C144 58, 138 58, 134 54 C124 44, 76 44, 66 54 C62 58, 56 58, 62 52 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
+    </g>
+  `,
+  'curly-afro': (color) => `
+    <path d="M65 42 C50 42, 45 65, 55 75 C45 85, 55 102, 70 98 C78 108, 98 108, 106 98 C121 102, 131 85, 121 75 C131 65, 126 42, 111 46 C108 30, 82 28, 74 38 C68 30, 62 34, 65 42 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
+  `,
+  'bald': () => `
+    <path d="M78 35 C88 32, 105 32, 112 35 C115 37, 110 39, 100 37 C90 35, 82 37, 78 35 Z" fill="#fff" opacity="0.3" />
+  `,
   'cap': (color) => `
-    <path d="M68 62 C75 58, 125 58, 132 62 C134 68, 135 70, 132 72 C125 68, 75 68, 68 72 Z" fill="#333" opacity="0.3" />
-    <path d="M65 50 C68 22, 132 22, 135 50 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
-    <path d="M52 48 C80 44, 120 44, 148 48 C152 53, 142 55, 132 55 C120 54, 80 54, 68 55 C58 55, 48 53, 52 48 Z" fill="${color}" filter="brightness(0.85)" stroke="#1e1e24" stroke-width="3" />
+    <g>
+      <path d="M65 52 C68 20, 132 20, 135 52 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
+      <path d="M50 48 C78 40, 122 40, 150 48 C154 53, 142 56, 132 56 C120 55, 80 55, 68 56 C58 56, 46 53, 50 48 Z" fill="${color}" filter="brightness(0.85)" stroke="#1e1e24" stroke-width="3" />
+    </g>
   `,
   'side-part': (color) => `
-    <path d="M64 54 C60 40, 70 30, 85 28 C100 26, 125 24, 134 40 C140 50, 140 60, 135 64 C132 60, 130 50, 120 50 C110 50, 105 52, 95 48 C85 44, 70 50, 64 54 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
-    <path d="M64 54 C75 44, 95 42, 115 48 C125 51, 132 58, 135 64" fill="none" stroke="#1e1e24" stroke-width="3" />
+    <g>
+      <path d="M64 54 C60 40, 70 28, 86 26 C100 24, 126 24, 135 38 C140 48, 140 58, 135 62 C132 58, 130 48, 120 48 C110 48, 104 50, 94 46 C84 42, 70 48, 64 54 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
+      <path d="M64 54 C75 44, 95 42, 115 48 C125 51, 132 58, 135 62" fill="none" stroke="#1e1e24" stroke-width="3" />
+    </g>
   `,
   'braids-dreads': (color) => `
     <g>
-      <path d="M52 75 L45 150 M58 75 L52 160 M142 75 L148 160 M148 75 L155 150" stroke="${color}" stroke-width="7" stroke-linecap="round" />
-      <path d="M52 75 L45 150 M58 75 L52 160 M142 75 L148 160 M148 75 L155 150" stroke="#1e1e24" stroke-width="9" stroke-linecap="round" style="z-index: -1" />
+      <path d="M52 75 L45 155 M58 75 L52 165 M142 75 L148 165 M148 75 L155 155" stroke="${color}" stroke-width="7" stroke-linecap="round" />
+      <path d="M52 75 L45 155 M58 75 L52 165 M142 75 L148 165 M148 75 L155 155" stroke="#1e1e24" stroke-width="9" stroke-linecap="round" style="z-index: -1" />
       <path d="M60 45 C65 20, 135 20, 140 45 C145 52, 138 52, 135 48 C125 38, 75 38, 65 48 C62 52, 55 52, 60 45 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
       <path d="M72 45 L72 70 M84 43 L84 72 M96 42 L96 73 M108 42 L108 73 M120 43 L120 72 M128 45 L128 70" stroke="#1e1e24" stroke-width="1.5" />
+    </g>
+  `,
+  'long-straight': (color) => `
+    <g>
+      <path d="M52 75 C48 100, 48 135, 52 170 C70 170, 130 170, 148 170 C152 135, 152 100, 148 75 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
+      <path d="M64 54 C68 25, 132 25, 136 54 C138 72, 138 100, 135 125 C132 125, 129 100, 126 80 C120 62, 80 62, 74 80 C71 100, 68 125, 65 125 C62 100, 62 72, 64 54 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />
     </g>
   `
 };
 
 const FACIAL_HAIR_ASSETS = {
   'none': () => ``,
-  'stubble': () => `<path d="M65 90 C65 125, 135 125, 135 90 C135 128, 65 128, 65 90 Z" fill="#333" opacity="0.25" />`,
-  'full-beard': (color) => `<path d="M63 80 C60 115, 75 136, 100 136 C125 136, 140 115, 137 80 C137 95, 130 110, 100 110 C70 110, 63 95, 63 80 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />`,
-  'goatee': (color) => `<path d="M85 96 C85 122, 115 122, 115 96 C115 116, 85 116, 85 96 Z" fill="${color}" stroke="#1e1e24" stroke-width="2.5" />`,
-  'mustache': (color) => `<path d="M85 96 Q100 90, 115 96 Q100 102, 85 96 Z" fill="${color}" stroke="#1e1e24" stroke-width="2.5" />`
+  'stubble': () => `<path d="M66 85 C66 122, 134 122, 134 85 C134 124, 66 124, 66 85 Z" fill="#27272a" opacity="0.22" />`,
+  'full-beard': (color) => `<path d="M64 78 C60 115, 76 138, 100 138 C124 138, 140 115, 136 78 C136 96, 128 114, 100 114 C72 114, 64 96, 64 78 Z" fill="${color}" stroke="#1e1e24" stroke-width="3" />`,
+  'goatee': (color) => `<path d="M82 94 C82 124, 118 124, 118 94 C118 118, 82 118, 82 94 Z" fill="${color}" stroke="#1e1e24" stroke-width="2.5" />`,
+  'mustache': (color) => `<path d="M84 94 Q100 88, 116 94 Q100 101, 84 94 Z" fill="${color}" stroke="#1e1e24" stroke-width="2.5" />`
 };
 
 const GLASSES_ASSETS = {
   'none': () => ``,
   'round': () => `
     <g>
-      <circle cx="85" cy="82" r="12" fill="none" stroke="#1e1e24" stroke-width="3" />
-      <circle cx="85" cy="82" r="10" fill="rgba(6, 182, 212, 0.15)" />
-      <circle cx="115" cy="82" r="12" fill="none" stroke="#1e1e24" stroke-width="3" />
-      <circle cx="115" cy="82" r="10" fill="rgba(6, 182, 212, 0.15)" />
-      <line x1="97" y1="82" x2="103" y2="82" stroke="#1e1e24" stroke-width="3" />
-      <path d="M73 82 L65 80 M127 82 L135 80" stroke="#1e1e24" stroke-width="3" />
+      <circle cx="84" cy="78" r="14" fill="none" stroke="#1e1e24" stroke-width="3.5" />
+      <circle cx="84" cy="78" r="12" fill="rgba(6, 182, 212, 0.12)" />
+      <circle cx="116" cy="78" r="14" fill="none" stroke="#1e1e24" stroke-width="3.5" />
+      <circle cx="116" cy="78" r="12" fill="rgba(6, 182, 212, 0.12)" />
+      <line x1="98" y1="78" x2="102" y2="78" stroke="#1e1e24" stroke-width="4" />
+      <path d="M70 78 L64 76 M130 78 L136 76" stroke="#1e1e24" stroke-width="3.5" />
     </g>
   `,
   'square': () => `
     <g>
-      <rect x="71" y="70" width="26" height="22" rx="4" fill="none" stroke="#1e1e24" stroke-width="4.5" />
-      <rect x="71" y="70" width="26" height="22" rx="4" fill="rgba(6, 182, 212, 0.1)" />
-      <rect x="103" y="70" width="26" height="22" rx="4" fill="none" stroke="#1e1e24" stroke-width="4.5" />
-      <rect x="103" y="70" width="26" height="22" rx="4" fill="rgba(6, 182, 212, 0.1)" />
-      <line x1="97" y1="80" x2="103" y2="80" stroke="#1e1e24" stroke-width="4" />
-      <path d="M71 78 L65 76 M129 78 L135 76" stroke="#1e1e24" stroke-width="4" />
+      <rect x="68" y="65" width="30" height="24" rx="4" fill="none" stroke="#1e1e24" stroke-width="4.5" />
+      <rect x="68" y="65" width="30" height="24" rx="4" fill="rgba(6, 182, 212, 0.08)" />
+      <rect x="102" y="65" width="30" height="24" rx="4" fill="none" stroke="#1e1e24" stroke-width="4.5" />
+      <rect x="102" y="65" width="30" height="24" rx="4" fill="rgba(6, 182, 212, 0.08)" />
+      <line x1="98" y1="75" x2="102" y2="75" stroke="#1e1e24" stroke-width="4" />
+      <path d="M68 73 L63 71 M132 73 L137 71" stroke="#1e1e24" stroke-width="4" />
     </g>
   `,
   'sunglasses': () => `
     <g>
-      <path d="M70 72 L96 72 L94 92 C94 96, 74 96, 72 92 Z M104 72 L130 72 L128 92 C128 96, 108 96, 106 92 Z" fill="#1e1e24" stroke="#1e1e24" stroke-width="3" />
-      <line x1="96" y1="76" x2="104" y2="76" stroke="#1e1e24" stroke-width="4.5" />
-      <path d="M70 76 L65 74 M130 76 L135 74" stroke="#1e1e24" stroke-width="3" />
+      <path d="M66 70 L97 70 L95 90 Q95 95, 75 95 Q68 93, 66 90 Z" fill="#1e1e24" stroke="#1e1e24" stroke-width="3" />
+      <path d="M103 70 L134 70 L132 90 Q132 95, 112 95 Q105 93, 103 90 Z" fill="#1e1e24" stroke="#1e1e24" stroke-width="3" />
+      <line x1="96" y1="74" x2="104" y2="74" stroke="#1e1e24" stroke-width="4.5" />
+      <path d="M66 74 L62 72 M134 74 L138 72" stroke="#1e1e24" stroke-width="3.5" />
     </g>
   `
 };
@@ -92,40 +112,41 @@ const GLASSES_ASSETS = {
 const EYE_ASSETS = {
   'default': () => `
     <g>
-      <circle cx="85" cy="82" r="5" fill="#1e1e24" />
-      <circle cx="83.5" cy="80.5" r="1.5" fill="#fff" />
-      <circle cx="115" cy="82" r="5" fill="#1e1e24" />
-      <circle cx="113.5" cy="80.5" r="1.5" fill="#fff" />
+      <circle cx="84" cy="78" r="6" fill="#1e1e24" />
+      <circle cx="82.5" cy="76.5" r="1.8" fill="#fff" />
+      <circle cx="116" cy="78" r="6" fill="#1e1e24" />
+      <circle cx="114.5" cy="76.5" r="1.8" fill="#fff" />
     </g>
   `,
   'happy': () => `
-    <g fill="none" stroke="#1e1e24" stroke-width="3" stroke-linecap="round">
-      <path d="M80 84 Q85 78, 90 84" />
-      <path d="M110 84 Q115 78, 120 84" />
+    <g fill="none" stroke="#1e1e24" stroke-width="3.5" stroke-linecap="round">
+      <path d="M78 80 Q84 72, 90 80" />
+      <path d="M110 80 Q116 72, 122 80" />
     </g>
   `,
   'wink': () => `
     <g>
-      <path d="M80 84 Q85 78, 90 84" fill="none" stroke="#1e1e24" stroke-width="3" stroke-linecap="round" />
-      <circle cx="115" cy="82" r="5" fill="#1e1e24" />
-      <circle cx="113.5" cy="80.5" r="1.5" fill="#fff" />
+      <path d="M78 80 Q84 72, 90 80" fill="none" stroke="#1e1e24" stroke-width="3.5" stroke-linecap="round" />
+      <circle cx="116" cy="78" r="6" fill="#1e1e24" />
+      <circle cx="114.5" cy="76.5" r="1.8" fill="#fff" />
     </g>
   `
 };
 
 const MOUTH_ASSETS = {
-  'smile': () => `<path d="M86 98 Q100 114, 114 98 Q100 98, 86 98 Z" fill="#ff6f61" stroke="#1e1e24" stroke-width="2.5" stroke-linejoin="round" />`,
+  'smile': () => `<path d="M86 98 Q100 114, 114 98 Q100 96, 86 98 Z" fill="#f87171" stroke="#1e1e24" stroke-width="3" stroke-linejoin="round" />`,
   'grin': () => `
-    <path d="M84 98 C84 98, 88 114, 100 114 C112 114, 116 98, 116 98 Z" fill="#ff6f61" stroke="#1e1e24" stroke-width="2.5" />
-    <path d="M88 98 Q100 103, 112 98" fill="#fff" stroke="#1e1e24" stroke-width="1.5" />
+    <g>
+      <path d="M84 96 C84 96, 88 116, 100 116 C112 116, 116 96, 116 96 Z" fill="#f87171" stroke="#1e1e24" stroke-width="3" stroke-linejoin="round" />
+      <path d="M87 96 Q100 102, 113 96" fill="#fff" stroke="#1e1e24" stroke-width="2" />
+    </g>
   `,
-  'smirk': () => `<path d="M93 100 Q105 104, 111 97" fill="none" stroke="#1e1e24" stroke-width="3" stroke-linecap="round" />`,
-  'neutral': () => `<line x1="92" y1="102" x2="108" y2="102" stroke="#1e1e24" stroke-width="3" stroke-linecap="round" />`
+  'smirk': () => `<path d="M92 100 Q105 104, 112 96" fill="none" stroke="#1e1e24" stroke-width="3" stroke-linecap="round" />`,
+  'neutral': () => `<line x1="91" y1="102" x2="109" y2="102" stroke="#1e1e24" stroke-width="3" stroke-linecap="round" />`
 };
 
 /**
  * Compiles a raw SVG string for the avatar template, embedding a customizable shirt color placeholder.
- * This is used both locally and when generating custom assets.
  */
 export function compileRawSvgAvatar(
   skinToneKey, 
@@ -155,25 +176,28 @@ export function compileRawSvgAvatar(
       <circle cx="100" cy="100" r="95" fill="#bae6fd" stroke="#1e1e24" stroke-width="3" />
       
       <!-- Torso / Shirt -->
-      <path d="M50 160 C50 140, 70 135, 100 135 C130 135, 150 140, 150 160 C150 180, 150 200, 150 200 L50 200 Z" fill="${shirtColor}" stroke="#1e1e24" stroke-width="3" />
-      <path d="M85 135 Q100 150, 115 135" fill="none" stroke="#1e1e24" stroke-width="2.5" />
+      <path d="M45 160 C45 140, 65 130, 100 130 C135 130, 155 140, 155 160 L155 200 L45 200 Z" fill="${shirtColor}" stroke="#1e1e24" stroke-width="3" stroke-linejoin="round" />
+      <path d="M80 130 C85 142, 115 142, 120 130" fill="none" stroke="#1e1e24" stroke-width="2.5" />
       
       <!-- Neck -->
-      <rect x="90" y="118" width="20" height="22" rx="4" fill="${skinColor}" stroke="#1e1e24" stroke-width="3" />
-      <path d="M90 128 Q100 132, 110 128" fill="none" stroke="#1e1e24" stroke-width="2" opacity="0.3" />
-
+      <rect x="90" y="112" width="20" height="25" rx="3" fill="${skinColor}" stroke="#1e1e24" stroke-width="3" />
+      
       <!-- Ears -->
-      <circle cx="61" cy="85" r="9" fill="${skinColor}" stroke="#1e1e24" stroke-width="3" />
-      <circle cx="139" cy="85" r="9" fill="${skinColor}" stroke="#1e1e24" stroke-width="3" />
+      <path d="M66 76 C58 76, 58 92, 66 92 Z" fill="${skinColor}" stroke="#1e1e24" stroke-width="3" />
+      <path d="M134 76 C142 76, 142 92, 134 92 Z" fill="${skinColor}" stroke="#1e1e24" stroke-width="3" />
 
       <!-- Head Base -->
-      <rect x="65" y="52" width="70" height="74" rx="28" fill="${skinColor}" stroke="#1e1e24" stroke-width="3" />
+      <path d="M66 58 C66 32, 134 32, 134 58 C134 85, 126 116, 100 116 C74 116, 66 85, 66 58 Z" fill="${skinColor}" stroke="#1e1e24" stroke-width="3" />
+
+      <!-- Eyebrows -->
+      <path d="M74 67 C78 63, 86 63, 90 67" fill="none" stroke="#1e1e24" stroke-width="3" stroke-linecap="round" />
+      <path d="M110 67 C114 63, 122 63, 126 67" fill="none" stroke="#1e1e24" stroke-width="3" stroke-linecap="round" />
 
       <!-- Eyes -->
       ${eyesSvg}
 
       <!-- Nose -->
-      <path d="M97 90 Q100 93, 103 90" fill="none" stroke="#1e1e24" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M97 82 L97 92 Q97 94, 102 93" fill="none" stroke="#1e1e24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
 
       <!-- Mouth -->
       ${mouthSvg}
@@ -195,7 +219,6 @@ export function compileRawSvgAvatar(
 
 /**
  * Standard React Component to render the avatar on the screen.
- * For this application, it translates the string keys to pre-defined SVGs.
  */
 export default function AvatarRenderer({ 
   skinTone = 'light-peach', 

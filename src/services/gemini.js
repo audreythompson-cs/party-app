@@ -85,7 +85,7 @@ async function callGeminiClientSide(file, apiKey) {
           },
           hairStyle: { 
             type: 'string', 
-            enum: ['short-crop', 'spiky', 'long-bob', 'curly-afro', 'bald', 'cap', 'side-part', 'braids-dreads']
+            enum: ['short-crop', 'spiky', 'long-bob', 'curly-afro', 'bald', 'cap', 'side-part', 'braids-dreads', 'long-straight']
           },
           facialHair: { 
             type: 'string', 
@@ -117,7 +117,7 @@ async function callGeminiClientSide(file, apiKey) {
     Look closely at:
     1. Skin tone (fair/ivory, light/peach, medium/olive, bronze/tan, or deep/cocoa).
     2. Hair color (black, dark brown, medium brown, blonde, red/auburn, grey, white/platinum, dyed teal, or dyed purple).
-    3. Hairstyle/length (short-crop, spiky, long-bob, curly-afro, bald, cap/hat, side-part, or braids-dreads).
+    3. Hairstyle/length (short-crop, spiky, long-bob, curly-afro, bald, cap/hat, side-part, braids-dreads, or long-straight).
     4. Facial hair (none, stubble, full-beard, goatee, or mustache).
     5. Glasses (none, round, square, or sunglasses).
     6. Eye expression (default, happy/smiling, or wink).
@@ -149,7 +149,7 @@ function sanitizeFeatures(data) {
   return {
     skinTone: ['fair-ivory', 'light-peach', 'medium-olive', 'bronze-tan', 'deep-cocoa'].includes(data.skinTone) ? data.skinTone : defaults.skinTone,
     hairColor: ['black', 'dark-brown', 'medium-brown', 'blonde', 'red-auburn', 'grey', 'white-platinum', 'dyed-teal', 'dyed-purple'].includes(data.hairColor) ? data.hairColor : defaults.hairColor,
-    hairStyle: ['short-crop', 'spiky', 'long-bob', 'curly-afro', 'bald', 'cap', 'side-part', 'braids-dreads'].includes(data.hairStyle) ? data.hairStyle : defaults.hairStyle,
+    hairStyle: ['short-crop', 'spiky', 'long-bob', 'curly-afro', 'bald', 'cap', 'side-part', 'braids-dreads', 'long-straight'].includes(data.hairStyle) ? data.hairStyle : defaults.hairStyle,
     facialHair: ['none', 'stubble', 'full-beard', 'goatee', 'mustache'].includes(data.facialHair) ? data.facialHair : defaults.facialHair,
     glasses: ['none', 'round', 'square', 'sunglasses'].includes(data.glasses) ? data.glasses : defaults.glasses,
     eyeStyle: ['default', 'happy', 'wink'].includes(data.eyeStyle) ? data.eyeStyle : defaults.eyeStyle,

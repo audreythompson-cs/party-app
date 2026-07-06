@@ -41,7 +41,7 @@ export async function onRequestPost(context) {
       Look closely at:
       1. Skin tone (fair/ivory, light/peach, medium/olive, bronze/tan, or deep/cocoa).
       2. Hair color (black, dark brown, medium brown, blonde, red/auburn, grey, white/platinum, dyed teal, or dyed purple).
-      3. Hairstyle/length (short-crop, spiky, long-bob, curly-afro, bald, cap/hat, side-part, or braids-dreads).
+      3. Hairstyle/length (short-crop, spiky, long-bob, curly-afro, bald, cap/hat, side-part, braids-dreads, or long-straight).
       4. Facial hair (none, stubble, full-beard, goatee, or mustache).
       5. Glasses (none, round, square, or sunglasses).
       6. Eye expression (default, happy/smiling, or wink).
@@ -80,7 +80,7 @@ export async function onRequestPost(context) {
             },
             hairStyle: { 
               type: 'string', 
-              enum: ['short-crop', 'spiky', 'long-bob', 'curly-afro', 'bald', 'cap', 'side-part', 'braids-dreads']
+              enum: ['short-crop', 'spiky', 'long-bob', 'curly-afro', 'bald', 'cap', 'side-part', 'braids-dreads', 'long-straight']
             },
             facialHair: { 
               type: 'string', 
