@@ -1,6 +1,6 @@
 /**
  * POST /api/analyze
- * Cloudflare Pages Function to securely generate a custom SVG avatar using Gemini 2.5 Flash.
+ * Cloudflare Pages Function to securely classify portrait selfies into structured JSON avatar features.
  */
 export async function onRequestPost(context) {
   try {
@@ -35,22 +35,22 @@ export async function onRequestPost(context) {
     }
 
     const prompt = `
-      You are an expert, creative vector graphic designer and illustrator.
-      Create a modern, clean, flat-design cartoon avatar of the person in this selfie.
+      You are an expert avatar styling assistant. 
+      Analyze the person in this selfie and classify their features to compile a cartoon avatar.
       
-      Output ONLY a valid raw SVG string (enclosed in <svg>...</svg>). Do not include any explanation, do not include markdown code block formatting (like \`\`\`xml or \`\`\`svg), and do not wrap it in JSON. Return the raw SVG directly.
+      Look closely at:
+      1. Skin tone (fair/ivory, light/peach, medium/olive, bronze/tan, or deep/cocoa).
+      2. Hair color (black, dark brown, medium brown, blonde, red/auburn, grey, white/platinum, dyed teal, or dyed purple).
+      3. Hairstyle/length (short-crop, spiky, long-bob, curly-afro, bald, cap/hat, side-part, or braids-dreads).
+      4. Facial hair (none, stubble, full-beard, goatee, or mustache).
+      5. Glasses (none, round, square, or sunglasses).
+      6. Eye expression (default, happy/smiling, or wink).
+      7. Mouth shape (smile, grin, smirk, or neutral).
       
-      SVG Design Requirements:
-      1. viewBox="0 0 200 200".
-      2. Use a circular background with a pleasant modern color (e.g. gradient or soft pastel).
-      3. Draw a friendly, clean cartoon representation of the person: include face, ears, neck, eyes (with pupils/reflections), eyebrows, nose, mouth (smiling/friendly), hair, and clothing (torso).
-      4. Crucial: Make sure the main clothing/shirt element uses the exact fill value of "__SHIRT_COLOR__" (fill="__SHIRT_COLOR__") so we can dynamically replace it client-side. Do not hardcode a shirt color!
-      5. Capture their key features: match their real skin tone (e.g., #fbcfe8, #fdba74, #7c2d12, etc.), hairstyle/length, hair color, and facial characteristics (such as glasses or facial hair if present).
-      6. Use clean, geometric vector shapes, paths, and solid colors. Keep it looking like a professional, premium flat icon.
-      7. Ensure the SVG is valid, all tags are closed properly, and it contains no HTML tags or external assets.
+      Choose the values strictly from the options defined in the JSON schema.
     `;
 
-    // Construct the payload for Gemini API
+    // Construct the payload for Gemini API with structured JSON output
     const payload = {
       contents: [
         {
@@ -64,7 +64,44 @@ export async function onRequestPost(context) {
             }
           ]
         }
-      ]
+      ],
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'object',
+          properties: {
+            skinTone: { 
+              type: 'string', 
+              enum: ['fair-ivory', 'light-peach', 'medium-olive', 'bronze-tan', 'deep-cocoa']
+            },
+            hairColor: { 
+              type: 'string', 
+              enum: ['black', 'dark-brown', 'medium-brown', 'blonde', 'red-auburn', 'grey', 'white-platinum', 'dyed-teal', 'dyed-purple']
+            },
+            hairStyle: { 
+              type: 'string', 
+              enum: ['short-crop', 'spiky', 'long-bob', 'curly-afro', 'bald', 'cap', 'side-part', 'braids-dreads']
+            },
+            facialHair: { 
+              type: 'string', 
+              enum: ['none', 'stubble', 'full-beard', 'goatee', 'mustache']
+            },
+            glasses: { 
+              type: 'string', 
+              enum: ['none', 'round', 'square', 'sunglasses']
+            },
+            eyeStyle: { 
+              type: 'string', 
+              enum: ['default', 'happy', 'wink']
+            },
+            mouthStyle: { 
+              type: 'string', 
+              enum: ['smile', 'grin', 'smirk', 'neutral']
+            }
+          },
+          required: ['skinTone', 'hairColor', 'hairStyle', 'facialHair', 'glasses', 'eyeStyle', 'mouthStyle']
+        }
+      }
     };
 
     // Call Google's Gemini REST API
@@ -107,10 +144,10 @@ export async function onRequestPost(context) {
       );
     }
 
-    // Return the generated raw SVG string directly
+    // Return the generated JSON structure
     return new Response(responseText, {
       status: 200,
-      headers: { 'Content-Type': 'image/svg+xml' }
+      headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (err) {

@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { TEAMS } from '../constants/teams';
 import { STRINGS } from '../constants/strings';
+import { compileRawSvgAvatar } from '../components/AvatarRenderer';
 import { isGeminiConfigured, analyzeSelfieWithGemini } from '../services/gemini';
 
 export default function Onboarding() {
@@ -32,7 +33,21 @@ export default function Onboarding() {
       }
 
       console.log('Analyzing selfie with Gemini Vision API...');
-      const rawSvg = await analyzeSelfieWithGemini(file);
+      const features = await analyzeSelfieWithGemini(file);
+      console.log('Gemini features classified successfully:', features);
+
+      // Compile raw template SVG string using pre-drawn vector assets
+      const rawSvg = compileRawSvgAvatar(
+        features.skinTone,
+        features.hairColor,
+        '__SHIRT_COLOR__',
+        name,
+        features.hairStyle,
+        features.facialHair,
+        features.glasses,
+        features.eyeStyle,
+        features.mouthStyle
+      );
 
       setAvatarSvgTemplate(rawSvg);
       setPhotoCaptured(true);

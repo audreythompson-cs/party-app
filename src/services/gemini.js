@@ -1,3 +1,5 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
 // Retrieve the API Key from import.meta.env (for local dev)
 const LOCAL_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
@@ -18,25 +20,23 @@ export function isGeminiConfigured() {
 }
 
 /**
- * Main entry point to analyze a selfie and generate a custom cartoon avatar.
- * Chooses the direct SDK call on localhost (if local key is present)
- * or the secure Cloudflare Pages Function proxy in production.
- * Returns the raw SVG string containing the "__SHIRT_COLOR__" placeholder token.
+ * Main entry point to analyze a selfie and generate features.
+ * Returns the classification JSON object (containing skinTone, hairColor, hairStyle, etc.).
  */
 export async function analyzeSelfieWithGemini(file) {
   const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
   if (isLocalhost && LOCAL_API_KEY && LOCAL_API_KEY !== 'your_gemini_api_key') {
-    console.log('Local dev detected: calling Gemini API client-side directly for custom SVG...');
+    console.log('Local dev detected: calling Gemini API client-side directly for JSON features...');
     return callGeminiClientSide(file, LOCAL_API_KEY);
   }
 
-  console.log('Production/deployed env detected: calling secure Cloudflare Pages Function proxy for custom SVG...');
+  console.log('Production/deployed env detected: calling secure Cloudflare Pages Function proxy for JSON features...');
   return callGeminiProxy(file);
 }
 
 /**
- * Calls the Cloudflare Pages Function at /api/analyze to securely generate custom SVG code.
+ * Calls the Cloudflare Pages Function at /api/analyze to securely retrieve JSON features.
  */
 async function callGeminiProxy(file) {
   const base64Data = await fileToBase64(file);
@@ -57,56 +57,104 @@ async function callGeminiProxy(file) {
     throw new Error(errorData.error || `Proxy API returned status ${response.status}`);
   }
 
-  const rawText = await response.text();
-  return cleanSvgContent(rawText);
+  const data = await response.json();
+  return sanitizeFeatures(data);
 }
 
 /**
- * Calls the Gemini API directly from the client (for local dev convenience) to get custom SVG code.
- * Lazily imports the Google AI SDK to avoid bundling it on mobile clients in production.
+ * Calls the Gemini API directly from the client (for local dev convenience) to get JSON features.
  */
 async function callGeminiClientSide(file, apiKey) {
-  // Dynamically import the SDK only when needed locally
   const { GoogleGenerativeAI } = await import('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(apiKey);
   
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash'
+    model: 'gemini-2.5-flash',
+    generationConfig: {
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: 'object',
+        properties: {
+          skinTone: { 
+            type: 'string', 
+            enum: ['fair-ivory', 'light-peach', 'medium-olive', 'bronze-tan', 'deep-cocoa']
+          },
+          hairColor: { 
+            type: 'string', 
+            enum: ['black', 'dark-brown', 'medium-brown', 'blonde', 'red-auburn', 'grey', 'white-platinum', 'dyed-teal', 'dyed-purple']
+          },
+          hairStyle: { 
+            type: 'string', 
+            enum: ['short-crop', 'spiky', 'long-bob', 'curly-afro', 'bald', 'cap', 'side-part', 'braids-dreads']
+          },
+          facialHair: { 
+            type: 'string', 
+            enum: ['none', 'stubble', 'full-beard', 'goatee', 'mustache']
+          },
+          glasses: { 
+            type: 'string', 
+            enum: ['none', 'round', 'square', 'sunglasses']
+          },
+          eyeStyle: { 
+            type: 'string', 
+            enum: ['default', 'happy', 'wink']
+          },
+          mouthStyle: { 
+            type: 'string', 
+            enum: ['smile', 'grin', 'smirk', 'neutral']
+          }
+        },
+        required: ['skinTone', 'hairColor', 'hairStyle', 'facialHair', 'glasses', 'eyeStyle', 'mouthStyle']
+      }
+    }
   });
 
   const imagePart = await fileToGenerativePart(file);
   const prompt = `
-    You are an expert, creative vector graphic designer and illustrator.
-    Create a modern, clean, flat-design cartoon avatar of the person in this selfie.
+    You are an expert avatar styling assistant. 
+    Analyze the person in this selfie and classify their features to compile a cartoon avatar.
     
-    Output ONLY a valid raw SVG string (enclosed in <svg>...</svg>). Do not include any explanation, do not include markdown code block formatting (like \`\`\`xml or \`\`\`svg), and do not wrap it in JSON. Return the raw SVG directly.
+    Look closely at:
+    1. Skin tone (fair/ivory, light/peach, medium/olive, bronze/tan, or deep/cocoa).
+    2. Hair color (black, dark brown, medium brown, blonde, red/auburn, grey, white/platinum, dyed teal, or dyed purple).
+    3. Hairstyle/length (short-crop, spiky, long-bob, curly-afro, bald, cap/hat, side-part, or braids-dreads).
+    4. Facial hair (none, stubble, full-beard, goatee, or mustache).
+    5. Glasses (none, round, square, or sunglasses).
+    6. Eye expression (default, happy/smiling, or wink).
+    7. Mouth shape (smile, grin, smirk, or neutral).
     
-    SVG Design Requirements:
-    1. viewBox="0 0 200 200".
-    2. Use a circular background with a pleasant modern color (e.g. gradient or soft pastel).
-    3. Draw a friendly, clean cartoon representation of the person: include face, ears, neck, eyes (with pupils/reflections), eyebrows, nose, mouth (smiling/friendly), hair, and clothing (torso).
-    4. Crucial: Make sure the main clothing/shirt element uses the exact fill value of "__SHIRT_COLOR__" (fill="__SHIRT_COLOR__") so we can dynamically replace it client-side. Do not hardcode a shirt color!
-    5. Capture their key features: match their real skin tone (e.g., #fbcfe8, #fdba74, #7c2d12, etc.), hairstyle/length, hair color, and facial characteristics (such as glasses or facial hair if present).
-    6. Use clean, geometric vector shapes, paths, and solid colors. Keep it looking like a professional, premium flat icon.
-    7. Ensure the SVG is valid, all tags are closed properly, and it contains no HTML tags or external assets.
+    Choose the values strictly from the options defined in the JSON schema.
   `;
 
   const result = await model.generateContent([prompt, imagePart]);
   const responseText = result.response.text();
-  return cleanSvgContent(responseText);
+  const data = JSON.parse(responseText);
+  return sanitizeFeatures(data);
 }
 
 /**
- * Strips markdown code blocks (e.g., ```xml ... ``` or ```svg ... ```) if returned, 
- * ensuring only the raw <svg>...</svg> content is returned.
+ * Sanitizes and validates the feature keys to ensure they match expected enum options.
  */
-function cleanSvgContent(text) {
-  const startIdx = text.indexOf('<svg');
-  const endIdx = text.lastIndexOf('</svg>');
-  if (startIdx !== -1 && endIdx !== -1) {
-    return text.substring(startIdx, endIdx + 6).trim();
-  }
-  return text.trim();
+function sanitizeFeatures(data) {
+  const defaults = {
+    skinTone: 'light-peach',
+    hairColor: 'black',
+    hairStyle: 'short-crop',
+    facialHair: 'none',
+    glasses: 'none',
+    eyeStyle: 'default',
+    mouthStyle: 'smile'
+  };
+
+  return {
+    skinTone: ['fair-ivory', 'light-peach', 'medium-olive', 'bronze-tan', 'deep-cocoa'].includes(data.skinTone) ? data.skinTone : defaults.skinTone,
+    hairColor: ['black', 'dark-brown', 'medium-brown', 'blonde', 'red-auburn', 'grey', 'white-platinum', 'dyed-teal', 'dyed-purple'].includes(data.hairColor) ? data.hairColor : defaults.hairColor,
+    hairStyle: ['short-crop', 'spiky', 'long-bob', 'curly-afro', 'bald', 'cap', 'side-part', 'braids-dreads'].includes(data.hairStyle) ? data.hairStyle : defaults.hairStyle,
+    facialHair: ['none', 'stubble', 'full-beard', 'goatee', 'mustache'].includes(data.facialHair) ? data.facialHair : defaults.facialHair,
+    glasses: ['none', 'round', 'square', 'sunglasses'].includes(data.glasses) ? data.glasses : defaults.glasses,
+    eyeStyle: ['default', 'happy', 'wink'].includes(data.eyeStyle) ? data.eyeStyle : defaults.eyeStyle,
+    mouthStyle: ['smile', 'grin', 'smirk', 'neutral'].includes(data.mouthStyle) ? data.mouthStyle : defaults.mouthStyle
+  };
 }
 
 /**
