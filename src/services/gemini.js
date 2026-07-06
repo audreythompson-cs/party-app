@@ -1,5 +1,3 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
 // Retrieve the API Key from import.meta.env (for local dev)
 const LOCAL_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
@@ -65,11 +63,13 @@ async function callGeminiProxy(file) {
 
 /**
  * Calls the Gemini API directly from the client (for local dev convenience) to get custom SVG code.
+ * Lazily imports the Google AI SDK to avoid bundling it on mobile clients in production.
  */
 async function callGeminiClientSide(file, apiKey) {
+  // Dynamically import the SDK only when needed locally
+  const { GoogleGenerativeAI } = await import('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(apiKey);
   
-  // No responseSchema needed here because we want raw text (SVG) rather than structured JSON
   const model = genAI.getGenerativeModel({
     model: 'gemini-2.5-flash'
   });
