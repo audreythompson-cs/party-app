@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Check if the requesting user is an admin
+    function isAdmin() {
+      return request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // System Config: Anyone authenticated can read passcodes, only admins can write
+    match /config/{document} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Users collection rules
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      // Allow creation/modification of own profile (name, team, photoUrl, etc.)
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Point history: Users can read all, can create logs involving themselves, admin can write anything
+    match /pointHistory/{logId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && (
+        request.resource.data.userId == request.auth.uid || 
+        request.resource.data.senderId == request.auth.uid
+      );
+      allow update, delete: if isAdmin();
+    }
+
+    // Goals collection rules
+    match /goals/{goalId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // User goals checklist
+    match /userGoals/{userGoalId} {
+      allow read: if request.auth != null;
+      // Users can submit/update their own checklist status
+      allow create, update: if request.auth != null && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+  }
+}
