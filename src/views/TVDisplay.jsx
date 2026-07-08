@@ -179,50 +179,55 @@ export default function TVDisplay() {
   };
 
   const handleResolveClue = async (isCorrect) => {
-    if (!gameState?.jeopardy) return;
-    const clue = gameState.jeopardy.activeClue;
-    const playerId = gameState.jeopardy.buzzedPlayerId;
-    const clueId = `${clue.categoryId}_${clue.points}`;
+    try {
+      if (!gameState?.jeopardy) return;
+      const clue = gameState.jeopardy.activeClue;
+      const playerId = gameState.jeopardy.buzzedPlayerId;
+      const clueId = `${clue.categoryId}_${clue.points}`;
 
-    if (isCorrect) {
-      playCorrect();
-      try {
-        await adjustPointsAdmin(playerId, clue.points, `Jeopardy Correct: ${clue.categoryName}`);
-      } catch (err) {
-        console.error(err);
-      }
-
-      const completed = [...(gameState.jeopardy.completedClues || []), clueId];
-      await updateGameState({
-        jeopardy: {
-          activeClue: null,
-          buzzedPlayerId: null,
-          buzzedPlayerName: null,
-          buzzerLocked: false,
-          completedClues: completed,
-          failedPlayers: []
-        }
-      });
-    } else {
-      playIncorrect();
-      if (deductPoints) {
+      if (isCorrect) {
+        playCorrect();
         try {
-          await adjustPointsAdmin(playerId, -clue.points, `Jeopardy Incorrect: ${clue.categoryName}`);
+          await adjustPointsAdmin(playerId, clue.points, `Jeopardy Correct: ${clue.categoryName}`);
         } catch (err) {
-          console.error(err);
+          console.error("Failed to adjust points:", err);
         }
+
+        const completed = [...(gameState.jeopardy.completedClues || []), clueId];
+        await updateGameState({
+          jeopardy: {
+            activeClue: null,
+            buzzedPlayerId: null,
+            buzzedPlayerName: null,
+            buzzerLocked: false,
+            completedClues: completed,
+            failedPlayers: []
+          }
+        });
+      } else {
+        playIncorrect();
+        if (deductPoints) {
+          try {
+            await adjustPointsAdmin(playerId, -clue.points, `Jeopardy Incorrect: ${clue.categoryName}`);
+          } catch (err) {
+            console.error("Failed to deduct points:", err);
+          }
+        }
+        
+        const failed = [...(gameState.jeopardy.failedPlayers || []), playerId];
+        await updateGameState({
+          jeopardy: {
+            ...gameState.jeopardy,
+            buzzedPlayerId: null,
+            buzzedPlayerName: null,
+            buzzerLocked: false,
+            failedPlayers: failed
+          }
+        });
       }
-      
-      const failed = [...(gameState.jeopardy.failedPlayers || []), playerId];
-      await updateGameState({
-        jeopardy: {
-          ...gameState.jeopardy,
-          buzzedPlayerId: null,
-          buzzedPlayerName: null,
-          buzzerLocked: false,
-          failedPlayers: failed
-        }
-      });
+    } catch (globalErr) {
+      console.error("Error in handleResolveClue:", globalErr);
+      alert("Error resolving clue: " + globalErr.message);
     }
   };
 
