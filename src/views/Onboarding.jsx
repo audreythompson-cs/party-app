@@ -71,19 +71,18 @@ export default function Onboarding() {
       setError(STRINGS.onboarding.errorNameRequired);
       return;
     }
-    if (!photoCaptured) {
-      setError(STRINGS.onboarding.errorPhotoRequired);
-      return;
-    }
 
     setError('');
     setLoading(true);
 
     try {
-      // Replace shirt color placeholder with selected team's color
-      const shirtColor = TEAMS[team]?.color || '#06b6d4';
-      const finalSvg = avatarSvgTemplate.replace(/__SHIRT_COLOR__/g, shirtColor);
-      const svgDataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(finalSvg)}`;
+      let svgDataUrl = '';
+      if (photoCaptured && avatarSvgTemplate) {
+        // Replace shirt color placeholder with selected team's color
+        const shirtColor = TEAMS[team]?.color || '#06b6d4';
+        const finalSvg = avatarSvgTemplate.replace(/__SHIRT_COLOR__/g, shirtColor);
+        svgDataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(finalSvg)}`;
+      }
       
       // Save profile in Firestore (storing SVG directly in user profile doc)
       await registerProfile(name, team, svgDataUrl);
@@ -201,7 +200,7 @@ export default function Onboarding() {
             <button
               type="submit"
               className="btn-primary join-btn animate-glow"
-              disabled={loading || photoLoading || !name.trim() || !photoCaptured}
+              disabled={loading || photoLoading || !name.trim()}
             >
               {loading ? 'Entering Party...' : STRINGS.onboarding.buttonSubmit}
             </button>

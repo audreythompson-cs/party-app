@@ -11,7 +11,7 @@ export const STRINGS = {
   },
   onboarding: {
     title: 'Let\'s get set up!',
-    subtitle: 'Take a selfie to generate your cartoon avatar! (Only the avatar will be saved)',
+    subtitle: 'Take a selfie to generate your cartoon avatar! (Optional - only the avatar will be saved)',
     nameLabel: 'Name',
     namePlaceholder: 'Name',
     teamLabel: 'Select Your Table / Team',
