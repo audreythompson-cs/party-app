@@ -137,7 +137,8 @@ export default function TVDisplay() {
         buzzedPlayerId: null,
         buzzedPlayerName: null,
         buzzerLocked: false,
-        completedClues: []
+        completedClues: [],
+        failedPlayers: []
       }
     });
   };
@@ -167,7 +168,8 @@ export default function TVDisplay() {
       buzzedPlayerId: null,
       buzzedPlayerName: null,
       buzzerLocked: false,
-      completedClues: gameState?.jeopardy?.completedClues || []
+      completedClues: gameState?.jeopardy?.completedClues || [],
+      failedPlayers: []
     };
     
     await updateGameState({
@@ -197,7 +199,8 @@ export default function TVDisplay() {
           buzzedPlayerId: null,
           buzzedPlayerName: null,
           buzzerLocked: false,
-          completedClues: completed
+          completedClues: completed,
+          failedPlayers: []
         }
       });
     } else {
@@ -210,10 +213,12 @@ export default function TVDisplay() {
         }
       }
       
+      const failed = [...(gameState.jeopardy.failedPlayers || []), playerId];
       await updateGameState({
         'jeopardy.buzzedPlayerId': null,
         'jeopardy.buzzedPlayerName': null,
-        'jeopardy.buzzerLocked': false
+        'jeopardy.buzzerLocked': false,
+        'jeopardy.failedPlayers': failed
       });
     }
   };
@@ -230,7 +235,8 @@ export default function TVDisplay() {
         buzzedPlayerId: null,
         buzzedPlayerName: null,
         buzzerLocked: false,
-        completedClues: completed
+        completedClues: completed,
+        failedPlayers: []
       }
     });
   };
@@ -260,11 +266,6 @@ export default function TVDisplay() {
 
         <div className="glass-panel clue-card-main">
           <p className="clue-text">“{clue.question}”</p>
-          {clue.answer && (
-            <p className="answer-hint-text">
-              Answer: {clue.answer}
-            </p>
-          )}
         </div>
 
         {/* Buzzer Status Panel */}

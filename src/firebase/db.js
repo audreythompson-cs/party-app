@@ -466,6 +466,12 @@ export async function registerBuzz(playerId, playerName) {
       }
       const data = snap.data();
       const currentJeopardy = data.jeopardy || {};
+      const failedPlayers = currentJeopardy.failedPlayers || [];
+      
+      // Check if player is locked out due to incorrect answer
+      if (failedPlayers.includes(playerId)) {
+        return false;
+      }
       
       // Check if someone already buzzed or if buzzer is locked
       if (!currentJeopardy.buzzedPlayerId && !currentJeopardy.buzzerLocked) {

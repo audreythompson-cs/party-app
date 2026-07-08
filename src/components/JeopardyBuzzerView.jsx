@@ -9,9 +9,10 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
   const buzzedPlayerId = jeopardyState.buzzedPlayerId;
   const buzzedPlayerName = jeopardyState.buzzedPlayerName;
   const buzzerLocked = jeopardyState.buzzerLocked;
+  const failedPlayers = jeopardyState.failedPlayers || [];
 
   const handleBuzz = async () => {
-    if (isRegistering || buzzerLocked || buzzedPlayerId) return;
+    if (isRegistering || buzzerLocked || buzzedPlayerId || failedPlayers.includes(profile.uid)) return;
 
     setIsRegistering(true);
     try {
@@ -187,6 +188,7 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
   // State B: Clue is active - buzzer screen
   const isBuzzedByMe = buzzedPlayerId === profile.uid;
   const isBuzzedBySomeoneElse = buzzedPlayerId && !isBuzzedByMe;
+  const hasFailed = failedPlayers.includes(profile.uid);
 
   let buzzerClass = "buzzer-btn active-state";
   let buzzerText = "BUZZ!";
@@ -196,6 +198,10 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
     buzzerClass = "buzzer-btn success-state animate-float";
     buzzerText = "BUZZED!";
     statusText = "YOU GOT IT! ANSWER OUT LOUD!";
+  } else if (hasFailed) {
+    buzzerClass = "buzzer-btn locked-state";
+    buzzerText = "LOCKED";
+    statusText = "Incorrect answer — you are locked out.";
   } else if (isBuzzedBySomeoneElse) {
     buzzerClass = "buzzer-btn locked-state";
     buzzerText = "LOCKED";
@@ -219,16 +225,16 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
         <div className="buzzer-wrapper">
           <button 
             onClick={handleBuzz}
-            disabled={isRegistering || buzzerLocked || !!buzzedPlayerId}
+            disabled={isRegistering || buzzerLocked || !!buzzedPlayerId || hasFailed}
             className={buzzerClass}
             aria-label="Buzz in"
           >
             <span className="btn-text-content">{buzzerText}</span>
             {/* Ambient glowing outer ring when active */}
-            {!buzzedPlayerId && !buzzerLocked && <div className="btn-glow-ring"></div>}
+            {!buzzedPlayerId && !buzzerLocked && !hasFailed && <div className="btn-glow-ring"></div>}
           </button>
         </div>
-        <p className={`buzzer-status-label ${isBuzzedByMe ? 'success-text' : isBuzzedBySomeoneElse ? 'locked-text' : 'active-text'}`}>
+        <p className={`buzzer-status-label ${isBuzzedByMe ? 'success-text' : (isBuzzedBySomeoneElse || hasFailed) ? 'locked-text' : 'active-text'}`}>
           {statusText}
         </p>
       </div>
