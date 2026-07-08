@@ -136,6 +136,7 @@ export default function TVDisplay() {
         activeClue: null,
         buzzedPlayerId: null,
         buzzedPlayerName: null,
+        buzzedTimestamp: null,
         buzzerLocked: false,
         completedClues: [],
         failedPlayers: []
@@ -167,6 +168,7 @@ export default function TVDisplay() {
       },
       buzzedPlayerId: null,
       buzzedPlayerName: null,
+      buzzedTimestamp: null,
       buzzerLocked: false,
       completedClues: gameState?.jeopardy?.completedClues || [],
       failedPlayers: []
@@ -199,6 +201,7 @@ export default function TVDisplay() {
             activeClue: null,
             buzzedPlayerId: null,
             buzzedPlayerName: null,
+            buzzedTimestamp: null,
             buzzerLocked: false,
             completedClues: completed,
             failedPlayers: []
@@ -220,6 +223,7 @@ export default function TVDisplay() {
             ...gameState.jeopardy,
             buzzedPlayerId: null,
             buzzedPlayerName: null,
+            buzzedTimestamp: null,
             buzzerLocked: false,
             failedPlayers: failed
           }
@@ -242,6 +246,7 @@ export default function TVDisplay() {
         activeClue: null,
         buzzedPlayerId: null,
         buzzedPlayerName: null,
+        buzzedTimestamp: null,
         buzzerLocked: false,
         completedClues: completed,
         failedPlayers: []

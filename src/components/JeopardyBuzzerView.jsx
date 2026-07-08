@@ -21,7 +21,7 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
         navigator.vibrate(100);
       }
       
-      const success = await registerBuzz(profile.uid, profile.name);
+      const success = await registerBuzz(profile.uid, profile.name, Date.now());
       if (!success) {
         // Vibrate twice quickly to indicate too slow
         if (navigator.vibrate) {
@@ -37,154 +37,6 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
 
   const userTeam = profile?.team || 'teal';
 
-  // State A: No Clue Active - waiting for host to select
-  if (!activeClue) {
-    return (
-      <div className="buzzer-container waiting-mode animate-fade-in">
-        <div className="glass-panel waiting-card">
-          <div className="pulse-loader">
-            <div className="pulse-ring"></div>
-            <span className="game-icon">🎮</span>
-          </div>
-          <h2>Jeopardy Game Active!</h2>
-          <p>Get ready! The host is selecting the next clue...</p>
-        </div>
-
-        {/* Current User Stats */}
-        <div className="glass-panel user-quick-stats">
-          <div className="quick-stat">
-            <span className="stat-label">YOUR POINTS</span>
-            <span className="stat-value text-glow">{profile.points ?? 0}</span>
-          </div>
-          <div className="quick-stat-divider"></div>
-          <div className="quick-stat">
-            <span className="stat-label">CURRENT TEAM</span>
-            <span className="stat-value team-name" style={{ color: `var(--${userTeam}-primary)` }}>
-              {userTeam.toUpperCase()}
-            </span>
-          </div>
-        </div>
-
-        <style>{`
-          .buzzer-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-            padding: 10px 0;
-            text-align: center;
-          }
-
-          .waiting-card {
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-          }
-
-          .waiting-card h2 {
-            font-size: 22px;
-            background: linear-gradient(135deg, var(--accent) 0%, #38bdf8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-          }
-
-          .waiting-card p {
-            font-size: 14px;
-            color: var(--text-muted);
-          }
-
-          /* Radar Pulsing Loader */
-          .pulse-loader {
-            position: relative;
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-glass);
-            margin-bottom: 10px;
-          }
-
-          .pulse-ring {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border: 2px solid var(--accent);
-            border-radius: 50%;
-            animation: radar 2s infinite linear;
-            opacity: 0;
-            box-shadow: 0 0 15px var(--accent-glow);
-          }
-
-          .game-icon {
-            font-size: 32px;
-          }
-
-          @keyframes radar {
-            0% {
-              transform: scale(0.9);
-              opacity: 0.8;
-            }
-            100% {
-              transform: scale(1.6);
-              opacity: 0;
-            }
-          }
-
-          /* Quick Stats card */
-          .user-quick-stats {
-            display: flex;
-            justify-content: space-around;
-            padding: 20px;
-            align-items: center;
-          }
-
-          .quick-stat {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-          }
-
-          .stat-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-          }
-
-          .stat-value {
-            font-family: var(--font-heading);
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--text-bright);
-            line-height: 1;
-          }
-
-          .text-glow {
-            text-shadow: 0 0 10px var(--accent-glow);
-          }
-
-          .team-name {
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: 0.02em;
-          }
-
-          .quick-stat-divider {
-            width: 1px;
-            height: 40px;
-            background: var(--border-glass);
-          }
-        `}</style>
-      </div>
-    );
-  }
-
   // State B: Clue is active - buzzer screen
   const isBuzzedByMe = buzzedPlayerId === profile.uid;
   const isBuzzedBySomeoneElse = buzzedPlayerId && !isBuzzedByMe;
@@ -192,7 +44,7 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
 
   let buzzerClass = "buzzer-btn active-state";
   let buzzerText = "BUZZ!";
-  let statusText = "TAP TO BUZZ IN!";
+  let statusText = activeClue ? "TAP TO BUZZ IN!" : "Ready for next question...";
   
   if (isBuzzedByMe) {
     buzzerClass = "buzzer-btn success-state animate-float";
@@ -216,8 +68,8 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
     <div className="buzzer-container active-mode animate-fade-in">
       {/* Category Clue Indicator */}
       <div className="glass-panel clue-indicator-card">
-        <span className="clue-category">{activeClue.categoryName}</span>
-        <span className="clue-points-pill">{activeClue.points} PTS</span>
+        <span className="clue-category">{activeClue ? activeClue.categoryName : "JEOPARDY BOARD"}</span>
+        <span className="clue-points-pill">{activeClue ? `${activeClue.points} PTS` : "--"}</span>
       </div>
 
       {/* Main Buzzer Button Container */}
@@ -237,6 +89,21 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
         <p className={`buzzer-status-label ${isBuzzedByMe ? 'success-text' : (isBuzzedBySomeoneElse || hasFailed) ? 'locked-text' : 'active-text'}`}>
           {statusText}
         </p>
+      </div>
+
+      {/* Current User Stats */}
+      <div className="glass-panel user-quick-stats">
+        <div className="quick-stat">
+          <span className="stat-label">YOUR POINTS</span>
+          <span className="stat-value text-glow">{profile.points ?? 0}</span>
+        </div>
+        <div className="quick-stat-divider"></div>
+        <div className="quick-stat">
+          <span className="stat-label">CURRENT TEAM</span>
+          <span className="stat-value team-name" style={{ color: `var(--${userTeam}-primary)` }}>
+            {userTeam.toUpperCase()}
+          </span>
+        </div>
       </div>
 
       <style>{`
@@ -393,6 +260,52 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
 
         .locked-text {
           color: #f87171;
+        }
+
+        /* Quick Stats card */
+        .user-quick-stats {
+          display: flex;
+          justify-content: space-around;
+          padding: 20px;
+          align-items: center;
+        }
+
+        .quick-stat {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          flex: 1;
+        }
+
+        .stat-label {
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          color: var(--text-muted);
+        }
+
+        .stat-value {
+          font-family: var(--font-heading);
+          font-size: 28px;
+          font-weight: 800;
+          color: var(--text-bright);
+          line-height: 1;
+        }
+
+        .text-glow {
+          text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .team-name {
+          font-size: 20px;
+          font-weight: 800;
+          letter-spacing: 0.02em;
+        }
+
+        .quick-stat-divider {
+          width: 1px;
+          height: 40px;
+          background: var(--border-glass);
         }
 
         /* Keyframes */

@@ -456,7 +456,7 @@ export async function updateGameState(updates) {
  * Transaction-safe registration for a player buzzing in.
  * Only allows a buzz if no player has buzzed in yet and buzzer is open.
  */
-export async function registerBuzz(playerId, playerName) {
+export async function registerBuzz(playerId, playerName, clientTimestamp) {
   const ref = doc(db, 'config', 'gameState');
   try {
     return await runTransaction(db, async (transaction) => {
@@ -467,20 +467,29 @@ export async function registerBuzz(playerId, playerName) {
       const data = snap.data();
       const currentJeopardy = data.jeopardy || {};
       const failedPlayers = currentJeopardy.failedPlayers || [];
+
+      // Verify there is an active clue on the server
+      if (!currentJeopardy.activeClue) {
+        return false; // Cannot buzz if no clue is active
+      }
       
       // Check if player is locked out due to incorrect answer
       if (failedPlayers.includes(playerId)) {
         return false;
       }
       
-      // Check if someone already buzzed or if buzzer is locked
-      if (!currentJeopardy.buzzedPlayerId && !currentJeopardy.buzzerLocked) {
+      const currentBuzzedId = currentJeopardy.buzzedPlayerId;
+      const currentTimestamp = currentJeopardy.buzzedTimestamp || Infinity;
+      
+      // Check if nobody has buzzed, OR this player buzzed EARLIER in real-life (client timestamp)
+      if (!currentBuzzedId || clientTimestamp < currentTimestamp) {
         transaction.update(ref, {
           'jeopardy.buzzedPlayerId': playerId,
           'jeopardy.buzzedPlayerName': playerName,
+          'jeopardy.buzzedTimestamp': clientTimestamp,
           'jeopardy.buzzerLocked': true
         });
-        return true; // Success
+        return true; // We won or stole the buzz
       }
       return false; // Too slow
     });
