@@ -215,10 +215,13 @@ export default function TVDisplay() {
       
       const failed = [...(gameState.jeopardy.failedPlayers || []), playerId];
       await updateGameState({
-        'jeopardy.buzzedPlayerId': null,
-        'jeopardy.buzzedPlayerName': null,
-        'jeopardy.buzzerLocked': false,
-        'jeopardy.failedPlayers': failed
+        jeopardy: {
+          ...gameState.jeopardy,
+          buzzedPlayerId: null,
+          buzzedPlayerName: null,
+          buzzerLocked: false,
+          failedPlayers: failed
+        }
       });
     }
   };
