@@ -1,14 +1,71 @@
 import { useState, useEffect } from 'react';
-import { onLeaderboardChange } from '../firebase/db';
+import { 
+  onLeaderboardChange,
+  listenToGameState,
+  updateGameState,
+  onJeopardyCategoriesChange,
+  adjustPointsAdmin
+} from '../firebase/db';
 import { STRINGS } from '../constants/strings';
 import { TEAMS } from '../constants/teams';
 import { auth } from '../firebase/config';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
+// Web Audio API Synthesizer helpers
+function playTone(freq, type, duration) {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.type = type || 'sine';
+    oscillator.frequency.value = freq;
+
+    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + duration);
+  } catch (err) {
+    console.error('Web Audio API error:', err);
+  }
+}
+
+function playChime() {
+  playTone(880, 'sine', 0.2);
+  setTimeout(() => playTone(1100, 'sine', 0.3), 150);
+}
+
+function playBuzzIn() {
+  playTone(180, 'triangle', 0.15);
+  setTimeout(() => playTone(180, 'triangle', 0.15), 100);
+}
+
+function playCorrect() {
+  playTone(523.25, 'sine', 0.1); 
+  setTimeout(() => playTone(659.25, 'sine', 0.1), 80); 
+  setTimeout(() => playTone(783.99, 'sine', 0.1), 160); 
+  setTimeout(() => playTone(1046.50, 'sine', 0.3), 240); 
+}
+
+function playIncorrect() {
+  playTone(220, 'sawtooth', 0.3);
+}
+
 export default function TVDisplay() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isAuthed, setIsAuthed] = useState(false);
+
+  // Jeopardy State variables
+  const [gameState, setGameState] = useState(null);
+  const [jeopardyCategories, setJeopardyCategories] = useState([]);
+  const [deductPoints, setDeductPoints] = useState(false);
+  const [lastBuzzedId, setLastBuzzedId] = useState(null);
+  const [lastClueId, setLastClueId] = useState(null);
 
   // Monitor Auth state & log in anonymously behind the scenes
   useEffect(() => {
@@ -25,21 +82,158 @@ export default function TVDisplay() {
     return () => unsubscribe();
   }, []);
 
-  // Subscribe to real-time Leaderboard updates ONLY when authenticated
+  // Subscribe to real-time Leaderboard, game state and categories ONLY when authenticated
   useEffect(() => {
     if (isAuthed) {
-      const unsubscribe = onLeaderboardChange((data) => {
+      const unsubscribeLeaderboard = onLeaderboardChange((data) => {
         setLeaderboard(data);
       });
-      return () => unsubscribe();
+      const unsubscribeGame = listenToGameState((data) => {
+        setGameState(data);
+      });
+      const unsubscribeCategories = onJeopardyCategoriesChange((data) => {
+        setJeopardyCategories(data);
+      });
+
+      return () => {
+        unsubscribeLeaderboard();
+        unsubscribeGame();
+        unsubscribeCategories();
+      };
     }
   }, [isAuthed]);
+
+  // Sound effects trigger
+  useEffect(() => {
+    if (!gameState?.jeopardy) return;
+    
+    const buzzedId = gameState.jeopardy.buzzedPlayerId;
+    const clue = gameState.jeopardy.activeClue;
+    const currentClueId = clue ? `${clue.categoryId}_${clue.points}` : null;
+
+    if (buzzedId && buzzedId !== lastBuzzedId) {
+      playBuzzIn();
+    }
+    
+    if (currentClueId && currentClueId !== lastClueId) {
+      playChime();
+    }
+
+    setLastBuzzedId(buzzedId);
+    setLastClueId(currentClueId);
+  }, [gameState, lastBuzzedId, lastClueId]);
 
   // Update clock every second
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const handleStartJeopardy = async () => {
+    await updateGameState({
+      activeGame: 'jeopardy',
+      jeopardy: {
+        activeClue: null,
+        buzzedPlayerId: null,
+        buzzedPlayerName: null,
+        buzzerLocked: false,
+        completedClues: []
+      }
+    });
+  };
+
+  const handleEndJeopardy = async () => {
+    if (window.confirm("Are you sure you want to end Jeopardy and return to the leaderboard?")) {
+      await updateGameState({
+        activeGame: null,
+        jeopardy: null
+      });
+    }
+  };
+
+  const handleSelectClue = async (cat, clueIndex, clue) => {
+    const clueId = `${cat.id}_${clue.points}`;
+    if (gameState?.jeopardy?.completedClues?.includes(clueId)) return;
+
+    const updatedJeopardy = {
+      activeClue: {
+        categoryId: cat.id,
+        categoryName: cat.name,
+        clueIndex: clueIndex,
+        points: clue.points,
+        question: clue.question,
+        answer: clue.answer
+      },
+      buzzedPlayerId: null,
+      buzzedPlayerName: null,
+      buzzerLocked: false,
+      completedClues: gameState?.jeopardy?.completedClues || []
+    };
+    
+    await updateGameState({
+      activeGame: 'jeopardy',
+      jeopardy: updatedJeopardy
+    });
+  };
+
+  const handleResolveClue = async (isCorrect) => {
+    if (!gameState?.jeopardy) return;
+    const clue = gameState.jeopardy.activeClue;
+    const playerId = gameState.jeopardy.buzzedPlayerId;
+    const clueId = `${clue.categoryId}_${clue.points}`;
+
+    if (isCorrect) {
+      playCorrect();
+      try {
+        await adjustPointsAdmin(playerId, clue.points, `Jeopardy Correct: ${clue.categoryName}`);
+      } catch (err) {
+        console.error(err);
+      }
+
+      const completed = [...(gameState.jeopardy.completedClues || []), clueId];
+      await updateGameState({
+        jeopardy: {
+          activeClue: null,
+          buzzedPlayerId: null,
+          buzzedPlayerName: null,
+          buzzerLocked: false,
+          completedClues: completed
+        }
+      });
+    } else {
+      playIncorrect();
+      if (deductPoints) {
+        try {
+          await adjustPointsAdmin(playerId, -clue.points, `Jeopardy Incorrect: ${clue.categoryName}`);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      
+      await updateGameState({
+        'jeopardy.buzzedPlayerId': null,
+        'jeopardy.buzzedPlayerName': null,
+        'jeopardy.buzzerLocked': false
+      });
+    }
+  };
+
+  const handleSkipClue = async () => {
+    if (!gameState?.jeopardy) return;
+    const clue = gameState.jeopardy.activeClue;
+    const clueId = `${clue.categoryId}_${clue.points}`;
+    
+    const completed = [...(gameState.jeopardy.completedClues || []), clueId];
+    await updateGameState({
+      jeopardy: {
+        activeClue: null,
+        buzzedPlayerId: null,
+        buzzedPlayerName: null,
+        buzzerLocked: false,
+        completedClues: completed
+      }
+    });
+  };
 
   // Generate dynamic QR code using public API (points to current origin)
   const joinUrl = window.location.origin;
@@ -52,6 +246,152 @@ export default function TVDisplay() {
     return `#${rank}`;
   };
 
+  const renderActiveClue = () => {
+    const clue = gameState.jeopardy.activeClue;
+    const isBuzzed = !!gameState.jeopardy.buzzedPlayerId;
+    const buzzedName = gameState.jeopardy.buzzedPlayerName;
+
+    return (
+      <div className="active-clue-screen animate-scale-up">
+        <div className="clue-metadata">
+          <span className="category-title">{clue.categoryName}</span>
+          <span className="points-label">{clue.points} Points</span>
+        </div>
+
+        <div className="glass-panel clue-card-main">
+          <p className="clue-text">“{clue.question}”</p>
+          {clue.answer && (
+            <p className="answer-hint-text">
+              Answer: {clue.answer}
+            </p>
+          )}
+        </div>
+
+        {/* Buzzer Status Panel */}
+        <div className="glass-panel buzzer-status-panel">
+          {!isBuzzed ? (
+            <div className="buzzers-active-state animate-pulse">
+              <span className="glowing-dot"></span>
+              <h2>BUZZERS OPEN</h2>
+              <p>Waiting for players to buzz in...</p>
+            </div>
+          ) : (
+            <div className="buzzed-in-player-state">
+              <div className="buzzed-halo">
+                <span className="buzzed-icon">⚡</span>
+              </div>
+              <h2>{buzzedName} BUZZED IN!</h2>
+              <div className="host-actions">
+                <button 
+                  onClick={() => handleResolveClue(true)} 
+                  className="btn-primary success-btn"
+                >
+                  👍 Correct (+{clue.points})
+                </button>
+                <button 
+                  onClick={() => handleResolveClue(false)} 
+                  className="btn-secondary error-btn"
+                >
+                  👎 Incorrect ({deductPoints ? `-${clue.points}` : '0'})
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="active-clue-footer">
+          <button onClick={handleSkipClue} className="btn-secondary skip-clue-btn">
+            ⏰ Skip / Time's Up
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderJeopardyBoard = () => {
+    if (jeopardyCategories.length === 0) {
+      return (
+        <div className="tv-empty-board glass-panel animate-scale-up">
+          <h2>Welcome to Jeopardy!</h2>
+          <p>No Jeopardy categories are configured yet.</p>
+          <p className="instruction-text">
+            Go to the Admin Dashboard (<strong>/admin</strong>), open the <strong>Jeopardy Manager</strong> tab, and add categories with questions to populate this board!
+          </p>
+          <button onClick={handleEndJeopardy} className="btn-secondary" style={{ marginTop: '20px' }}>
+            Back to Leaderboard
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="jeopardy-container animate-fade-in">
+        {/* Controls row */}
+        <div className="jeopardy-controls-row">
+          <label className="deduct-toggle glass-panel">
+            <input 
+              type="checkbox" 
+              checked={deductPoints} 
+              onChange={(e) => setDeductPoints(e.target.checked)} 
+            />
+            <span>Deduct points on wrong answers</span>
+          </label>
+          <button onClick={handleEndJeopardy} className="btn-secondary end-game-btn">
+            🏁 End Game
+          </button>
+        </div>
+
+        {/* The Grid */}
+        <div className="jeopardy-board glass-panel">
+          <div className="jeopardy-grid" style={{ gridTemplateColumns: `repeat(${jeopardyCategories.length}, 1fr)` }}>
+            {jeopardyCategories.map((cat) => (
+              <div key={cat.id} className="jeopardy-col">
+                <div className="jeopardy-cat-header">{cat.name}</div>
+                {[100, 200, 300, 400, 500].map((pts, idx) => {
+                  const clueId = `${cat.id}_${pts}`;
+                  const isCompleted = gameState?.jeopardy?.completedClues?.includes(clueId);
+                  const clue = cat.clues[idx] || { points: pts, question: '', answer: '' };
+                  return (
+                    <button
+                      key={pts}
+                      disabled={isCompleted || !clue.question}
+                      onClick={() => handleSelectClue(cat, idx, clue)}
+                      className={`jeopardy-clue-card ${isCompleted ? 'completed' : ''} ${!clue.question ? 'empty-clue' : ''}`}
+                    >
+                      {!clue.question ? '—' : isCompleted ? '' : `${pts}`}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Scoreboard at Bottom */}
+        <div className="jeopardy-scoreboard glass-panel">
+          <h3>SCORES</h3>
+          <div className="scoreboard-players">
+            {leaderboard.length === 0 ? (
+              <p className="no-scores-msg">No players registered yet.</p>
+            ) : (
+              leaderboard.slice(0, 10).map((p) => {
+                const pTeam = TEAMS[p.team] || TEAMS.teal;
+                return (
+                  <div key={p.uid} className="scoreboard-player-pill" style={{ borderLeftColor: pTeam.color }}>
+                    <span className="p-name">{p.name}</span>
+                    <span className="p-pts">{p.points ?? 0} pts</span>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const isJeopardyActive = gameState?.activeGame === 'jeopardy';
+
   return (
     <div className="tv-page">
       {/* Cosmic background glows */}
@@ -62,7 +402,7 @@ export default function TVDisplay() {
       <header className="tv-header">
         <div className="tv-header-left">
           <span className="logo-icon">🎓</span>
-          <h1>{STRINGS.tv.title}</h1>
+          <h1>{isJeopardyActive ? "JEOPARDY MODE" : STRINGS.tv.title}</h1>
         </div>
         <div className="tv-header-right">
           <span className="tv-clock">
@@ -71,100 +411,107 @@ export default function TVDisplay() {
         </div>
       </header>
 
-      {/* Main Grid: Info/QR on Left, Leaderboard on Right */}
-      <div className="tv-content">
-        
-        {/* Left Side: Entry Card & QR code */}
-        <section className="tv-join-card glass-panel animate-scale-up">
-          <h2>{STRINGS.tv.joinText}</h2>
-          <p className="tv-join-instructions">{STRINGS.tv.scanQr}</p>
-          
-          <div className="qr-container">
-            <img src={qrCodeUrl} alt="Join QR Code" className="qr-image" />
-            <div className="qr-border-corner top-left"></div>
-            <div className="qr-border-corner top-right"></div>
-            <div className="qr-border-corner bottom-left"></div>
-            <div className="qr-border-corner bottom-right"></div>
-          </div>
-          
-          <div className="join-url-pill">
-            <span className="join-url-label">Visit:</span>
-            <span className="join-url-text">{joinUrl.replace(/(^\w+:|^)\/\//, '')}</span>
-          </div>
-        </section>
-
-        {/* Right Side: Ranks Board */}
-        <section className="tv-leaderboard glass-panel">
-          <div className="board-header">
-            <span className="col-rank">{STRINGS.tv.rankHeader}</span>
-            <span className="col-avatar"></span>
-            <span className="col-player">{STRINGS.tv.playerHeader}</span>
-            <span className="col-score">{STRINGS.tv.scoreHeader}</span>
-          </div>
-
-          {leaderboard.length === 0 ? (
-            <div className="tv-empty-state">
-              <div className="tv-empty-spinner"></div>
-              <p>{STRINGS.leaderboard.noPlayers}</p>
+      {isJeopardyActive ? (
+        // Jeopardy Screens
+        gameState.jeopardy?.activeClue ? renderActiveClue() : renderJeopardyBoard()
+      ) : (
+        // Standard Leaderboard Screens
+        <div className="tv-content">
+          {/* Left Side: Entry Card & QR code */}
+          <section className="tv-join-card glass-panel animate-scale-up">
+            <h2>{STRINGS.tv.joinText}</h2>
+            <p className="tv-join-instructions">{STRINGS.tv.scanQr}</p>
+            
+            <div className="qr-container">
+              <img src={qrCodeUrl} alt="Join QR Code" className="qr-image" />
+              <div className="qr-border-corner top-left"></div>
+              <div className="qr-border-corner top-right"></div>
+              <div className="qr-border-corner bottom-left"></div>
+              <div className="qr-border-corner bottom-right"></div>
             </div>
-          ) : (
-            <div className="tv-players-container">
-              {leaderboard.map((player, index) => {
-                const rank = index + 1;
-                const playerTeam = TEAMS[player.team] || TEAMS.teal;
-                const isTopThree = rank <= 3;
+            
+            <div className="join-url-pill" style={{ marginBottom: '20px' }}>
+              <span className="join-url-label">Visit:</span>
+              <span className="join-url-text">{joinUrl.replace(/(^\w+:|^)\/\//, '')}</span>
+            </div>
 
-                return (
-                  <div 
-                    key={player.uid} 
-                    className={`tv-player-row animate-slide-in delay-${Math.min(rank, 10)} ${isTopThree ? `top-${rank}` : ''}`}
-                    style={{
-                      '--player-accent': playerTeam.color,
-                      '--player-glow': playerTeam.glow,
-                      '--player-bg': playerTeam.accentBg
-                    }}
-                  >
-                    <div className="col-rank">
-                      <span className={`tv-rank-text ${isTopThree ? 'rank-highlight' : ''}`}>
-                        {getRankEmoji(rank)}
-                      </span>
-                    </div>
+            <button onClick={handleStartJeopardy} className="btn-primary start-jeopardy-tv-btn">
+              🎮 Start Jeopardy
+            </button>
+          </section>
 
-                    <div className="col-avatar">
-                      <div className="tv-avatar-frame">
-                        {player.photoUrl ? (
-                          <img 
-                            src={player.photoUrl} 
-                            alt={player.name} 
-                            className="tv-avatar-img cartoonified-tv" 
-                          />
-                        ) : (
-                          <div className="tv-avatar-placeholder">👤</div>
-                        )}
-                      </div>
-                    </div>
+          {/* Right Side: Ranks Board */}
+          <section className="tv-leaderboard glass-panel">
+            <div className="board-header">
+              <span className="col-rank">{STRINGS.tv.rankHeader}</span>
+              <span className="col-avatar"></span>
+              <span className="col-player">{STRINGS.tv.playerHeader}</span>
+              <span className="col-score">{STRINGS.tv.scoreHeader}</span>
+            </div>
 
-                    <div className="col-player">
-                      <div className="tv-player-meta">
-                        <span className="tv-player-name">{player.name}</span>
-                        <span className="tv-team-badge" style={{ borderColor: playerTeam.color, color: playerTeam.color }}>
-                          {playerTeam.name}
+            {leaderboard.length === 0 ? (
+              <div className="tv-empty-state">
+                <div className="tv-empty-spinner"></div>
+                <p>{STRINGS.leaderboard.noPlayers}</p>
+              </div>
+            ) : (
+              <div className="tv-players-container">
+                {leaderboard.map((player, index) => {
+                  const rank = index + 1;
+                  const playerTeam = TEAMS[player.team] || TEAMS.teal;
+                  const isTopThree = rank <= 3;
+
+                  return (
+                    <div 
+                      key={player.uid} 
+                      className={`tv-player-row animate-slide-in delay-${Math.min(rank, 10)} ${isTopThree ? `top-${rank}` : ''}`}
+                      style={{
+                        '--player-accent': playerTeam.color,
+                        '--player-glow': playerTeam.glow,
+                        '--player-bg': playerTeam.accentBg
+                      }}
+                    >
+                      <div className="col-rank">
+                        <span className={`tv-rank-text ${isTopThree ? 'rank-highlight' : ''}`}>
+                          {getRankEmoji(rank)}
                         </span>
                       </div>
-                    </div>
 
-                    <div className="col-score">
-                      <span className="tv-score-val">{player.points ?? 0}</span>
-                      <span className="tv-score-unit">pts</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
+                      <div className="col-avatar">
+                        <div className="tv-avatar-frame">
+                          {player.photoUrl ? (
+                            <img 
+                              src={player.photoUrl} 
+                              alt={player.name} 
+                              className="tv-avatar-img cartoonified-tv" 
+                            />
+                          ) : (
+                            <div className="tv-avatar-placeholder">👤</div>
+                          )}
+                        </div>
+                      </div>
 
-      </div>
+                      <div className="col-player">
+                        <div className="tv-player-meta">
+                          <span className="tv-player-name">{player.name}</span>
+                          <span className="tv-team-badge" style={{ borderColor: playerTeam.color, color: playerTeam.color }}>
+                            {playerTeam.name}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="col-score">
+                        <span className="tv-score-val">{player.points ?? 0}</span>
+                        <span className="tv-score-unit">pts</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </div>
+      )}
 
       <style>{`
         .tv-page {
@@ -502,6 +849,401 @@ export default function TVDisplay() {
           border-top-color: var(--accent, #a855f7);
           border-radius: 50%;
           animation: spin 1s linear infinite;
+        }
+
+        .start-jeopardy-tv-btn {
+          margin-top: 15px;
+          font-size: 14px;
+          padding: 12px 20px;
+        }
+
+        /* Jeopardy Board styles */
+        .jeopardy-container {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 25px;
+          min-height: 0;
+          z-index: 2;
+        }
+
+        .jeopardy-controls-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .deduct-toggle {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 18px;
+          border-radius: 12px;
+          font-size: 14px;
+          color: var(--text-main);
+          cursor: pointer;
+        }
+
+        .deduct-toggle input {
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+        }
+
+        .jeopardy-board {
+          flex: 1;
+          padding: 20px;
+          border-radius: 20px;
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+          overflow-y: auto;
+        }
+
+        .jeopardy-grid {
+          display: grid;
+          gap: 15px;
+          height: 100%;
+        }
+
+        .jeopardy-col {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .jeopardy-cat-header {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          padding: 15px 10px;
+          border-radius: 12px;
+          font-family: var(--font-heading);
+          font-size: 16px;
+          font-weight: 800;
+          color: var(--text-bright);
+          text-transform: uppercase;
+          text-align: center;
+          min-height: 60px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          letter-spacing: 0.05em;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .jeopardy-clue-card {
+          flex: 1;
+          background: linear-gradient(135deg, rgba(13, 10, 27, 0.8) 0%, rgba(20, 16, 35, 0.9) 100%);
+          border: 2px solid rgba(255, 255, 255, 0.05);
+          color: #fbbf24;
+          font-family: var(--font-heading);
+          font-size: 28px;
+          font-weight: 800;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+          min-height: 70px;
+        }
+
+        .jeopardy-clue-card:hover:not(:disabled) {
+          transform: scale(1.04);
+          border-color: #fbbf24;
+          box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+          filter: brightness(1.15);
+        }
+
+        .jeopardy-clue-card.completed {
+          opacity: 0.15;
+          cursor: not-allowed;
+          border-color: transparent;
+          background: rgba(255,255,255,0.01);
+          box-shadow: none;
+        }
+
+        .jeopardy-clue-card.empty-clue {
+          opacity: 0.1;
+          cursor: not-allowed;
+          color: rgba(255,255,255,0.1);
+          border-color: transparent;
+          box-shadow: none;
+        }
+
+        /* Bottom Scoreboard */
+        .jeopardy-scoreboard {
+          padding: 16px 20px;
+          border-radius: 16px;
+        }
+
+        .jeopardy-scoreboard h3 {
+          font-size: 12px;
+          font-weight: 800;
+          color: var(--text-muted);
+          letter-spacing: 0.1em;
+          margin-bottom: 12px;
+          text-align: left;
+        }
+
+        .scoreboard-players {
+          display: flex;
+          gap: 12px;
+          overflow-x: auto;
+          padding-bottom: 5px;
+        }
+
+        .scoreboard-players::-webkit-scrollbar {
+          height: 4px;
+        }
+        .scoreboard-players::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.1);
+          border-radius: 2px;
+        }
+
+        .scoreboard-player-pill {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-left: 4px solid var(--accent);
+          padding: 8px 16px;
+          border-radius: 30px;
+          flex-shrink: 0;
+        }
+
+        .p-name {
+          font-weight: 700;
+          color: var(--text-bright);
+          font-size: 14px;
+        }
+
+        .p-pts {
+          font-family: var(--font-heading);
+          font-weight: 800;
+          font-size: 15px;
+          color: #fbbf24;
+        }
+
+        .no-scores-msg {
+          font-size: 13px;
+          color: var(--text-muted);
+          text-align: center;
+          width: 100%;
+        }
+
+        /* Active Clue Screen styles */
+        .active-clue-screen {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 30px;
+          max-width: 800px;
+          margin: 0 auto;
+          width: 100%;
+          z-index: 2;
+        }
+
+        .clue-metadata {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          align-items: center;
+        }
+
+        .category-title {
+          font-family: var(--font-heading);
+          font-size: 28px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          background: linear-gradient(135deg, #ffffff 0%, #fbbf24 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        .points-label {
+          background: rgba(251, 191, 36, 0.08);
+          border: 1.5px solid #fbbf24;
+          color: #fbbf24;
+          padding: 6px 14px;
+          border-radius: 20px;
+          font-size: 13px;
+          font-weight: 800;
+          letter-spacing: 0.05em;
+          box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);
+        }
+
+        .clue-card-main {
+          padding: 50px 40px;
+          width: 100%;
+          text-align: center;
+          border-radius: 24px;
+          box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .clue-text {
+          font-family: var(--font-heading);
+          font-size: 34px;
+          font-weight: 600;
+          color: var(--text-bright);
+          line-height: 1.5;
+        }
+
+        .answer-hint-text {
+          font-size: 18px;
+          color: var(--accent);
+          margin-top: 25px;
+          font-style: italic;
+          opacity: 0.7;
+          border-top: 1px dashed rgba(255, 255, 255, 0.08);
+          padding-top: 15px;
+        }
+
+        /* Buzzer Screen Panel */
+        .buzzer-status-panel {
+          width: 100%;
+          padding: 30px;
+          text-align: center;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 180px;
+          border-radius: 24px;
+        }
+
+        .buzzers-active-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .glowing-dot {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: #10b981;
+          box-shadow: 0 0 15px #10b981, 0 0 30px #10b981;
+        }
+
+        .buzzers-active-state h2 {
+          font-size: 18px;
+          color: #10b981;
+          letter-spacing: 0.1em;
+        }
+
+        .buzzed-in-player-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 20px;
+          width: 100%;
+        }
+
+        .buzzed-halo {
+          width: 70px;
+          height: 70px;
+          border-radius: 50%;
+          background: rgba(251, 191, 36, 0.1);
+          border: 2px solid #fbbf24;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+          animation: scale-glow 1s infinite alternate;
+        }
+
+        .buzzed-icon {
+          font-size: 32px;
+          color: #fbbf24;
+        }
+
+        .buzzed-in-player-state h2 {
+          font-size: 24px;
+          background: linear-gradient(135deg, #fbbf24 0%, #fcd34d 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        .host-actions {
+          display: flex;
+          gap: 15px;
+          margin-top: 5px;
+        }
+
+        .success-btn {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .error-btn {
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+          border-color: transparent;
+        }
+
+        .error-btn:hover {
+          background: #ef4444;
+          border-color: transparent;
+        }
+
+        .active-clue-footer {
+          margin-top: 10px;
+        }
+
+        .skip-clue-btn {
+          font-size: 13px;
+          padding: 10px 20px;
+        }
+
+        .tv-empty-board {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          text-align: center;
+          max-width: 500px;
+          margin: 60px auto 0 auto;
+          padding: 40px;
+          z-index: 2;
+        }
+
+        .tv-empty-board h2 {
+          font-size: 26px;
+          background: linear-gradient(135deg, var(--accent) 0%, #38bdf8 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        .tv-empty-board p {
+          font-size: 15px;
+          color: var(--text-muted);
+          line-height: 1.6;
+        }
+
+        .tv-empty-board .instruction-text {
+          font-size: 13px;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px dashed rgba(255, 255, 255, 0.08);
+          padding: 10px;
+          border-radius: 8px;
+        }
+
+        @keyframes scale-glow {
+          0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+          }
+          100% {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.5);
+          }
         }
       `}</style>
     </div>

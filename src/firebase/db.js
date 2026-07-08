@@ -383,3 +383,104 @@ export async function deleteGoalTemplate(goalId) {
 }
 // We can import deleteDoc from firebase/firestore if we need it. Let's make sure it's imported.
 import { deleteDoc } from 'firebase/firestore';
+
+/**
+ * Admin creates or updates a Jeopardy category with clues.
+ */
+export async function addJeopardyCategory(id, name, clues) {
+  const ref = doc(db, 'jeopardy', id);
+  await setDoc(ref, {
+    id,
+    name: name.trim(),
+    clues,
+    createdAt: serverTimestamp()
+  }, { merge: true });
+}
+
+/**
+ * Admin deletes a Jeopardy category.
+ */
+export async function deleteJeopardyCategory(id) {
+  const ref = doc(db, 'jeopardy', id);
+  await deleteDoc(ref);
+}
+
+/**
+ * Listens to all Jeopardy categories sorted by creation time.
+ */
+export function onJeopardyCategoriesChange(callback) {
+  const collRef = collection(db, 'jeopardy');
+  const q = query(collRef);
+  return onSnapshot(q, (snapshot) => {
+    const list = [];
+    snapshot.forEach((doc) => {
+      list.push(doc.data());
+    });
+    // Sort in memory by createdAt to avoid composite indexes
+    list.sort((a, b) => {
+      const tA = a.createdAt?.seconds || 0;
+      const tB = b.createdAt?.seconds || 0;
+      return tA - tB;
+    });
+    callback(list);
+  }, (error) => {
+    console.error('Error listening to jeopardy categories:', error);
+  });
+}
+
+/**
+ * Listens to the global game state document.
+ */
+export function listenToGameState(callback) {
+  const ref = doc(db, 'config', 'gameState');
+  return onSnapshot(ref, (snapshot) => {
+    if (snapshot.exists()) {
+      callback(snapshot.data());
+    } else {
+      callback({ activeGame: null });
+    }
+  }, (error) => {
+    console.error('Error listening to game state:', error);
+  });
+}
+
+/**
+ * Updates the global game state document.
+ */
+export async function updateGameState(updates) {
+  const ref = doc(db, 'config', 'gameState');
+  await setDoc(ref, updates, { merge: true });
+}
+
+/**
+ * Transaction-safe registration for a player buzzing in.
+ * Only allows a buzz if no player has buzzed in yet and buzzer is open.
+ */
+export async function registerBuzz(playerId, playerName) {
+  const ref = doc(db, 'config', 'gameState');
+  try {
+    return await runTransaction(db, async (transaction) => {
+      const snap = await transaction.get(ref);
+      if (!snap.exists()) {
+        throw new Error('Game state does not exist.');
+      }
+      const data = snap.data();
+      const currentJeopardy = data.jeopardy || {};
+      
+      // Check if someone already buzzed or if buzzer is locked
+      if (!currentJeopardy.buzzedPlayerId && !currentJeopardy.buzzerLocked) {
+        transaction.update(ref, {
+          'jeopardy.buzzedPlayerId': playerId,
+          'jeopardy.buzzedPlayerName': playerName,
+          'jeopardy.buzzerLocked': true
+        });
+        return true; // Success
+      }
+      return false; // Too slow
+    });
+  } catch (error) {
+    console.error('Error during buzz transaction:', error);
+    return false;
+  }
+}
+

@@ -6,7 +6,10 @@ import {
   adjustPointsAdmin, 
   setGoalTemplate,
   deleteGoalTemplate,
-  onGoalsChange
+  onGoalsChange,
+  addJeopardyCategory,
+  deleteJeopardyCategory,
+  onJeopardyCategoriesChange
 } from '../firebase/db';
 import { TEAMS } from '../constants/teams';
 import { STRINGS } from '../constants/strings';
@@ -19,10 +22,27 @@ export default function AdminDashboard() {
   const [passcodeError, setPasscodeError] = useState('');
   const [isFirebaseAuthed, setIsFirebaseAuthed] = useState(false);
 
+  // Tabs
+  const [activeTab, setActiveTab] = useState('main'); // 'main' or 'jeopardy'
+
   // Admin Data State
   const [players, setPlayers] = useState([]);
   const [goalRequests, setGoalRequests] = useState([]);
   const [goalsList, setGoalsList] = useState([]);
+  const [jeopardyCategories, setJeopardyCategories] = useState([]);
+
+  // Jeopardy Creator Form State
+  const [newCatName, setNewCatName] = useState('');
+  const [clue100Q, setClue100Q] = useState('');
+  const [clue100A, setClue100A] = useState('');
+  const [clue200Q, setClue200Q] = useState('');
+  const [clue200A, setClue200A] = useState('');
+  const [clue300Q, setClue300Q] = useState('');
+  const [clue300A, setClue300A] = useState('');
+  const [clue400Q, setClue400Q] = useState('');
+  const [clue400A, setClue400A] = useState('');
+  const [clue500Q, setClue500Q] = useState('');
+  const [clue500A, setClue500A] = useState('');
 
   // Form State for creating new goal
   const [newGoalTitle, setNewGoalTitle] = useState('');
@@ -72,14 +92,47 @@ export default function AdminDashboard() {
       const unsubGoals = onGoalsChange((data) => {
         setGoalsList(data);
       });
+      const unsubJeopardy = onJeopardyCategoriesChange((data) => {
+        setJeopardyCategories(data);
+      });
 
       return () => {
         unsubPlayers();
         unsubRequests();
         unsubGoals();
+        unsubJeopardy();
       };
     }
   }, [isAdminAuthenticated, isFirebaseAuthed]);
+
+  const handleCreateJeopardyCategory = async (e) => {
+    e.preventDefault();
+    if (!newCatName.trim()) {
+      alert("Please enter a category name.");
+      return;
+    }
+    const cluesList = [
+      { points: 100, question: clue100Q.trim(), answer: clue100A.trim() },
+      { points: 200, question: clue200Q.trim(), answer: clue200A.trim() },
+      { points: 300, question: clue300Q.trim(), answer: clue300A.trim() },
+      { points: 400, question: clue400Q.trim(), answer: clue400A.trim() },
+      { points: 500, question: clue500Q.trim(), answer: clue500A.trim() },
+    ];
+    const catId = 'cat_' + Date.now();
+    try {
+      await addJeopardyCategory(catId, newCatName, cluesList);
+      setNewCatName('');
+      setClue100Q(''); setClue100A('');
+      setClue200Q(''); setClue200A('');
+      setClue300Q(''); setClue300A('');
+      setClue400Q(''); setClue400A('');
+      setClue500Q(''); setClue500A('');
+      alert("Category created successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save category: " + err.message);
+    }
+  };
 
   // Approve a goal request
   const handleApproveRequest = async (userGoalId) => {
@@ -210,136 +263,250 @@ export default function AdminDashboard() {
         <button onClick={() => setIsAdminAuthenticated(false)} className="btn-secondary logout-btn">{STRINGS.admin.headerLock}</button>
       </header>
 
-      <main className="admin-main-container">
-        
-        {/* Left Column: Requests and Goals Templates */}
-        <div className="admin-col">
+      <div className="admin-tab-nav glass-panel">
+        <button 
+          className={`tab-nav-btn ${activeTab === 'main' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('main')}
+        >
+          📋 Main Panel
+        </button>
+        <button 
+          className={`tab-nav-btn ${activeTab === 'jeopardy' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('jeopardy')}
+        >
+          🎮 Jeopardy Manager
+        </button>
+      </div>
+
+      {activeTab === 'main' ? (
+        <main className="admin-main-container">
           
-          {/* Approval Queue Section */}
-          <section className="glass-panel admin-section">
-            <h3>{STRINGS.admin.queueTitle.replace('{count}', goalRequests.length)}</h3>
-            {goalRequests.length === 0 ? (
-              <p className="empty-msg">{STRINGS.admin.queueEmpty}</p>
-            ) : (
-              <div className="queue-list">
-                {goalRequests.map((req) => (
-                  <div key={req.id} className="queue-card animate-slide-in">
-                    <div className="queue-info">
-                      <span className="queue-player">{req.userName}</span>
-                      <span className="queue-goal">{req.goalTitle}</span>
-                      <span className="queue-points">+{req.points} pts</span>
+          {/* Left Column: Requests and Goals Templates */}
+          <div className="admin-col">
+            
+            {/* Approval Queue Section */}
+            <section className="glass-panel admin-section">
+              <h3>{STRINGS.admin.queueTitle.replace('{count}', goalRequests.length)}</h3>
+              {goalRequests.length === 0 ? (
+                <p className="empty-msg">{STRINGS.admin.queueEmpty}</p>
+              ) : (
+                <div className="queue-list">
+                  {goalRequests.map((req) => (
+                    <div key={req.id} className="queue-card animate-slide-in">
+                      <div className="queue-info">
+                        <span className="queue-player">{req.userName}</span>
+                        <span className="queue-goal">{req.goalTitle}</span>
+                        <span className="queue-points">+{req.points} pts</span>
+                      </div>
+                      <button
+                        onClick={() => handleApproveRequest(req.id)}
+                        className="btn-primary approve-btn"
+                      >
+                        {STRINGS.admin.queueApproveBtn}
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleApproveRequest(req.id)}
-                      className="btn-primary approve-btn"
-                    >
-                      {STRINGS.admin.queueApproveBtn}
-                    </button>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Goal Template Builder */}
+            <section className="glass-panel admin-section">
+              <h3>{STRINGS.admin.builderTitle}</h3>
+              <form onSubmit={handleCreateGoal} className="goal-builder-form">
+                <input
+                  type="text"
+                  placeholder={STRINGS.admin.builderTitlePlaceholder}
+                  value={newGoalTitle}
+                  onChange={(e) => setNewGoalTitle(e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder={STRINGS.admin.builderDescPlaceholder}
+                  value={newGoalDesc}
+                  onChange={(e) => setNewGoalDesc(e.target.value)}
+                />
+                <input
+                  type="number"
+                  placeholder={STRINGS.admin.builderPointsPlaceholder}
+                  value={newGoalPoints}
+                  onChange={(e) => setNewGoalPoints(e.target.value)}
+                />
+                {formError && <div className="error-message">{formError}</div>}
+                <button type="submit" className="btn-primary">{STRINGS.admin.builderAddBtn}</button>
+              </form>
+
+              <div className="goals-templates-list">
+                <h4>{STRINGS.admin.templatesTitle}</h4>
+                {goalsList.map((g) => (
+                  <div key={g.id} className="template-item">
+                    <div className="template-info">
+                      <span className="template-title">{g.title}</span>
+                      <span className="template-pts">({g.points} pts)</span>
+                    </div>
+                    <button onClick={() => handleDeleteGoal(g.id)} className="delete-goal-btn">✕</button>
                   </div>
                 ))}
               </div>
-            )}
-          </section>
+            </section>
+          </div>
 
-          {/* Goal Template Builder */}
-          <section className="glass-panel admin-section">
-            <h3>{STRINGS.admin.builderTitle}</h3>
-            <form onSubmit={handleCreateGoal} className="goal-builder-form">
-              <input
-                type="text"
-                placeholder={STRINGS.admin.builderTitlePlaceholder}
-                value={newGoalTitle}
-                onChange={(e) => setNewGoalTitle(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder={STRINGS.admin.builderDescPlaceholder}
-                value={newGoalDesc}
-                onChange={(e) => setNewGoalDesc(e.target.value)}
-              />
-              <input
-                type="number"
-                placeholder={STRINGS.admin.builderPointsPlaceholder}
-                value={newGoalPoints}
-                onChange={(e) => setNewGoalPoints(e.target.value)}
-              />
-              {formError && <div className="error-message">{formError}</div>}
-              <button type="submit" className="btn-primary">{STRINGS.admin.builderAddBtn}</button>
-            </form>
-
-            <div className="goals-templates-list">
-              <h4>{STRINGS.admin.templatesTitle}</h4>
-              {goalsList.map((g) => (
-                <div key={g.id} className="template-item">
-                  <div className="template-info">
-                    <span className="template-title">{g.title}</span>
-                    <span className="template-pts">({g.points} pts)</span>
-                  </div>
-                  <button onClick={() => handleDeleteGoal(g.id)} className="delete-goal-btn">✕</button>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-
-        {/* Right Column: Player Manager */}
-        <div className="admin-col">
-          <section className="glass-panel admin-section players-section">
-            <h3>{STRINGS.admin.playersTitle}</h3>
-            {players.length === 0 ? (
-              <p className="empty-msg">{STRINGS.admin.playersEmpty}</p>
-            ) : (
-              <div className="players-admin-list">
-                {players.map((p) => {
-                  const pTeam = TEAMS[p.team] || TEAMS.teal;
-                  return (
-                    <div key={p.uid} className="player-admin-card" style={{ borderLeftColor: pTeam.color }}>
-                      <div className="player-card-header">
-                        <div className="header-meta">
-                          {p.photoUrl && (
-                            <img src={p.photoUrl} alt={p.name} className="admin-player-avatar cartoonified-xs" />
-                          )}
-                          <span className="player-name-bold">{p.name}</span>
-                          <span className="player-team-tag" style={{ color: pTeam.color }}>{pTeam.name}</span>
+          {/* Right Column: Player Manager */}
+          <div className="admin-col">
+            <section className="glass-panel admin-section players-section">
+              <h3>{STRINGS.admin.playersTitle}</h3>
+              {players.length === 0 ? (
+                <p className="empty-msg">{STRINGS.admin.playersEmpty}</p>
+              ) : (
+                <div className="players-admin-list">
+                  {players.map((p) => {
+                    const pTeam = TEAMS[p.team] || TEAMS.teal;
+                    return (
+                      <div key={p.uid} className="player-admin-card" style={{ borderLeftColor: pTeam.color }}>
+                        <div className="player-card-header">
+                          <div className="header-meta">
+                            {p.photoUrl && (
+                              <img src={p.photoUrl} alt={p.name} className="admin-player-avatar cartoonified-xs" />
+                            )}
+                            <span className="player-name-bold">{p.name}</span>
+                            <span className="player-team-tag" style={{ color: pTeam.color }}>{pTeam.name}</span>
+                          </div>
+                          <span className="player-points-tag">{p.points ?? 0} pts</span>
                         </div>
-                        <span className="player-points-tag">{p.points ?? 0} pts</span>
+
+                        {/* Adjustment Tools */}
+                        <div className="adjustment-tools">
+                          {/* Quick adjust row */}
+                          <div className="quick-adjust-row">
+                            <button onClick={() => handleQuickAdjust(p.uid, 10)} className="btn-quick">+10</button>
+                            <button onClick={() => handleQuickAdjust(p.uid, 50)} className="btn-quick">+50</button>
+                            <button onClick={() => handleQuickAdjust(p.uid, -10)} className="btn-quick">-10</button>
+                            <button onClick={() => handleQuickAdjust(p.uid, -50)} className="btn-quick">-50</button>
+                          </div>
+                          {/* Custom Adjust row */}
+                          <div className="custom-adjust-row">
+                            <input
+                              type="number"
+                              placeholder={STRINGS.admin.adjustCustomPointsPlaceholder}
+                              value={customPoints[p.uid] || ''}
+                              onChange={(e) => setCustomPoints(prev => ({ ...prev, [p.uid]: e.target.value }))}
+                            />
+                            <input
+                              type="text"
+                              placeholder={STRINGS.admin.adjustCustomDescPlaceholder}
+                              value={customDesc[p.uid] || ''}
+                              onChange={(e) => setCustomDesc(prev => ({ ...prev, [p.uid]: e.target.value }))}
+                            />
+                            <button onClick={() => handleCustomAdjust(p.uid)} className="btn-secondary adjust-apply-btn">{STRINGS.admin.adjustCustomApplyBtn}</button>
+                          </div>
+                        </div>
                       </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          </div>
 
-                      {/* Adjustment Tools */}
-                      <div className="adjustment-tools">
-                        {/* Quick adjust row */}
-                        <div className="quick-adjust-row">
-                          <button onClick={() => handleQuickAdjust(p.uid, 10)} className="btn-quick">+10</button>
-                          <button onClick={() => handleQuickAdjust(p.uid, 50)} className="btn-quick">+50</button>
-                          <button onClick={() => handleQuickAdjust(p.uid, -10)} className="btn-quick">-10</button>
-                          <button onClick={() => handleQuickAdjust(p.uid, -50)} className="btn-quick">-50</button>
-                        </div>
-                        {/* Custom Adjust row */}
-                        <div className="custom-adjust-row">
-                          <input
-                            type="number"
-                            placeholder={STRINGS.admin.adjustCustomPointsPlaceholder}
-                            value={customPoints[p.uid] || ''}
-                            onChange={(e) => setCustomPoints(prev => ({ ...prev, [p.uid]: e.target.value }))}
-                          />
-                          <input
-                            type="text"
-                            placeholder={STRINGS.admin.adjustCustomDescPlaceholder}
-                            value={customDesc[p.uid] || ''}
-                            onChange={(e) => setCustomDesc(prev => ({ ...prev, [p.uid]: e.target.value }))}
-                          />
-                          <button onClick={() => handleCustomAdjust(p.uid)} className="btn-secondary adjust-apply-btn">{STRINGS.admin.adjustCustomApplyBtn}</button>
-                        </div>
+        </main>
+      ) : (
+        <main className="admin-main-container">
+          
+          {/* Left Column: Configured Jeopardy Categories List */}
+          <div className="admin-col">
+            <section className="glass-panel admin-section">
+              <h3>Configured Categories ({jeopardyCategories.length})</h3>
+              {jeopardyCategories.length === 0 ? (
+                <p className="empty-msg">No Jeopardy categories configured yet.</p>
+              ) : (
+                <div className="goals-templates-list" style={{ gap: '12px' }}>
+                  {jeopardyCategories.map((cat) => (
+                    <div key={cat.id} className="template-item" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '8px', padding: '15px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span className="template-title" style={{ fontSize: '15px', fontWeight: 'bold' }}>{cat.name}</span>
+                        <button 
+                          onClick={async () => {
+                            if (window.confirm(`Are you sure you want to delete the category "${cat.name}"?`)) {
+                              await deleteJeopardyCategory(cat.id);
+                            }
+                          }} 
+                          className="delete-goal-btn"
+                          style={{ fontSize: '16px' }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px', fontSize: '10px', color: 'var(--text-muted)' }}>
+                        {cat.clues.map((clue, idx) => (
+                          <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 4px', borderRadius: '6px', textAlign: 'center' }}>
+                            <div style={{ fontWeight: 'bold', color: 'var(--accent)' }}>{clue.points}</div>
+                            <div style={{ fontSize: '9px', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={clue.question}>
+                              {clue.question ? '✅' : '❌'}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-        </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
 
-      </main>
+          {/* Right Column: Add Category Form */}
+          <div className="admin-col">
+            <section className="glass-panel admin-section">
+              <h3>Create New Jeopardy Category</h3>
+              <form onSubmit={handleCreateJeopardyCategory} className="goal-builder-form" style={{ gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', letterSpacing: '0.05em', marginBottom: '8px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Category Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Science & Nature, Pop Culture"
+                    value={newCatName}
+                    onChange={(e) => setNewCatName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {[100, 200, 300, 400, 500].map((points) => {
+                    const qVal = points === 100 ? clue100Q : points === 200 ? clue200Q : points === 300 ? clue300Q : points === 400 ? clue400Q : clue500Q;
+                    const aVal = points === 100 ? clue100A : points === 200 ? clue200A : points === 300 ? clue300A : points === 400 ? clue400A : clue500A;
+                    const setQ = points === 100 ? setClue100Q : points === 200 ? setClue200Q : points === 300 ? setClue300Q : points === 400 ? setClue400Q : setClue500Q;
+                    const setA = points === 100 ? setClue100A : points === 200 ? setClue200A : points === 300 ? setClue300A : points === 400 ? setClue400A : setClue500A;
+
+                    return (
+                      <div key={points} style={{ display: 'grid', gridTemplateColumns: '70px 1fr 1fr', gap: '10px', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 'bold', color: 'var(--accent)', fontSize: '13px' }}>{points} pts</span>
+                        <input
+                          type="text"
+                          placeholder="Clue Question"
+                          value={qVal}
+                          onChange={(e) => setQ(e.target.value)}
+                          required
+                        />
+                        <input
+                          type="text"
+                          placeholder="Clue Answer"
+                          value={aVal}
+                          onChange={(e) => setA(e.target.value)}
+                          required
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <button type="submit" className="btn-primary" style={{ marginTop: '10px' }}>
+                  💾 Save Category
+                </button>
+              </form>
+            </section>
+          </div>
+
+        </main>
+      )}
 
       <style>{`
         .admin-page {
@@ -362,6 +529,37 @@ export default function AdminDashboard() {
 
         .admin-header h1 {
           font-size: 24px;
+        }
+
+        .admin-tab-nav {
+          display: flex;
+          gap: 15px;
+          padding: 12px 20px;
+          border-radius: 12px;
+          margin-bottom: 5px;
+        }
+
+        .tab-nav-btn {
+          background: none;
+          border: none;
+          padding: 8px 16px;
+          color: var(--text-muted);
+          font-weight: 700;
+          font-size: 14px;
+          cursor: pointer;
+          border-radius: 8px;
+          transition: all 0.2s ease;
+        }
+
+        .tab-nav-btn:hover {
+          color: var(--text-bright);
+          background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-nav-btn.active {
+          color: var(--accent);
+          background: var(--accent-bg);
+          box-shadow: 0 0 10px var(--accent-glow);
         }
 
         .admin-main-container {

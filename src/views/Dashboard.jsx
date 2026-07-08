@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { onLeaderboardChange, onPointHistoryChange } from '../firebase/db';
+import { onLeaderboardChange, onPointHistoryChange, listenToGameState } from '../firebase/db';
 import BottomNav from '../components/BottomNav';
 
 // Import Tabs
@@ -8,12 +8,22 @@ import HomeTab from './HomeTab';
 import LeaderboardTab from './LeaderboardTab';
 import DonateTab from './DonateTab';
 import GoalsTab from './GoalsTab';
+import JeopardyBuzzerView from '../components/JeopardyBuzzerView';
 
 export default function Dashboard() {
   const { userProfile, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('home');
   const [leaderboard, setLeaderboard] = useState([]);
   const [pointHistory, setPointHistory] = useState([]);
+  const [gameState, setGameState] = useState(null);
+
+  // Listen to Game State
+  useEffect(() => {
+    const unsubscribeGame = listenToGameState((data) => {
+      setGameState(data);
+    });
+    return () => unsubscribeGame();
+  }, []);
 
   // Listen to Leaderboard
   useEffect(() => {
@@ -44,6 +54,14 @@ export default function Dashboard() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'home':
+        if (gameState?.activeGame === 'jeopardy') {
+          return (
+            <JeopardyBuzzerView
+              gameState={gameState}
+              profile={userProfile}
+            />
+          );
+        }
         return (
           <HomeTab
             profile={userProfile}
