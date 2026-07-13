@@ -118,23 +118,6 @@ function App() {
       <BrowserRouter>
         <AppContent />
       </BrowserRouter>
-      
-      {/* SVG Cartoon Filter definition */}
-      <svg className="svg-filters" xmlns="http://www.w3.org/2000/svg">
-        <filter id="cartoon-filter">
-          <feComponentTransfer>
-            <feFuncR type="discrete" tableValues="0 0.2 0.4 0.6 0.8 1" />
-            <feFuncG type="discrete" tableValues="0 0.2 0.4 0.6 0.8 1" />
-            <feFuncB type="discrete" tableValues="0 0.2 0.4 0.6 0.8 1" />
-          </feComponentTransfer>
-          <feColorMatrix type="matrix" values="
-            1.1  0    0    0   0
-            0    1.1  0    0   0
-            0    0    1.1  0   0
-            0    0    0    1.0 0" 
-          />
-        </filter>
-      </svg>
     </AuthProvider>
   );
 }

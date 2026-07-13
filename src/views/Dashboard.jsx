@@ -102,17 +102,6 @@ export default function Dashboard() {
       {/* Dashboard Top Header */}
       <header className="dashboard-header glass-panel">
         <div className="header-left">
-          <div className="header-avatar-container">
-            {userProfile?.photoUrl ? (
-              <img 
-                src={userProfile.photoUrl} 
-                alt={userProfile.name} 
-                className="header-avatar-img cartoonified-xs" 
-              />
-            ) : (
-              <div className="header-avatar-placeholder" />
-            )}
-          </div>
           <div className="user-welcome">
             <span className="welcome-tag">{STRINGS.dashboard.guestTag}</span>
             <h2>{userProfile?.name}</h2>

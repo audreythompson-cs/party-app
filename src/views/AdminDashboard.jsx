@@ -342,9 +342,6 @@ export default function AdminDashboard() {
                       <div key={p.uid} className="player-admin-card" style={{ borderLeftColor: pTeam.color }}>
                         <div className="player-card-header">
                           <div className="header-meta">
-                            {p.photoUrl && (
-                              <img src={p.photoUrl} alt={p.name} className="admin-player-avatar cartoonified-xs" />
-                            )}
                             <span className="player-name-bold">{p.name}</span>
                             <span className="player-team-tag" style={{ color: pTeam.color }}>{pTeam.name}</span>
                           </div>

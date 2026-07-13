@@ -491,20 +491,6 @@ export default function TVDisplay() {
                         </span>
                       </div>
 
-                      <div className="col-avatar">
-                        <div className="tv-avatar-frame">
-                          {player.photoUrl ? (
-                            <img 
-                              src={player.photoUrl} 
-                              alt={player.name} 
-                              className="tv-avatar-img cartoonified-tv" 
-                            />
-                          ) : (
-                            <div className="tv-avatar-placeholder" />
-                          )}
-                        </div>
-                      </div>
-
                       <div className="col-player">
                         <div className="tv-player-meta">
                           <span className="tv-player-name">{player.name}</span>

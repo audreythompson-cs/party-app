@@ -12,19 +12,14 @@ export const STRINGS = {
   },
   onboarding: {
     title: 'Let\'s get set up!',
-    subtitle: 'Take a selfie to generate your cartoon avatar! (Optional - only the avatar will be saved)',
+    subtitle: 'Enter your name and choose your table/team to join the party!',
     nameLabel: 'Name',
     namePlaceholder: 'Name',
     teamLabel: 'Select Your Table / Team',
-    photoLabel: 'Take a Selfie',
-    photoButton: 'Open Camera',
-    photoRetake: 'Retake Photo',
     buttonSubmit: 'Ready!',
     buttonSubmitEntering: 'Entering Party...',
     errorNameRequired: 'Name is required.',
-    errorPhotoRequired: 'Please create your avatar.',
-    errorSubmitFailed: 'Failed to create profile. Please try again.',
-    analyzingSelfie: 'Analyzing Selfie...'
+    errorSubmitFailed: 'Failed to create profile. Please try again.'
   },
   dashboard: {
     welcome: 'Hey, {name}!',

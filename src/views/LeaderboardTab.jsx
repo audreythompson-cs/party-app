@@ -43,19 +43,7 @@ export default function LeaderboardTab({ leaderboard, currentUserId }) {
                     {getRankBadge(rank)}
                   </div>
 
-                  <div className="avatar-col">
-                    <div className="leaderboard-avatar-container">
-                      {player.photoUrl ? (
-                        <img 
-                          src={player.photoUrl} 
-                          alt={player.name} 
-                          className="leaderboard-avatar-img cartoonified-sm" 
-                        />
-                      ) : (
-                        <div className="leaderboard-avatar-placeholder" />
-                      )}
-                    </div>
-                  </div>
+
 
                   <div className="name-col">
                     <div className="name-wrapper">
