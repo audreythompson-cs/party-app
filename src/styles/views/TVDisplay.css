@@ -730,69 +730,183 @@
   filter: brightness(1.1);
 }
 
-/* TV Welcome Screen */
-.tv-welcome-screen {
+/* TV Welcome Screen Redesign */
+/* TV Welcome Screen Redesign */
+.tv-welcome-screen-redesign {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 2;
-  min-height: 0;
-}
-
-.welcome-card {
-  max-width: 750px;
-  width: 100%;
-  padding: 40px;
-  border-radius: 28px;
-  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  justify-content: space-between;
+  padding: 20px 40px;
+  min-height: 0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-.welcome-emoji {
-  font-size: 64px;
-  animation: wave 2.5s infinite ease-in-out;
-  transform-origin: 70% 70%;
-  display: inline-block;
+.welcome-header-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 15px;
+  z-index: 5;
 }
 
-.welcome-card h1 {
-  font-size: 40px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  background: linear-gradient(135deg, #ffffff 0%, #a855f7 50%, #06b6d4 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Hand-drawn Welcome Header (Clickable return button) */
+.welcome-header-image {
+  width: 100%;
+  max-width: 1500px;
+  height: auto;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
 }
 
-.welcome-subtitle {
-  font-size: 18px;
-  color: var(--text-muted);
-  line-height: 1.6;
-  max-width: 600px;
+.welcome-header-image:hover {
+  transform: scale(1.02);
 }
 
-.welcome-qr {
-  margin: 10px 0;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 0 30px rgba(168, 85, 247, 0.15);
+.welcome-redesign-grid {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 50px;
+  width: 100%;
+  max-width: 1800px;
+  flex: 1;
+  min-height: 0;
 }
 
-.welcome-qr .qr-image {
+.welcome-center-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 100%;
+  max-width: 1100px;
+}
+
+/* Hand-drawn message block */
+.welcome-message-image {
+  width: 100%;
+  height: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+}
+
+.welcome-side-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 280px;
+  height: 100%;
+  max-height: 60vh;
+  justify-content: flex-end;
+}
+
+.welcome-side-column .welcome-qr-image {
   width: 220px;
   height: 220px;
+  display: block;
+  z-index: 3;
 }
 
-.back-to-leaderboard-btn {
-  margin-top: 15px;
-  font-size: 13px;
-  padding: 10px 24px;
+/* Balloon Bundles Layouts relative to side column */
+.welcome-side-column .balloon-bundle {
+  position: absolute;
+  top: 0;
+  bottom: 230px;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* Individual Balloon placeholders inside side columns */
+.welcome-side-column .balloon-item {
+  position: absolute;
+  width: 110px;
+  height: auto;
+}
+
+/* Offset coordinates, initial rotations, and target paths to form a bundle cluster above QR code */
+.welcome-side-column .balloon-1 {
+  bottom: 15px;
+  left: 85px;
+  transform: rotate(-5deg);
+  --init-rot: -5deg;
+  --target-rot: -12deg;
+  --target-x: -80px;
+  --wobble-offset: -15px;
+  --wobble-rot: 4deg;
+}
+.welcome-side-column .balloon-2 {
+  bottom: 65px;
+  left: 30px;
+  transform: rotate(-15deg);
+  --init-rot: -15deg;
+  --target-rot: -25deg;
+  --target-x: -130px;
+  --wobble-offset: 20px;
+  --wobble-rot: -5deg;
+}
+.welcome-side-column .balloon-3 {
+  bottom: 95px;
+  left: 140px;
+  transform: rotate(10deg);
+  --init-rot: 10deg;
+  --target-rot: 3deg;
+  --target-x: 50px;
+  --wobble-offset: -10px;
+  --wobble-rot: 3deg;
+}
+.welcome-side-column .balloon-4 {
+  bottom: 155px;
+  left: 45px;
+  transform: rotate(-10deg);
+  --init-rot: -10deg;
+  --target-rot: -4deg;
+  --target-x: -40px;
+  --wobble-offset: 15px;
+  --wobble-rot: -3deg;
+}
+.welcome-side-column .balloon-5 {
+  bottom: 175px;
+  left: 130px;
+  transform: rotate(15deg);
+  --init-rot: 15deg;
+  --target-rot: 30deg;
+  --target-x: 110px;
+  --wobble-offset: -20px;
+  --wobble-rot: 6deg;
+}
+
+/* Balloon Release Animation */
+.released .balloon-bundle .balloon-item {
+  /* Linear overall timing to ensure perfectly continuous vertical speed across keyframe boundaries */
+  animation: release-float-up 2.8s linear forwards;
+}
+
+/* Add staggered delays & slightly different duration/sway speed */
+.released .balloon-bundle .balloon-1 { animation-delay: 0s; animation-duration: 2.5s; }
+.released .balloon-bundle .balloon-2 { animation-delay: 0.15s; animation-duration: 2.8s; }
+.released .balloon-bundle .balloon-3 { animation-delay: 0.08s; animation-duration: 2.6s; }
+.released .balloon-bundle .balloon-4 { animation-delay: 0.3s; animation-duration: 2.9s; }
+.released .balloon-bundle .balloon-5 { animation-delay: 0.22s; animation-duration: 2.7s; }
+
+@keyframes release-float-up {
+  0% {
+    /* Starts exactly from initial rotation with no straight-snap */
+    transform: translateY(0) translateX(0) rotate(var(--init-rot));
+    opacity: 1;
+  }
+  50% {
+    /* Gentle wobble mid-flight. translateY(-67.5vh) maintains uniform speed (exactly half of -135vh target) */
+    transform: translateY(-67.5vh) translateX(calc(var(--target-x) * 0.45 + var(--wobble-offset))) rotate(calc(var(--init-rot) + var(--wobble-rot)));
+  }
+  100% {
+    /* Glide off in different directions and unique end tilts */
+    transform: translateY(-135vh) translateX(var(--target-x)) rotate(var(--target-rot));
+    opacity: 0;
+  }
 }
 
 /* TV Goodbye Screen */

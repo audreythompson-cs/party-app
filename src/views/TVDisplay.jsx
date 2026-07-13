@@ -60,6 +60,7 @@ export default function TVDisplay() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isAuthed, setIsAuthed] = useState(false);
+  const [isBalloonsReleased, setIsBalloonsReleased] = useState(false);
 
   // Jeopardy State variables
   const [gameState, setGameState] = useState(null);
@@ -147,6 +148,7 @@ export default function TVDisplay() {
   };
 
   const handleStartWelcome = async () => {
+    setIsBalloonsReleased(false);
     await updateGameState({
       activeGame: 'welcome'
     });
@@ -431,29 +433,68 @@ export default function TVDisplay() {
   };
 
   const renderWelcome = () => {
+    const handleWelcomeClick = () => {
+      setIsBalloonsReleased(true);
+      setTimeout(() => {
+        handleBackToLeaderboard();
+      }, 2500);
+    };
+
+    const balloonIndices = [1, 2, 3, 4, 5];
+
     return (
-      <div className="tv-welcome-screen animate-scale-up">
-        <div className="welcome-card glass-panel">
-          <span className="welcome-emoji">👋</span>
-          <h1>{STRINGS.tv.welcomeTitle}</h1>
-          <p className="welcome-subtitle">{STRINGS.tv.welcomeSubtitle}</p>
+      <div className={`tv-welcome-screen-redesign ${isBalloonsReleased ? 'released' : ''}`}>
+        {/* Hand-drawn Welcome Header at the top (Clickable return button) */}
+        <div className="welcome-header-container" onClick={handleWelcomeClick}>
+          <img
+            src="/welcome-header.svg"
+            alt="Welcome Header"
+            className="welcome-header-image"
+          />
+        </div>
+
+        {/* Bottom Columns Layout */}
+        <div className="welcome-redesign-grid">
           
-          <div className="qr-container welcome-qr">
-            <img src={qrCodeUrl} alt="Join QR Code" className="qr-image" />
-            <div className="qr-border-corner top-left"></div>
-            <div className="qr-border-corner top-right"></div>
-            <div className="qr-border-corner bottom-left"></div>
-            <div className="qr-border-corner bottom-right"></div>
-          </div>
-          
-          <div className="join-url-pill">
-            <span className="join-url-label">Visit:</span>
-            <span className="join-url-text">{joinUrl.replace(/(^\w+:|^)\/\//, '')}</span>
+          {/* Left Side Column: Balloon Bundle + QR Anchor */}
+          <div className="welcome-side-column left-side">
+            <div className="balloon-bundle">
+              {balloonIndices.map((i) => (
+                <img
+                  key={`left-${i}`}
+                  src="/balloon.svg"
+                  alt={`Left Balloon ${i}`}
+                  className={`balloon-item balloon-${i}`}
+                />
+              ))}
+            </div>
+            <img src={qrCodeUrl} alt="Join QR Code" className="welcome-qr-image" />
           </div>
 
-          <button onClick={handleBackToLeaderboard} className="btn-secondary back-to-leaderboard-btn">
-            {STRINGS.tv.backToLeaderboard}
-          </button>
+          {/* Center Column: Handwritten Message */}
+          <div className="welcome-center-column">
+            <img
+              src="/welcome-message.svg"
+              alt="Welcome Message"
+              className="welcome-message-image"
+            />
+          </div>
+
+          {/* Right Side Column: Balloon Bundle + QR Anchor */}
+          <div className="welcome-side-column right-side">
+            <div className="balloon-bundle">
+              {balloonIndices.map((i) => (
+                <img
+                  key={`right-${i}`}
+                  src="/balloon.svg"
+                  alt={`Right Balloon ${i}`}
+                  className={`balloon-item balloon-${i}`}
+                />
+              ))}
+            </div>
+            <img src={qrCodeUrl} alt="Join QR Code" className="welcome-qr-image" />
+          </div>
+
         </div>
       </div>
     );
@@ -707,6 +748,8 @@ export default function TVDisplay() {
     }
   };
 
+  const showHeader = gameState?.activeGame !== 'welcome';
+
   return (
     <div className="tv-page">
       {/* Cosmic background glows */}
@@ -714,16 +757,18 @@ export default function TVDisplay() {
       <div className="space-glow glow-2"></div>
 
       {/* Top Header Panel */}
-      <header className="tv-header">
-        <div className="tv-header-left">
-          <h1>{getHeaderTitle()}</h1>
-        </div>
-        <div className="tv-header-right">
-          <span className="tv-clock">
-            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-          </span>
-        </div>
-      </header>
+      {showHeader && (
+        <header className="tv-header">
+          <div className="tv-header-left">
+            <h1>{getHeaderTitle()}</h1>
+          </div>
+          <div className="tv-header-right">
+            <span className="tv-clock">
+              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+          </div>
+        </header>
+      )}
 
       {renderActiveScreen()}
     </div>
