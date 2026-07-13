@@ -80,14 +80,12 @@ export default function GoalsTab({ profile }) {
 
                   {status === 'pending' && (
                     <button disabled className="btn-secondary pending-btn">
-                      <span className="action-icon">⏳</span>
                       {STRINGS.goals.pendingStatus}
                     </button>
                   )}
 
                   {status === 'completed' && (
                     <div className="completed-badge">
-                      <span className="action-icon">✓</span>
                       {STRINGS.goals.completedStatus.replace('{points}', goal.points)}
                     </div>
                   )}

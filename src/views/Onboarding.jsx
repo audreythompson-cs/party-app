@@ -122,7 +122,7 @@ export default function Onboarding() {
                     {photoLoading ? (
                       <div className="spinner"></div>
                     ) : (
-                      <span>📷</span>
+                      <span>Photo</span>
                     )}
                   </div>
                 )}

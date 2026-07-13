@@ -110,7 +110,7 @@ export default function Dashboard() {
                 className="header-avatar-img cartoonified-xs" 
               />
             ) : (
-              <div className="header-avatar-placeholder">👤</div>
+              <div className="header-avatar-placeholder" />
             )}
           </div>
           <div className="user-welcome">

@@ -4,9 +4,9 @@ import '../styles/views/LeaderboardTab.css';
 
 export default function LeaderboardTab({ leaderboard, currentUserId }) {
   const getRankBadge = (rank) => {
-    if (rank === 1) return <span className="rank-badge gold">👑</span>;
-    if (rank === 2) return <span className="rank-badge silver">🥈</span>;
-    if (rank === 3) return <span className="rank-badge bronze">🥉</span>;
+    if (rank === 1) return <span className="rank-badge gold">1st</span>;
+    if (rank === 2) return <span className="rank-badge silver">2nd</span>;
+    if (rank === 3) return <span className="rank-badge bronze">3rd</span>;
     return <span className="rank-number">{rank}</span>;
   };
 
@@ -52,7 +52,7 @@ export default function LeaderboardTab({ leaderboard, currentUserId }) {
                           className="leaderboard-avatar-img cartoonified-sm" 
                         />
                       ) : (
-                        <div className="leaderboard-avatar-placeholder">👤</div>
+                        <div className="leaderboard-avatar-placeholder" />
                       )}
                     </div>
                   </div>

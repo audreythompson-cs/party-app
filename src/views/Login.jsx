@@ -31,7 +31,7 @@ export default function Login() {
     <div className="login-page themed-background theme-teal">
       <div className="login-card glass-panel animate-scale-up">
         <div className="logo-area">
-          <div className="logo-glow">🎓</div>
+          <div className="logo-glow">PT</div>
         </div>
         
         <h1>{STRINGS.appName}</h1>

@@ -260,9 +260,9 @@ export default function TVDisplay() {
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&color=ffffff&bgcolor=0c0a1c&data=${encodeURIComponent(joinUrl)}`;
 
   const getRankEmoji = (rank) => {
-    if (rank === 1) return '🥇';
-    if (rank === 2) return '🥈';
-    if (rank === 3) return '🥉';
+    if (rank === 1) return '1st';
+    if (rank === 2) return '2nd';
+    if (rank === 3) return '3rd';
     return `#${rank}`;
   };
 
@@ -293,7 +293,7 @@ export default function TVDisplay() {
           ) : (
             <div className="buzzed-in-player-state">
               <div className="buzzed-halo">
-                <span className="buzzed-icon">⚡</span>
+                <span className="buzzed-icon">!</span>
               </div>
               <h2>{STRINGS.tv.playerBuzzed.replace('{name}', buzzedName)}</h2>
               <div className="host-actions">
@@ -416,7 +416,6 @@ export default function TVDisplay() {
       {/* Top Header Panel */}
       <header className="tv-header">
         <div className="tv-header-left">
-          <span className="logo-icon">🎓</span>
           <h1>{isJeopardyActive ? STRINGS.tv.jeopardyMode : STRINGS.tv.title}</h1>
         </div>
         <div className="tv-header-right">
@@ -501,7 +500,7 @@ export default function TVDisplay() {
                               className="tv-avatar-img cartoonified-tv" 
                             />
                           ) : (
-                            <div className="tv-avatar-placeholder">👤</div>
+                            <div className="tv-avatar-placeholder" />
                           )}
                         </div>
                       </div>
