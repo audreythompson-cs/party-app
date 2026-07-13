@@ -85,7 +85,25 @@ export const STRINGS = {
     deductToggle: 'Deduct points on wrong answers',
     endGame: 'End Game',
     scores: 'SCORES',
-    jeopardyMode: 'JEOPARDY MODE'
+    jeopardyMode: 'JEOPARDY MODE',
+    
+    // New Screens
+    welcomeTitle: 'WELCOME TO THE PARTY!',
+    welcomeSubtitle: 'We are so glad you are here! Scan the QR code or visit the link to join the leaderboard, view active goals, and play Jeopardy!',
+    welcomeBtn: '👋 Welcome Screen',
+    jeopardyBtn: '🎮 Start Jeopardy',
+    finaleBtn: '🏆 Finale Screen',
+    finaleTitle: 'PARTY FINALE',
+    finaleWinnerTitle: '🏆 GRAND CHAMPION 🏆',
+    finaleWinnerSubtitle: 'Congratulations to our top performer!',
+    finaleStatsTitle: 'PARTY STATISTICS',
+    finaleTotalPoints: 'Total Points Scored',
+    finaleAvgPoints: 'Average Points / Player',
+    finaleTotalPlayers: 'Total Players',
+    finaleTopTeam: 'Top Performing Table',
+    goodbyeTitle: 'THANKS FOR COMING!',
+    goodbyeSubtitle: 'Thank you for celebrating with us tonight! We hope you had a wonderful time. Have a safe journey home!',
+    goodbyeWrapUpBtn: '👋 Wrap Up & Say Goodbye'
   },
   admin: {
     gateTitle: 'Host Center',

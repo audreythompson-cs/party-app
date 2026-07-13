@@ -131,17 +131,42 @@ export default function TVDisplay() {
   }, []);
 
   const handleStartJeopardy = async () => {
+    const currentJeopardy = gameState?.jeopardy || {
+      activeClue: null,
+      buzzedPlayerId: null,
+      buzzedPlayerName: null,
+      buzzedTimestamp: null,
+      buzzerLocked: false,
+      completedClues: [],
+      failedPlayers: []
+    };
     await updateGameState({
       activeGame: 'jeopardy',
-      jeopardy: {
-        activeClue: null,
-        buzzedPlayerId: null,
-        buzzedPlayerName: null,
-        buzzedTimestamp: null,
-        buzzerLocked: false,
-        completedClues: [],
-        failedPlayers: []
-      }
+      jeopardy: currentJeopardy
+    });
+  };
+
+  const handleStartWelcome = async () => {
+    await updateGameState({
+      activeGame: 'welcome'
+    });
+  };
+
+  const handleStartFinale = async () => {
+    await updateGameState({
+      activeGame: 'finale'
+    });
+  };
+
+  const handleStartGoodbye = async () => {
+    await updateGameState({
+      activeGame: 'goodbye'
+    });
+  };
+
+  const handleBackToLeaderboard = async () => {
+    await updateGameState({
+      activeGame: null
     });
   };
 
@@ -405,7 +430,282 @@ export default function TVDisplay() {
     );
   };
 
-  const isJeopardyActive = gameState?.activeGame === 'jeopardy';
+  const renderWelcome = () => {
+    return (
+      <div className="tv-welcome-screen animate-scale-up">
+        <div className="welcome-card glass-panel">
+          <span className="welcome-emoji">👋</span>
+          <h1>{STRINGS.tv.welcomeTitle}</h1>
+          <p className="welcome-subtitle">{STRINGS.tv.welcomeSubtitle}</p>
+          
+          <div className="qr-container welcome-qr">
+            <img src={qrCodeUrl} alt="Join QR Code" className="qr-image" />
+            <div className="qr-border-corner top-left"></div>
+            <div className="qr-border-corner top-right"></div>
+            <div className="qr-border-corner bottom-left"></div>
+            <div className="qr-border-corner bottom-right"></div>
+          </div>
+          
+          <div className="join-url-pill">
+            <span className="join-url-label">Visit:</span>
+            <span className="join-url-text">{joinUrl.replace(/(^\w+:|^)\/\//, '')}</span>
+          </div>
+
+          <button onClick={handleBackToLeaderboard} className="btn-secondary back-to-leaderboard-btn">
+            {STRINGS.tv.backToLeaderboard}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderGoodbye = () => {
+    return (
+      <div className="tv-goodbye-screen animate-scale-up">
+        <div className="goodbye-card glass-panel">
+          <span className="heart-icon">💖</span>
+          <h1>{STRINGS.tv.goodbyeTitle}</h1>
+          <p className="goodbye-subtitle">{STRINGS.tv.goodbyeSubtitle}</p>
+          
+          <div className="goodbye-links-grid">
+            <a href="#photos" onClick={(e) => e.preventDefault()} className="goodbye-link-card glass-panel">
+              <span className="link-icon">📸</span>
+              <span className="link-title">Photo Album</span>
+              <span className="link-desc">Share and view party photos</span>
+            </a>
+            <a href="#playlist" onClick={(e) => e.preventDefault()} className="goodbye-link-card glass-panel">
+              <span className="link-icon">🎵</span>
+              <span className="link-title">Party Playlist</span>
+              <span className="link-desc">Listen back to tonight's tracks</span>
+            </a>
+          </div>
+
+          <button onClick={handleBackToLeaderboard} className="btn-secondary back-to-leaderboard-btn">
+            {STRINGS.tv.backToLeaderboard}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderFinale = () => {
+    const topThree = leaderboard.slice(0, 3);
+    const totalPlayers = leaderboard.length;
+    const totalPoints = leaderboard.reduce((sum, p) => sum + (p.points ?? 0), 0);
+    const avgPoints = totalPlayers > 0 ? Math.round(totalPoints / totalPlayers) : 0;
+    
+    // Group points by team
+    const teamScores = {};
+    leaderboard.forEach(p => {
+      const t = p.team || 'teal';
+      teamScores[t] = (teamScores[t] || 0) + (p.points ?? 0);
+    });
+    
+    let topTeamKey = 'teal';
+    let maxTeamScore = -1;
+    Object.keys(teamScores).forEach(t => {
+      if (teamScores[t] > maxTeamScore) {
+        maxTeamScore = teamScores[t];
+        topTeamKey = t;
+      }
+    });
+    const topTeam = TEAMS[topTeamKey] || TEAMS.teal;
+
+    // Podium layout: 2nd, 1st, 3rd visually
+    const podiumPlayers = [];
+    if (topThree[1]) podiumPlayers.push({ ...topThree[1], rank: 2, label: '🥈 2nd' });
+    if (topThree[0]) podiumPlayers.push({ ...topThree[0], rank: 1, label: '👑 1st' });
+    if (topThree[2]) podiumPlayers.push({ ...topThree[2], rank: 3, label: '🥉 3rd' });
+
+    return (
+      <div className="tv-finale-screen animate-fade-in">
+        {/* Podium Area */}
+        <div className="podium-container">
+          {podiumPlayers.length === 0 ? (
+            <p className="no-players-msg">No players registered yet.</p>
+          ) : (
+            <div className="podium-wrapper">
+              {podiumPlayers.map((p) => {
+                const team = TEAMS[p.team] || TEAMS.teal;
+                return (
+                  <div key={p.uid} className={`podium-column rank-${p.rank}`} style={{ '--team-color': team.color }}>
+                    <div className="podium-player-card glass-panel">
+                      {p.rank === 1 && <div className="podium-crown">👑</div>}
+                      <span className="podium-player-name">{p.name}</span>
+                      <span className="podium-player-points">{p.points ?? 0} pts</span>
+                      <span className="podium-player-team" style={{ borderColor: team.color, color: team.color }}>
+                        {team.name}
+                      </span>
+                    </div>
+                    <div className="podium-pedestal">
+                      <span className="podium-rank-label">{p.label}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Stats Section */}
+        <div className="finale-stats-section">
+          <h2>{STRINGS.tv.finaleStatsTitle}</h2>
+          <div className="stats-grid">
+            <div className="stat-card glass-panel">
+              <span className="stat-value">{totalPoints}</span>
+              <span className="stat-label">{STRINGS.tv.finaleTotalPoints}</span>
+            </div>
+            <div className="stat-card glass-panel">
+              <span className="stat-value">{avgPoints}</span>
+              <span className="stat-label">{STRINGS.tv.finaleAvgPoints}</span>
+            </div>
+            <div className="stat-card glass-panel">
+              <span className="stat-value">{totalPlayers}</span>
+              <span className="stat-label">{STRINGS.tv.finaleTotalPlayers}</span>
+            </div>
+            <div className="stat-card glass-panel" style={{ '--accent-color': topTeam.color }}>
+              <span className="stat-value team-name-val" style={{ color: topTeam.color }}>{topTeam.name}</span>
+              <span className="stat-label">{STRINGS.tv.finaleTopTeam} ({maxTeamScore} pts)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Controls */}
+        <div className="finale-actions">
+          <button onClick={handleStartGoodbye} className="btn-primary goodbye-wrapup-btn">
+            {STRINGS.tv.goodbyeWrapUpBtn}
+          </button>
+          <button onClick={handleBackToLeaderboard} className="btn-secondary">
+            {STRINGS.tv.backToLeaderboard}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderStandardLeaderboard = () => {
+    return (
+      <div className="tv-content">
+        {/* Left Side: Entry Card & QR code */}
+        <section className="tv-join-card glass-panel animate-scale-up">
+          <h2>{STRINGS.tv.joinText}</h2>
+          <p className="tv-join-instructions">{STRINGS.tv.scanQr}</p>
+          
+          <div className="qr-container">
+            <img src={qrCodeUrl} alt="Join QR Code" className="qr-image" />
+            <div className="qr-border-corner top-left"></div>
+            <div className="qr-border-corner top-right"></div>
+            <div className="qr-border-corner bottom-left"></div>
+            <div className="qr-border-corner bottom-right"></div>
+          </div>
+          
+          <div className="join-url-pill" style={{ marginBottom: '10px' }}>
+            <span className="join-url-label">Visit:</span>
+            <span className="join-url-text">{joinUrl.replace(/(^\w+:|^)\/\//, '')}</span>
+          </div>
+
+          <div className="tv-navigation-buttons">
+            <button onClick={handleStartWelcome} className="btn-secondary tv-nav-btn">
+              {STRINGS.tv.welcomeBtn}
+            </button>
+            <button onClick={handleStartJeopardy} className="btn-primary tv-nav-btn">
+              {STRINGS.tv.jeopardyBtn}
+            </button>
+            <button onClick={handleStartFinale} className="btn-secondary tv-nav-btn">
+              {STRINGS.tv.finaleBtn}
+            </button>
+          </div>
+        </section>
+
+        {/* Right Side: Ranks Board */}
+        <section className="tv-leaderboard glass-panel">
+          <div className="board-header">
+            <span className="col-rank">{STRINGS.tv.rankHeader}</span>
+            <span className="col-avatar"></span>
+            <span className="col-player">{STRINGS.tv.playerHeader}</span>
+            <span className="col-score">{STRINGS.tv.scoreHeader}</span>
+          </div>
+
+          {leaderboard.length === 0 ? (
+            <div className="tv-empty-state">
+              <div className="tv-empty-spinner"></div>
+              <p>{STRINGS.leaderboard.noPlayers}</p>
+            </div>
+          ) : (
+            <div className="tv-players-container">
+              {leaderboard.map((player, index) => {
+                const rank = index + 1;
+                const playerTeam = TEAMS[player.team] || TEAMS.teal;
+                const isTopThree = rank <= 3;
+
+                return (
+                  <div 
+                    key={player.uid} 
+                    className={`tv-player-row animate-slide-in delay-${Math.min(rank, 10)} ${isTopThree ? `top-${rank}` : ''}`}
+                    style={{
+                      '--player-accent': playerTeam.color,
+                      '--player-glow': playerTeam.glow,
+                      '--player-bg': playerTeam.accentBg
+                    }}
+                  >
+                    <div className="col-rank">
+                      <span className={`tv-rank-text ${isTopThree ? 'rank-highlight' : ''}`}>
+                        {getRankEmoji(rank)}
+                      </span>
+                    </div>
+
+                    <div className="col-player">
+                      <div className="tv-player-meta">
+                        <span className="tv-player-name">{player.name}</span>
+                        <span className="tv-team-badge" style={{ borderColor: playerTeam.color, color: playerTeam.color }}>
+                          {playerTeam.name}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="col-score">
+                      <span className="tv-score-val">{player.points ?? 0}</span>
+                      <span className="tv-score-unit">pts</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </div>
+    );
+  };
+
+  const getHeaderTitle = () => {
+    switch (gameState?.activeGame) {
+      case 'welcome':
+        return STRINGS.tv.welcomeTitle;
+      case 'jeopardy':
+        return STRINGS.tv.jeopardyMode;
+      case 'finale':
+        return STRINGS.tv.finaleTitle;
+      case 'goodbye':
+        return STRINGS.tv.goodbyeTitle;
+      default:
+        return STRINGS.tv.title;
+    }
+  };
+
+  const renderActiveScreen = () => {
+    switch (gameState?.activeGame) {
+      case 'welcome':
+        return renderWelcome();
+      case 'jeopardy':
+        return gameState.jeopardy?.activeClue ? renderActiveClue() : renderJeopardyBoard();
+      case 'finale':
+        return renderFinale();
+      case 'goodbye':
+        return renderGoodbye();
+      default:
+        return renderStandardLeaderboard();
+    }
+  };
 
   return (
     <div className="tv-page">
@@ -416,7 +716,7 @@ export default function TVDisplay() {
       {/* Top Header Panel */}
       <header className="tv-header">
         <div className="tv-header-left">
-          <h1>{isJeopardyActive ? STRINGS.tv.jeopardyMode : STRINGS.tv.title}</h1>
+          <h1>{getHeaderTitle()}</h1>
         </div>
         <div className="tv-header-right">
           <span className="tv-clock">
@@ -425,95 +725,7 @@ export default function TVDisplay() {
         </div>
       </header>
 
-      {isJeopardyActive ? (
-        // Jeopardy Screens
-        gameState.jeopardy?.activeClue ? renderActiveClue() : renderJeopardyBoard()
-      ) : (
-        // Standard Leaderboard Screens
-        <div className="tv-content">
-          {/* Left Side: Entry Card & QR code */}
-          <section className="tv-join-card glass-panel animate-scale-up">
-            <h2>{STRINGS.tv.joinText}</h2>
-            <p className="tv-join-instructions">{STRINGS.tv.scanQr}</p>
-            
-            <div className="qr-container">
-              <img src={qrCodeUrl} alt="Join QR Code" className="qr-image" />
-              <div className="qr-border-corner top-left"></div>
-              <div className="qr-border-corner top-right"></div>
-              <div className="qr-border-corner bottom-left"></div>
-              <div className="qr-border-corner bottom-right"></div>
-            </div>
-            
-            <div className="join-url-pill" style={{ marginBottom: '20px' }}>
-              <span className="join-url-label">Visit:</span>
-              <span className="join-url-text">{joinUrl.replace(/(^\w+:|^)\/\//, '')}</span>
-            </div>
-
-            <button onClick={handleStartJeopardy} className="btn-primary start-jeopardy-tv-btn">
-              🎮 Start Jeopardy
-            </button>
-          </section>
-
-          {/* Right Side: Ranks Board */}
-          <section className="tv-leaderboard glass-panel">
-            <div className="board-header">
-              <span className="col-rank">{STRINGS.tv.rankHeader}</span>
-              <span className="col-avatar"></span>
-              <span className="col-player">{STRINGS.tv.playerHeader}</span>
-              <span className="col-score">{STRINGS.tv.scoreHeader}</span>
-            </div>
-
-            {leaderboard.length === 0 ? (
-              <div className="tv-empty-state">
-                <div className="tv-empty-spinner"></div>
-                <p>{STRINGS.leaderboard.noPlayers}</p>
-              </div>
-            ) : (
-              <div className="tv-players-container">
-                {leaderboard.map((player, index) => {
-                  const rank = index + 1;
-                  const playerTeam = TEAMS[player.team] || TEAMS.teal;
-                  const isTopThree = rank <= 3;
-
-                  return (
-                    <div 
-                      key={player.uid} 
-                      className={`tv-player-row animate-slide-in delay-${Math.min(rank, 10)} ${isTopThree ? `top-${rank}` : ''}`}
-                      style={{
-                        '--player-accent': playerTeam.color,
-                        '--player-glow': playerTeam.glow,
-                        '--player-bg': playerTeam.accentBg
-                      }}
-                    >
-                      <div className="col-rank">
-                        <span className={`tv-rank-text ${isTopThree ? 'rank-highlight' : ''}`}>
-                          {getRankEmoji(rank)}
-                        </span>
-                      </div>
-
-                      <div className="col-player">
-                        <div className="tv-player-meta">
-                          <span className="tv-player-name">{player.name}</span>
-                          <span className="tv-team-badge" style={{ borderColor: playerTeam.color, color: playerTeam.color }}>
-                            {playerTeam.name}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="col-score">
-                        <span className="tv-score-val">{player.points ?? 0}</span>
-                        <span className="tv-score-unit">pts</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-        </div>
-      )}
-
-
+      {renderActiveScreen()}
     </div>
   );
 }
