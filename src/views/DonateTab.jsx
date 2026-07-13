@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { STRINGS } from '../constants/strings';
+import '../styles/views/DonateTab.css';
 import { donatePoints } from '../firebase/db';
 
 export default function DonateTab({ profile, leaderboard }) {
@@ -14,7 +15,7 @@ export default function DonateTab({ profile, leaderboard }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!recipientId) {
-      setStatus({ type: 'error', message: 'Please select a recipient.' });
+      setStatus({ type: 'error', message: STRINGS.donate.errorNoRecipient });
       return;
     }
     const parsedAmount = parseInt(amount, 10);
@@ -42,7 +43,7 @@ export default function DonateTab({ profile, leaderboard }) {
       setRecipientId('');
     } catch (err) {
       console.error(err);
-      setStatus({ type: 'error', message: err.message || 'Donation failed. Please try again.' });
+      setStatus({ type: 'error', message: err.message || STRINGS.donate.donationFailed });
     } finally {
       setLoading(false);
     }
@@ -86,7 +87,7 @@ export default function DonateTab({ profile, leaderboard }) {
               id="amount"
               min="1"
               max={profile.points ?? 0}
-              placeholder="e.g. 10"
+              placeholder={STRINGS.donate.amountPlaceholder}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               disabled={loading || (profile.points ?? 0) <= 0}
@@ -109,117 +110,12 @@ export default function DonateTab({ profile, leaderboard }) {
             className="btn-primary donate-btn animate-glow"
             disabled={loading || !recipientId || !amount || (profile.points ?? 0) < parseInt(amount, 10)}
           >
-            {loading ? 'Sending Points...' : STRINGS.donate.buttonSubmit}
+            {loading ? STRINGS.donate.buttonSubmitSending : STRINGS.donate.buttonSubmit}
           </button>
         </form>
       </div>
 
-      <style>{`
-        .donate-tab {
-          width: 100%;
-        }
 
-        .donate-container {
-          padding: 24px 20px;
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .donate-header h3 {
-          font-size: 18px;
-          margin-bottom: 4px;
-        }
-
-        .donate-header .subtitle {
-          font-size: 13px;
-          color: var(--text-muted);
-          text-align: left;
-          line-height: 1.5;
-        }
-
-        .donate-form {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .input-group {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          text-align: left;
-        }
-
-        .input-group label {
-          font-size: 13px;
-          font-weight: 600;
-          color: var(--text-bright);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          display: flex;
-          justify-content: space-between;
-        }
-
-        .balance-hint {
-          text-transform: none;
-          font-weight: 500;
-          color: var(--accent);
-        }
-
-        /* Customize native dropdown */
-        select {
-          appearance: none;
-          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-          background-repeat: no-repeat;
-          background-position: right 16px center;
-          background-size: 16px;
-          padding-right: 40px;
-        }
-
-        select option {
-          background: #110e20;
-          color: var(--text-bright);
-        }
-
-        .status-alert {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 16px;
-          border-radius: var(--radius-md);
-          font-size: 14px;
-          text-align: left;
-          border: 1px solid transparent;
-        }
-
-        .status-alert.success {
-          background: rgba(16, 185, 129, 0.08);
-          border-color: rgba(16, 185, 129, 0.2);
-          color: #34d399;
-        }
-
-        .status-alert.error {
-          background: rgba(239, 68, 68, 0.08);
-          border-color: rgba(239, 68, 68, 0.2);
-          color: #f87171;
-        }
-
-        .status-icon {
-          font-size: 18px;
-          flex-shrink: 0;
-        }
-
-        .status-alert p {
-          color: inherit;
-          margin: 0;
-        }
-
-        .donate-btn {
-          width: 100%;
-          margin-top: 10px;
-        }
-      `}</style>
     </div>
   );
 }

@@ -7,6 +7,7 @@ export const STRINGS = {
     passcodeLabel: 'Passcode',
     passcodePlaceholder: 'Passcode',
     buttonSubmit: 'Submit',
+    buttonSubmitEntering: 'Entering...',
     errorInvalid: 'Oops! That passcode doesn\'t match. Ask the host!'
   },
   onboarding: {
@@ -19,9 +20,11 @@ export const STRINGS = {
     photoButton: 'Open Camera',
     photoRetake: 'Retake Photo',
     buttonSubmit: 'Ready!',
+    buttonSubmitEntering: 'Entering Party...',
     errorNameRequired: 'Name is required.',
     errorPhotoRequired: 'Please create your avatar.',
-    errorSubmitFailed: 'Failed to create profile. Please try again.'
+    errorSubmitFailed: 'Failed to create profile. Please try again.',
+    analyzingSelfie: 'Analyzing Selfie...'
   },
   dashboard: {
     welcome: 'Hey, {name}!',
@@ -29,20 +32,26 @@ export const STRINGS = {
     rankTitle: 'Leaderboard Rank',
     historyTitle: 'Recent Point History',
     noHistory: 'No points earned yet. Go complete some goals!',
-    rankDisplay: '#{rank} of {total}'
+    rankDisplay: '#{rank} of {total}',
+    guestsSub: 'of {total} guests',
+    guestTag: 'Guest'
   },
   leaderboard: {
     title: 'Leaderboard',
     subtitle: 'Score points to climb the ladder!',
-    noPlayers: 'Waiting for guests to join...'
+    noPlayers: 'Waiting for guests to join...',
+    youSelfTag: 'You',
+    pointsUnit: 'pts'
   },
   goals: {
     title: 'Goals',
     subtitle: 'Complete these challenges during the party to earn points.',
     claimButton: 'Claim Points',
+    claimButtonClaiming: 'Claiming...',
     pendingStatus: 'Awaiting Host Approval...',
     completedStatus: 'Completed (+{points} pts)',
-    noGoals: 'No goals available yet.'
+    noGoals: 'No goals available yet.',
+    claimFailed: 'Could not submit claim. Please try again.'
   },
   donate: {
     title: 'Donate Points',
@@ -50,11 +59,15 @@ export const STRINGS = {
     recipientLabel: 'Send to:',
     recipientPlaceholder: 'Select a guest...',
     amountLabel: 'Amount (points)',
+    amountPlaceholder: 'e.g. 10',
     buttonSubmit: 'Send Points',
+    buttonSubmitSending: 'Sending Points...',
     successMsg: 'Successfully sent {amount} points to {name}!',
     errorSelf: 'You cannot send points to yourself.',
     errorInsufficient: 'Insufficient points balance.',
-    errorAmount: 'Please enter a valid positive amount.'
+    errorAmount: 'Please enter a valid positive amount.',
+    errorNoRecipient: 'Please select a recipient.',
+    donationFailed: 'Donation failed. Please try again.'
   },
   tv: {
     title: 'GRADUATION PARTY 2026',
@@ -62,7 +75,22 @@ export const STRINGS = {
     scanQr: 'Scan the QR code to sign up, see your rank, and send points!',
     rankHeader: 'RANK',
     playerHeader: 'PLAYER',
-    scoreHeader: 'SCORE'
+    scoreHeader: 'SCORE',
+    cluePoints: '{points} Points',
+    buzzersOpen: 'BUZZERS OPEN',
+    waitingForBuzz: 'Waiting for players to buzz in...',
+    playerBuzzed: '{name} BUZZED IN!',
+    correctBtn: '👍 Correct (+{points})',
+    incorrectBtn: '👎 Incorrect ({points})',
+    skipBtn: '⏰ Skip / Time\'s Up',
+    jeopardyWelcome: 'Welcome to Jeopardy!',
+    noCategories: 'No Jeopardy categories are configured yet.',
+    adminInstructions: 'Go to the Admin Dashboard (/admin), open the Jeopardy Manager tab, and add categories with questions to populate this board!',
+    backToLeaderboard: 'Back to Leaderboard',
+    deductToggle: 'Deduct points on wrong answers',
+    endGame: '🏁 End Game',
+    scores: 'SCORES',
+    jeopardyMode: 'JEOPARDY MODE'
   },
   admin: {
     gateTitle: 'Host Center',
@@ -89,6 +117,31 @@ export const STRINGS = {
     adjustCustomDescPlaceholder: 'Reason',
     adjustCustomApplyBtn: 'Apply',
     adjustErrorAmount: 'Please enter a valid number.',
-    adjustErrorFailed: 'Failed to adjust points: '
+    adjustErrorFailed: 'Failed to adjust points: ',
+    tabMain: '📋 Main Panel',
+    tabJeopardy: '🎮 Jeopardy Manager',
+    jeopardyConfiguredTitle: 'Configured Categories ({count})',
+    jeopardyEmpty: 'No Jeopardy categories configured yet.',
+    jeopardyDeleteConfirm: 'Are you sure you want to delete the category "{name}"?',
+    jeopardyCreateTitle: 'Create New Jeopardy Category',
+    jeopardyCatNameLabel: 'Category Name',
+    jeopardyCatNamePlaceholder: 'e.g. Science & Nature, Pop Culture',
+    jeopardyQuestionPlaceholder: 'Clue Question',
+    jeopardyAnswerPlaceholder: 'Clue Answer',
+    jeopardySaveBtn: '💾 Save Category'
+  },
+  jeopardyBuzzer: {
+    buzz: 'BUZZ!',
+    buzzed: 'BUZZED!',
+    tapToBuzz: 'TAP TO BUZZ IN!',
+    ready: 'Ready for next question...',
+    successMsg: 'YOU GOT IT! ANSWER OUT LOUD!',
+    locked: 'LOCKED',
+    incorrectLocked: 'Incorrect answer — you are locked out.',
+    someoneBuzzedFirst: '{name} buzzed first!',
+    buzzerLocked: 'Buzzer is currently locked.',
+    jeopardyBoardTitle: 'JEOPARDY BOARD',
+    yourPoints: 'YOUR POINTS',
+    currentTeam: 'CURRENT TEAM'
   }
 };

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { onLeaderboardChange, onPointHistoryChange, listenToGameState } from '../firebase/db';
+import { STRINGS } from '../constants/strings';
 import BottomNav from '../components/BottomNav';
+import '../styles/views/Dashboard.css';
 
 // Import Tabs
 import HomeTab from './HomeTab';
@@ -112,7 +114,7 @@ export default function Dashboard() {
             )}
           </div>
           <div className="user-welcome">
-            <span className="welcome-tag">Guest</span>
+            <span className="welcome-tag">{STRINGS.dashboard.guestTag}</span>
             <h2>{userProfile?.name}</h2>
           </div>
         </div>
@@ -134,107 +136,7 @@ export default function Dashboard() {
       {/* Bottom Navigation */}
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <style>{`
-        .dashboard-page {
-          min-height: 100vh;
-          min-height: 100svh;
-          display: flex;
-          flex-direction: column;
-          background-color: var(--bg-dark);
-        }
 
-        .dashboard-header {
-          position: sticky;
-          top: 0;
-          width: 100%;
-          max-width: 480px;
-          margin: 0 auto;
-          height: 72px;
-          border-radius: 0 0 20px 20px;
-          border-top: none;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 0 20px;
-          z-index: 100;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-        }
-
-        .header-left {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .header-avatar-container {
-          width: 42px;
-          height: 42px;
-          border-radius: 50%;
-          overflow: hidden;
-          background: rgba(255, 255, 255, 0.05);
-          border: 2px solid var(--accent);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        .header-avatar-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .cartoonified-xs {
-          filter: contrast(1.2) saturate(1.6) brightness(1.05) url(#cartoon-filter);
-        }
-
-        .header-avatar-placeholder {
-          font-size: 20px;
-        }
-
-        .user-welcome {
-          display: flex;
-          flex-direction: column;
-          text-align: left;
-        }
-
-        .welcome-tag {
-          font-size: 9px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: var(--accent);
-        }
-
-        .user-welcome h2 {
-          font-size: 16px;
-          font-weight: 700;
-          color: var(--text-bright);
-        }
-
-        .logout-btn {
-          background: none;
-          border: none;
-          color: var(--text-muted);
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s ease;
-        }
-
-        .logout-btn:hover {
-          color: #ff6f61;
-          background: rgba(255, 111, 97, 0.08);
-        }
-
-        .logout-btn:active {
-          transform: scale(0.95);
-        }
-      `}</style>
     </div>
   );
 }

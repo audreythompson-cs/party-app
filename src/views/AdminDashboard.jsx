@@ -15,6 +15,7 @@ import { TEAMS } from '../constants/teams';
 import { STRINGS } from '../constants/strings';
 import { auth } from '../firebase/config';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import '../styles/views/AdminDashboard.css';
 
 export default function AdminDashboard() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
@@ -226,31 +227,7 @@ export default function AdminDashboard() {
             <button type="submit" className="btn-primary">{STRINGS.admin.gateButton}</button>
           </form>
         </div>
-        <style>{`
-          .admin-gate-page {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-          }
-          .admin-gate-card {
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            padding: 40px 30px;
-            border-radius: 20px;
-          }
-          .gate-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-          }
-          .error-message {
-            color: #ff6f61;
-            font-size: 13px;
-          }
-        `}</style>
+
       </div>
     );
   }
@@ -268,13 +245,13 @@ export default function AdminDashboard() {
           className={`tab-nav-btn ${activeTab === 'main' ? 'active' : ''}`} 
           onClick={() => setActiveTab('main')}
         >
-          📋 Main Panel
+          {STRINGS.admin.tabMain}
         </button>
         <button 
           className={`tab-nav-btn ${activeTab === 'jeopardy' ? 'active' : ''}`} 
           onClick={() => setActiveTab('jeopardy')}
         >
-          🎮 Jeopardy Manager
+          {STRINGS.admin.tabJeopardy}
         </button>
       </div>
 
@@ -415,9 +392,9 @@ export default function AdminDashboard() {
           {/* Left Column: Configured Jeopardy Categories List */}
           <div className="admin-col">
             <section className="glass-panel admin-section">
-              <h3>Configured Categories ({jeopardyCategories.length})</h3>
+              <h3>{STRINGS.admin.jeopardyConfiguredTitle.replace('{count}', jeopardyCategories.length)}</h3>
               {jeopardyCategories.length === 0 ? (
-                <p className="empty-msg">No Jeopardy categories configured yet.</p>
+                <p className="empty-msg">{STRINGS.admin.jeopardyEmpty}</p>
               ) : (
                 <div className="goals-templates-list" style={{ gap: '12px' }}>
                   {jeopardyCategories.map((cat) => (
@@ -426,7 +403,7 @@ export default function AdminDashboard() {
                         <span className="template-title" style={{ fontSize: '15px', fontWeight: 'bold' }}>{cat.name}</span>
                         <button 
                           onClick={async () => {
-                            if (window.confirm(`Are you sure you want to delete the category "${cat.name}"?`)) {
+                            if (window.confirm(STRINGS.admin.jeopardyDeleteConfirm.replace('{name}', cat.name))) {
                               await deleteJeopardyCategory(cat.id);
                             }
                           }} 
@@ -456,13 +433,13 @@ export default function AdminDashboard() {
           {/* Right Column: Add Category Form */}
           <div className="admin-col">
             <section className="glass-panel admin-section">
-              <h3>Create New Jeopardy Category</h3>
+              <h3>{STRINGS.admin.jeopardyCreateTitle}</h3>
               <form onSubmit={handleCreateJeopardyCategory} className="goal-builder-form" style={{ gap: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', letterSpacing: '0.05em', marginBottom: '8px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Category Name</label>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', letterSpacing: '0.05em', marginBottom: '8px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{STRINGS.admin.jeopardyCatNameLabel}</label>
                   <input
                     type="text"
-                    placeholder="e.g. Science & Nature, Pop Culture"
+                    placeholder={STRINGS.admin.jeopardyCatNamePlaceholder}
                     value={newCatName}
                     onChange={(e) => setNewCatName(e.target.value)}
                     required
@@ -481,14 +458,14 @@ export default function AdminDashboard() {
                         <span style={{ fontWeight: 'bold', color: 'var(--accent)', fontSize: '13px' }}>{points} pts</span>
                         <input
                           type="text"
-                          placeholder="Clue Question"
+                          placeholder={STRINGS.admin.jeopardyQuestionPlaceholder}
                           value={qVal}
                           onChange={(e) => setQ(e.target.value)}
                           required
                         />
                         <input
                           type="text"
-                          placeholder="Clue Answer"
+                          placeholder={STRINGS.admin.jeopardyAnswerPlaceholder}
                           value={aVal}
                           onChange={(e) => setA(e.target.value)}
                           required
@@ -499,7 +476,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <button type="submit" className="btn-primary" style={{ marginTop: '10px' }}>
-                  💾 Save Category
+                  {STRINGS.admin.jeopardySaveBtn}
                 </button>
               </form>
             </section>
@@ -508,302 +485,7 @@ export default function AdminDashboard() {
         </main>
       )}
 
-      <style>{`
-        .admin-page {
-          min-height: 100vh;
-          background: #090614;
-          color: var(--text-main);
-          padding: 30px;
-          display: flex;
-          flex-direction: column;
-          gap: 25px;
-          font-family: var(--font-sans);
-        }
 
-        .admin-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 16px 24px;
-        }
-
-        .admin-header h1 {
-          font-size: 24px;
-        }
-
-        .admin-tab-nav {
-          display: flex;
-          gap: 15px;
-          padding: 12px 20px;
-          border-radius: 12px;
-          margin-bottom: 5px;
-        }
-
-        .tab-nav-btn {
-          background: none;
-          border: none;
-          padding: 8px 16px;
-          color: var(--text-muted);
-          font-weight: 700;
-          font-size: 14px;
-          cursor: pointer;
-          border-radius: 8px;
-          transition: all 0.2s ease;
-        }
-
-        .tab-nav-btn:hover {
-          color: var(--text-bright);
-          background: rgba(255, 255, 255, 0.04);
-        }
-
-        .tab-nav-btn.active {
-          color: var(--accent);
-          background: var(--accent-bg);
-          box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        .admin-main-container {
-          display: grid;
-          grid-template-columns: 1fr 1.2fr;
-          gap: 30px;
-          flex: 1;
-        }
-
-        .admin-col {
-          display: flex;
-          flex-direction: column;
-          gap: 30px;
-        }
-
-        .admin-section {
-          padding: 24px;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          height: fit-content;
-        }
-
-        .admin-section h3 {
-          font-size: 16px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          padding-bottom: 10px;
-        }
-
-        .empty-msg {
-          color: var(--text-muted);
-          font-size: 13px;
-          text-align: center;
-          padding: 20px 0;
-        }
-
-        /* Queue List */
-        .queue-list {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          max-height: 250px;
-          overflow-y: auto;
-        }
-
-        .queue-card {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          padding: 12px 16px;
-          border-radius: var(--radius-md);
-        }
-
-        .queue-info {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          text-align: left;
-          gap: 2px;
-        }
-
-        .queue-player {
-          font-weight: 700;
-          color: var(--text-bright);
-        }
-
-        .queue-goal {
-          font-size: 12px;
-          color: var(--text-muted);
-        }
-
-        .queue-points {
-          font-size: 12px;
-          font-weight: 600;
-          color: var(--accent);
-        }
-
-        .approve-btn {
-          padding: 6px 12px;
-          font-size: 12px;
-          border-radius: 8px;
-        }
-
-        /* Goal Builder Form */
-        .goal-builder-form {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-
-        .goals-templates-list {
-          margin-top: 15px;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .goals-templates-list h4 {
-          font-size: 13px;
-          color: var(--text-muted);
-          text-align: left;
-          margin-bottom: 5px;
-        }
-
-        .template-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: rgba(255, 255, 255, 0.02);
-          padding: 8px 12px;
-          border-radius: 8px;
-          font-size: 13px;
-        }
-
-        .template-info {
-          display: flex;
-          gap: 6px;
-        }
-
-        .template-title {
-          font-weight: 600;
-          color: var(--text-bright);
-        }
-
-        .template-pts {
-          color: var(--accent);
-        }
-
-        .delete-goal-btn {
-          background: none;
-          border: none;
-          color: var(--text-muted);
-          cursor: pointer;
-        }
-
-        .delete-goal-btn:hover {
-          color: #ff6f61;
-        }
-
-        /* Player Manager */
-        .players-admin-list {
-          display: flex;
-          flex-direction: column;
-          gap: 15px;
-          max-height: 550px;
-          overflow-y: auto;
-          padding-right: 5px;
-        }
-
-        .player-admin-card {
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-left: 4px solid var(--accent);
-          border-radius: var(--radius-md);
-          padding: 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-        }
-
-        .player-card-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .header-meta {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .admin-player-avatar {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .player-name-bold {
-          font-weight: 700;
-          color: var(--text-bright);
-        }
-
-        .player-team-tag {
-          font-size: 11px;
-          font-weight: 600;
-        }
-
-        .player-points-tag {
-          font-family: var(--font-heading);
-          font-weight: 800;
-          font-size: 16px;
-          color: var(--text-bright);
-        }
-
-        /* Adjustments layout */
-        .adjustment-tools {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-
-        .quick-adjust-row {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 6px;
-        }
-
-        .btn-quick {
-          padding: 6px;
-          font-size: 11px;
-          font-weight: 700;
-          border-radius: 6px;
-          background: rgba(255, 255, 255, 0.04);
-          color: var(--text-main);
-        }
-
-        .btn-quick:hover {
-          background: rgba(255, 255, 255, 0.08);
-          color: var(--text-bright);
-        }
-
-        .custom-adjust-row {
-          display: grid;
-          grid-template-columns: 80px 1fr auto;
-          gap: 8px;
-        }
-
-        .custom-adjust-row input {
-          padding: 8px 10px;
-          font-size: 12px;
-          border-radius: 8px;
-        }
-
-        .adjust-apply-btn {
-          padding: 8px 14px;
-          font-size: 12px;
-          border-radius: 8px;
-        }
-      `}</style>
     </div>
   );
 }
