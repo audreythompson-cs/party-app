@@ -314,3 +314,149 @@
   font-size: 12px;
   border-radius: 8px;
 }
+
+/* TV Remote Panel Styles */
+.admin-remote-panel {
+  border: 1px solid rgba(139, 92, 246, 0.25); /* Purple accent tint */
+  background: linear-gradient(135deg, rgba(20, 16, 45, 0.6) 0%, rgba(10, 8, 25, 0.8) 100%);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 16px;
+}
+
+.remote-status-badge {
+  font-size: 11px;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: var(--text-bright);
+}
+
+.remote-screen-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.remote-label {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.remote-btn-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.remote-nav-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  padding: 14px 10px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.remote-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-bright);
+}
+
+.remote-nav-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+/* Success/Error button styles for Clue Resolution */
+.success-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+}
+.success-btn:hover {
+  background: #059669;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+.success-btn:disabled, .error-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none !important;
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.2);
+}
+
+.error-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+}
+.error-btn:hover {
+  background: #dc2626;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+/* Responsive Mobile Adjustments */
+@media (max-width: 768px) {
+  .admin-page {
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .admin-header h1 {
+    font-size: 18px;
+  }
+
+  .admin-header {
+    padding: 12px 16px;
+  }
+
+  .admin-main-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .admin-tab-nav {
+    padding: 8px 12px;
+  }
+
+  .tab-nav-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+    flex: 1;
+    text-align: center;
+  }
+
+  /* Remote button group full width or columns */
+  .remote-btn-group {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .remote-nav-btn {
+    padding: 16px 8px; /* Taller touch targets */
+    font-size: 12px;
+  }
+
+  .quick-adjust-row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .custom-adjust-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .custom-adjust-row button {
+    grid-column: span 1;
+  }
+}

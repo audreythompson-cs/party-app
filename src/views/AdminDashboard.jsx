@@ -9,7 +9,9 @@ import {
   onGoalsChange,
   addJeopardyCategory,
   deleteJeopardyCategory,
-  onJeopardyCategoriesChange
+  onJeopardyCategoriesChange,
+  listenToGameState,
+  updateGameState
 } from '../firebase/db';
 import { TEAMS } from '../constants/teams';
 import { STRINGS } from '../constants/strings';
@@ -23,6 +25,9 @@ export default function AdminDashboard() {
   const [passcodeError, setPasscodeError] = useState('');
   const [isFirebaseAuthed, setIsFirebaseAuthed] = useState(false);
 
+  // TV Remote panel toggle state
+  const [isRemoteCollapsed, setIsRemoteCollapsed] = useState(false);
+
   // Tabs
   const [activeTab, setActiveTab] = useState('main'); // 'main' or 'jeopardy'
 
@@ -31,6 +36,7 @@ export default function AdminDashboard() {
   const [goalRequests, setGoalRequests] = useState([]);
   const [goalsList, setGoalsList] = useState([]);
   const [jeopardyCategories, setJeopardyCategories] = useState([]);
+  const [gameState, setGameState] = useState(null);
 
   // Jeopardy Creator Form State
   const [newCatName, setNewCatName] = useState('');
@@ -96,12 +102,16 @@ export default function AdminDashboard() {
       const unsubJeopardy = onJeopardyCategoriesChange((data) => {
         setJeopardyCategories(data);
       });
+      const unsubGame = listenToGameState((data) => {
+        setGameState(data);
+      });
 
       return () => {
         unsubPlayers();
         unsubRequests();
         unsubGoals();
         unsubJeopardy();
+        unsubGame();
       };
     }
   }, [isAdminAuthenticated, isFirebaseAuthed]);
@@ -208,6 +218,168 @@ export default function AdminDashboard() {
     }
   };
 
+  // TV Remote Actions
+  const handleSwitchScreen = async (screen) => {
+    if (screen === 'welcome') {
+      await updateGameState({ activeGame: 'welcome', welcomeState: null });
+    } else if (screen === 'jeopardy') {
+      const currentJeopardy = gameState?.jeopardy || {
+        activeClue: null,
+        buzzedPlayerId: null,
+        buzzedPlayerName: null,
+        buzzedTimestamp: null,
+        buzzerLocked: false,
+        completedClues: [],
+        failedPlayers: []
+      };
+      await updateGameState({ activeGame: 'jeopardy', jeopardy: currentJeopardy });
+    } else if (screen === 'finale') {
+      await updateGameState({ activeGame: 'finale', finaleStep: 0 });
+    } else if (screen === 'goodbye') {
+      await updateGameState({ activeGame: 'goodbye' });
+    } else {
+      await updateGameState({ activeGame: null, welcomeState: null, finaleStep: null });
+    }
+  };
+
+  const handleReleaseBalloonsAdmin = async () => {
+    await updateGameState({ welcomeState: 'released' });
+  };
+
+  const handleSelectClueAdmin = async (cat, clueIndex, clue) => {
+    const clueId = `${cat.id}_${clue.points}`;
+    if (gameState?.jeopardy?.completedClues?.includes(clueId)) return;
+
+    const updatedJeopardy = {
+      ...(gameState?.jeopardy || {}),
+      activeClue: {
+        categoryId: cat.id,
+        categoryName: cat.name,
+        clueIndex: clueIndex,
+        points: clue.points,
+        question: clue.question,
+        answer: clue.answer
+      },
+      buzzedPlayerId: null,
+      buzzedPlayerName: null,
+      buzzedTimestamp: null,
+      buzzerLocked: false,
+      completedClues: gameState?.jeopardy?.completedClues || [],
+      failedPlayers: []
+    };
+    
+    await updateGameState({
+      activeGame: 'jeopardy',
+      jeopardy: updatedJeopardy
+    });
+  };
+
+  const handleResolveClueAdmin = async (isCorrect) => {
+    if (!gameState?.jeopardy) return;
+    const clue = gameState.jeopardy.activeClue;
+    const playerId = gameState.jeopardy.buzzedPlayerId;
+    const clueId = `${clue.categoryId}_${clue.points}`;
+
+    if (isCorrect) {
+      try {
+        await adjustPointsAdmin(playerId, clue.points, `Jeopardy Correct: ${clue.categoryName}`);
+      } catch (err) {
+        console.error("Failed to adjust points:", err);
+      }
+
+      const completed = [...(gameState.jeopardy.completedClues || []), clueId];
+      await updateGameState({
+        jeopardy: {
+          ...gameState.jeopardy,
+          activeClue: null,
+          buzzedPlayerId: null,
+          buzzedPlayerName: null,
+          buzzedTimestamp: null,
+          buzzerLocked: false,
+          completedClues: completed,
+          failedPlayers: []
+        }
+      });
+    } else {
+      if (gameState.jeopardy.deductPoints) {
+        try {
+          await adjustPointsAdmin(playerId, -clue.points, `Jeopardy Incorrect: ${clue.categoryName}`);
+        } catch (err) {
+          console.error("Failed to deduct points:", err);
+        }
+      }
+      
+      const failed = [...(gameState.jeopardy.failedPlayers || []), playerId];
+      await updateGameState({
+        jeopardy: {
+          ...gameState.jeopardy,
+          buzzedPlayerId: null,
+          buzzedPlayerName: null,
+          buzzedTimestamp: null,
+          buzzerLocked: false,
+          failedPlayers: failed
+        }
+      });
+    }
+  };
+
+  const handleSkipClueAdmin = async () => {
+    if (!gameState?.jeopardy) return;
+    const clue = gameState.jeopardy.activeClue;
+    const clueId = `${clue.categoryId}_${clue.points}`;
+    
+    const completed = [...(gameState.jeopardy.completedClues || []), clueId];
+    await updateGameState({
+      jeopardy: {
+        ...gameState.jeopardy,
+        activeClue: null,
+        buzzedPlayerId: null,
+        buzzedPlayerName: null,
+        buzzedTimestamp: null,
+        buzzerLocked: false,
+        completedClues: completed,
+        failedPlayers: []
+      }
+    });
+  };
+
+  const handleToggleDeductAdmin = async (checked) => {
+    await updateGameState({
+      jeopardy: {
+        ...(gameState?.jeopardy || {}),
+        deductPoints: checked
+      }
+    });
+  };
+
+  const handleEndJeopardyAdmin = async () => {
+    if (window.confirm("Are you sure you want to end Jeopardy and return to the leaderboard?")) {
+      await updateGameState({
+        activeGame: null,
+        jeopardy: null
+      });
+    }
+  };
+
+  const handleNextFinaleStepAdmin = async () => {
+    const currentStep = gameState?.finaleStep ?? 0;
+    const nextStep = currentStep + 1;
+    if (nextStep <= 5) {
+      await updateGameState({ finaleStep: nextStep });
+    }
+  };
+
+  const handlePrevFinaleStepAdmin = async () => {
+    const currentStep = gameState?.finaleStep ?? 0;
+    if (currentStep > 0) {
+      await updateGameState({ finaleStep: currentStep - 1 });
+    }
+  };
+
+  const handleResetFinaleStepsAdmin = async () => {
+    await updateGameState({ finaleStep: 0 });
+  };
+
   // Render Gatekeep Screen
   if (!isAdminAuthenticated) {
     return (
@@ -239,6 +411,285 @@ export default function AdminDashboard() {
         <h1>{STRINGS.admin.headerTitle}</h1>
         <button onClick={() => setIsAdminAuthenticated(false)} className="btn-secondary logout-btn">{STRINGS.admin.headerLock}</button>
       </header>
+
+      {/* TV Screen Remote Control Panel */}
+      <section className="glass-panel admin-remote-panel">
+        <div className="remote-header" onClick={() => setIsRemoteCollapsed(!isRemoteCollapsed)} style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '20px' }}>📺</span>
+            <h2 style={{ margin: 0, fontSize: '16px', letterSpacing: '0.05em' }}>TV SCREEN REMOTE CONTROL</h2>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span className="remote-status-badge">
+              TV Screen: <strong style={{ color: 'var(--accent)' }}>{(gameState?.activeGame || 'leaderboard').toUpperCase()}</strong>
+            </span>
+            <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{isRemoteCollapsed ? '▼' : '▲'}</span>
+          </div>
+        </div>
+
+        {!isRemoteCollapsed && (
+          <div className="remote-body" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Screen selection buttons */}
+            <div className="remote-screen-selector">
+              <span className="remote-label">Switch TV View:</span>
+              <div className="remote-btn-group">
+                <button 
+                  onClick={() => handleSwitchScreen('welcome')} 
+                  className={`remote-nav-btn ${gameState?.activeGame === 'welcome' ? 'active' : ''}`}
+                >
+                  Welcome Screen
+                </button>
+                <button 
+                  onClick={() => handleSwitchScreen('jeopardy')} 
+                  className={`remote-nav-btn ${gameState?.activeGame === 'jeopardy' ? 'active' : ''}`}
+                >
+                  Jeopardy
+                </button>
+                <button 
+                  onClick={() => handleSwitchScreen(null)} 
+                  className={`remote-nav-btn ${!gameState?.activeGame ? 'active' : ''}`}
+                >
+                  Leaderboard
+                </button>
+                <button 
+                  onClick={() => handleSwitchScreen('finale')} 
+                  className={`remote-nav-btn ${gameState?.activeGame === 'finale' ? 'active' : ''}`}
+                >
+                  Finale Screen
+                </button>
+              </div>
+            </div>
+
+            {/* Context Specific Panels */}
+            {gameState?.activeGame === 'welcome' && (
+              <div className="remote-sub-card glass-panel animate-fade-in" style={{ padding: '15px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.01)' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '13px', color: 'var(--text-muted)' }}>WELCOME SCREEN CONTROLS</h4>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <button 
+                    onClick={handleReleaseBalloonsAdmin} 
+                    disabled={gameState?.welcomeState === 'released'}
+                    className="btn-primary" 
+                    style={{ flex: 1 }}
+                  >
+                    {gameState?.welcomeState === 'released' ? '🎈 Balloons Released! (Redirecting...)' : '🎈 Release Balloons & Redirect'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {gameState?.activeGame === 'jeopardy' && (
+              <div className="remote-sub-card glass-panel animate-fade-in" style={{ padding: '15px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.01)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                  <h4 style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>JEOPARDY PLAY CONTROLS</h4>
+                  <label className="deduct-toggle" style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={gameState?.jeopardy?.deductPoints || false} 
+                      onChange={(e) => handleToggleDeductAdmin(e.target.checked)} 
+                    />
+                    <span>Deduct on wrong answer</span>
+                  </label>
+                </div>
+
+                {gameState?.jeopardy?.activeClue ? (
+                  /* Active Clue remote interface */
+                  <div className="remote-active-clue-box glass-panel" style={{ padding: '15px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--accent)', marginBottom: '8px', fontWeight: 'bold' }}>
+                      <span>{gameState.jeopardy.activeClue.categoryName}</span>
+                      <span>{gameState.jeopardy.activeClue.points} Points</span>
+                    </div>
+                    <p style={{ margin: '0 0 10px 0', fontSize: '14px', fontStyle: 'italic' }}>“{gameState.jeopardy.activeClue.question}”</p>
+                    <p style={{ margin: '0 0 15px 0', fontSize: '13px', color: '#10b981', fontWeight: '600' }}>Answer: {gameState.jeopardy.activeClue.answer}</p>
+
+                    {/* Buzzer remote status */}
+                    <div style={{ background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '6px', textAlign: 'center', marginBottom: '15px' }}>
+                      {gameState.jeopardy.buzzedPlayerId ? (
+                        <div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Buzzed In!</div>
+                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--accent)', marginTop: '4px' }}>🙋‍♂️ {gameState.jeopardy.buzzedPlayerName}</div>
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                          <span className="glowing-dot" style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', marginRight: '6px', boxShadow: '0 0 8px #10b981' }}></span>
+                          Buzzers open. Waiting for players...
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button 
+                        disabled={!gameState.jeopardy.buzzedPlayerId} 
+                        onClick={() => handleResolveClueAdmin(true)} 
+                        className="btn-primary success-btn" 
+                        style={{ flex: 1, padding: '12px', fontSize: '13px' }}
+                      >
+                        Correct (+{gameState.jeopardy.activeClue.points})
+                      </button>
+                      <button 
+                        disabled={!gameState.jeopardy.buzzedPlayerId} 
+                        onClick={() => handleResolveClueAdmin(false)} 
+                        className="btn-secondary error-btn" 
+                        style={{ flex: 1, padding: '12px', fontSize: '13px' }}
+                      >
+                        Incorrect
+                      </button>
+                      <button 
+                        onClick={handleSkipClueAdmin} 
+                        className="btn-secondary" 
+                        style={{ padding: '12px 16px', fontSize: '13px' }}
+                      >
+                        Skip
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Clue Selector board for Admin */
+                  <div>
+                    <p style={{ margin: '0 0 10px 0', fontSize: '12px', color: 'var(--text-muted)' }}>Tap a clue to show it on the TV:</p>
+                    {jeopardyCategories.length === 0 ? (
+                      <p style={{ fontSize: '12px', fontStyle: 'italic', color: 'var(--text-muted)' }}>No categories configured yet. Go to the Jeopardy Manager tab to add some.</p>
+                    ) : (
+                      <div style={{ overflowX: 'auto', paddingBottom: '10px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${jeopardyCategories.length}, 120px)`, gap: '10px' }}>
+                          {jeopardyCategories.map((cat) => (
+                            <div key={cat.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              <div style={{ fontSize: '11px', fontWeight: 'bold', background: 'rgba(255,255,255,0.05)', padding: '6px', borderRadius: '4px', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={cat.name}>
+                                {cat.name}
+                              </div>
+                              {[100, 200, 300, 400, 500].map((pts, idx) => {
+                                const clueId = `${cat.id}_${pts}`;
+                                const isCompleted = gameState?.jeopardy?.completedClues?.includes(clueId);
+                                const clue = cat.clues[idx] || { points: pts, question: '', answer: '' };
+                                return (
+                                  <button
+                                    key={pts}
+                                    disabled={isCompleted || !clue.question}
+                                    onClick={() => handleSelectClueAdmin(cat, idx, clue)}
+                                    style={{
+                                      padding: '10px 0',
+                                      fontSize: '12px',
+                                      borderRadius: '6px',
+                                      border: '1px solid rgba(255,255,255,0.05)',
+                                      background: isCompleted ? 'rgba(255,255,255,0.02)' : clue.question ? 'var(--accent-bg)' : 'rgba(255,255,255,0.01)',
+                                      color: isCompleted ? 'rgba(255,255,255,0.1)' : clue.question ? 'var(--accent)' : 'rgba(255,255,255,0.15)',
+                                      cursor: isCompleted || !clue.question ? 'not-allowed' : 'pointer',
+                                      fontWeight: 'bold',
+                                      transition: 'all 0.2s'
+                                    }}
+                                  >
+                                    {!clue.question ? '—' : isCompleted ? '✓' : pts}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div style={{ marginTop: '15px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+                  <button onClick={handleEndJeopardyAdmin} className="btn-secondary" style={{ fontSize: '12px', padding: '6px 12px' }}>
+                    End Jeopardy Game
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {gameState?.activeGame === 'finale' && (
+              <div className="remote-sub-card glass-panel animate-fade-in" style={{ padding: '15px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.01)' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '13px', color: 'var(--text-muted)' }}>FINALE SEQUENCE REVEALS</h4>
+                
+                {/* Step indicator bar */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                  <span>Current Reveal Step:</span>
+                  <span style={{ fontWeight: 'bold', color: 'var(--accent)' }}>
+                    {gameState.finaleStep === 0 ? 'Empty Podium' :
+                     gameState.finaleStep === 1 ? '3rd Place Revealed' :
+                     gameState.finaleStep === 2 ? '2nd & 3rd Revealed' :
+                     gameState.finaleStep === 3 ? 'Winner (1st) Revealed! 👑' :
+                     gameState.finaleStep === 4 ? 'Statistics Revealed' :
+                     'Goodbye Controls Revealed'}
+                  </span>
+                </div>
+                
+                {/* Step indicators */}
+                <div style={{ display: 'flex', gap: '4px', marginBottom: '15px' }}>
+                  {[0, 1, 2, 3, 4, 5].map((step) => (
+                    <div 
+                      key={step} 
+                      style={{ 
+                        height: '6px', 
+                        flex: 1, 
+                        borderRadius: '3px', 
+                        background: (gameState?.finaleStep ?? 0) >= step ? 'var(--accent)' : 'rgba(255,255,255,0.1)',
+                        boxShadow: (gameState?.finaleStep ?? 0) >= step ? '0 0 6px var(--accent-glow)' : 'none',
+                        transition: 'all 0.3s'
+                      }}
+                    ></div>
+                  ))}
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
+                  <button 
+                    disabled={(gameState?.finaleStep ?? 0) === 0} 
+                    onClick={handlePrevFinaleStepAdmin} 
+                    className="btn-secondary" 
+                    style={{ flex: 1, padding: '10px', fontSize: '12px' }}
+                  >
+                    ◀ Back Step
+                  </button>
+                  <button 
+                    disabled={(gameState?.finaleStep ?? 0) >= 5} 
+                    onClick={handleNextFinaleStepAdmin} 
+                    className="btn-primary" 
+                    style={{ flex: 1.5, padding: '10px', fontSize: '12px' }}
+                  >
+                    {(gameState?.finaleStep ?? 0) === 0 ? 'Reveal 3rd Place ▶' :
+                     (gameState?.finaleStep ?? 0) === 1 ? 'Reveal 2nd Place ▶' :
+                     (gameState?.finaleStep ?? 0) === 2 ? 'Reveal Winner! 👑 ▶' :
+                     (gameState?.finaleStep ?? 0) === 3 ? 'Reveal Stats ▶' :
+                     (gameState?.finaleStep ?? 0) === 4 ? 'Show Wrap Up Controls ▶' :
+                     'All Steps Completed'}
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '12px' }}>
+                  <button onClick={handleResetFinaleStepsAdmin} className="btn-secondary" style={{ fontSize: '11px', padding: '6px 10px' }}>
+                    Reset Reveal Step
+                  </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={() => handleSwitchScreen('goodbye')} className="btn-primary" style={{ fontSize: '11px', padding: '6px 12px' }}>
+                      Go to Goodbye View
+                    </button>
+                    <button onClick={() => handleSwitchScreen(null)} className="btn-secondary" style={{ fontSize: '11px', padding: '6px 12px' }}>
+                      Back to Leaderboard
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!gameState?.activeGame && (
+              <div className="remote-sub-card glass-panel animate-fade-in" style={{ padding: '15px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.01)', textAlign: 'center' }}>
+                <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                  The TV page is currently showing the leaderboard. Use the buttons above to switch to other screens.
+                </p>
+              </div>
+            )}
+
+            {gameState?.activeGame === 'goodbye' && (
+              <div className="remote-sub-card glass-panel animate-fade-in" style={{ padding: '15px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.01)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic' }}>TV is showing the Goodbye wrap-up screen.</span>
+                <button onClick={() => handleSwitchScreen(null)} className="btn-secondary" style={{ fontSize: '12px', padding: '6px 12px' }}>
+                  Return to Leaderboard
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
 
       <div className="admin-tab-nav glass-panel">
         <button 
