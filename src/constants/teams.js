@@ -1,41 +1,32 @@
 // Team / Table Styling Definitions
 export const TEAMS = {
-  teal: {
-    id: 'teal',
-    name: 'Electric Teal',
-    color: '#06b6d4',
-    secondary: '#0891b2',
-    gradient: 'linear-gradient(135deg, #022329, #063c46)',
-    glow: 'rgba(6, 182, 212, 0.4)',
-    accentBg: 'rgba(6, 182, 212, 0.1)'
+  blue: {
+    id: 'blue',
+    name: 'Light Blue',
+    color: '#9ddcfa',
+    secondary: '#60a5fa',
+    gradient: 'linear-gradient(135deg, #0b151b, #04080b)',
+    glow: 'rgba(157, 220, 250, 0.35)',
+    accentBg: 'rgba(157, 220, 250, 0.08)'
   },
   purple: {
     id: 'purple',
-    name: 'Cyber Purple',
-    color: '#a855f7',
-    secondary: '#9333ea',
-    gradient: 'linear-gradient(135deg, #220335, #3c065c)',
-    glow: 'rgba(168, 85, 247, 0.4)',
-    accentBg: 'rgba(168, 85, 247, 0.1)'
+    name: 'Light Purple',
+    color: '#d8b4fe',
+    secondary: '#a78bfa',
+    gradient: 'linear-gradient(135deg, #130f1b, #07050a)',
+    glow: 'rgba(216, 180, 254, 0.35)',
+    accentBg: 'rgba(216, 180, 254, 0.08)'
   },
-  coral: {
-    id: 'coral',
-    name: 'Neon Coral',
-    color: '#ff6f61',
-    secondary: '#e55b4f',
-    gradient: 'linear-gradient(135deg, #3d1410, #5c201a)',
-    glow: 'rgba(255, 111, 97, 0.4)',
-    accentBg: 'rgba(255, 111, 97, 0.1)'
-  },
-  gold: {
-    id: 'gold',
-    name: 'Champ Gold',
-    color: '#eab308',
-    secondary: '#ca8a04',
-    gradient: 'linear-gradient(135deg, #2b2203, #463806)',
-    glow: 'rgba(234, 179, 8, 0.4)',
-    accentBg: 'rgba(234, 179, 8, 0.1)'
+  pink: {
+    id: 'pink',
+    name: 'Light Pink',
+    color: '#ffccd5',
+    secondary: '#f87171',
+    gradient: 'linear-gradient(135deg, #1c0e11, #0a0506)',
+    glow: 'rgba(255, 204, 213, 0.35)',
+    accentBg: 'rgba(255, 204, 213, 0.08)'
   }
 };
 
-export const DEFAULT_TEAM = 'teal';
+export const DEFAULT_TEAM = 'blue';

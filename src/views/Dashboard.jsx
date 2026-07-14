@@ -51,7 +51,7 @@ export default function Dashboard() {
   const totalPlayers = leaderboard.length;
 
   // Apply Team Accent Styling to Dashboard view wrapper
-  const userTeam = userProfile?.team || 'teal';
+  const userTeam = userProfile?.team || 'blue';
 
   const renderTabContent = () => {
     switch (activeTab) {

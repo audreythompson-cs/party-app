@@ -383,7 +383,7 @@ export default function AdminDashboard() {
   // Render Gatekeep Screen
   if (!isAdminAuthenticated) {
     return (
-      <div className="admin-gate-page themed-background theme-purple">
+      <div className="admin-gate-page themed-background">
         <div className="admin-gate-card glass-panel animate-scale-up">
           <h2>{STRINGS.admin.gateTitle}</h2>
           <p className="subtitle">{STRINGS.admin.gateSubtitle}</p>
@@ -406,7 +406,7 @@ export default function AdminDashboard() {
 
   // Render Main Admin Panel
   return (
-    <div className="admin-page theme-purple">
+    <div className="admin-page">
       <header className="admin-header glass-panel">
         <h1>{STRINGS.admin.headerTitle}</h1>
         <button onClick={() => setIsAdminAuthenticated(false)} className="btn-secondary logout-btn">{STRINGS.admin.headerLock}</button>
@@ -788,7 +788,7 @@ export default function AdminDashboard() {
               ) : (
                 <div className="players-admin-list">
                   {players.map((p) => {
-                    const pTeam = TEAMS[p.team] || TEAMS.teal;
+                    const pTeam = TEAMS[p.team] || TEAMS.blue;
                     return (
                       <div key={p.uid} className="player-admin-card" style={{ borderLeftColor: pTeam.color }}>
                         <div className="player-card-header">

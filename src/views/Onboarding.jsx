@@ -7,7 +7,7 @@ import '../styles/views/Onboarding.css';
 export default function Onboarding() {
   const { registerProfile } = useAuth();
   const [name, setName] = useState('');
-  const [team, setTeam] = useState('teal');
+  const [team, setTeam] = useState('blue');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

@@ -28,7 +28,7 @@ export default function Login() {
   };
 
   return (
-    <div className="login-page themed-background theme-teal">
+    <div className="login-page themed-background">
       <div className="login-card glass-panel animate-scale-up">
         <div className="logo-area">
           <div className="logo-glow">PT</div>

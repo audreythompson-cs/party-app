@@ -29,7 +29,7 @@
 /* Main Admin Panel Styles */
 .admin-page {
   min-height: 100vh;
-  background: #090614;
+  background: radial-gradient(circle at top left, #161309 0%, #080808 100%);
   color: var(--text-main);
   padding: 30px;
   display: flex;

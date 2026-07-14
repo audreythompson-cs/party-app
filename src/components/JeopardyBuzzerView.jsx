@@ -37,7 +37,7 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
     }
   };
 
-  const userTeam = profile?.team || 'teal';
+  const userTeam = profile?.team || 'blue';
 
   // State B: Clue is active - buzzer screen
   const isBuzzedByMe = buzzedPlayerId === profile.uid;

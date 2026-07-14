@@ -442,7 +442,7 @@ export default function TVDisplay() {
               <p className="no-scores-msg">No players registered yet.</p>
             ) : (
               leaderboard.slice(0, 10).map((p) => {
-                const pTeam = TEAMS[p.team] || TEAMS.teal;
+                const pTeam = TEAMS[p.team] || TEAMS.blue;
                 return (
                   <div key={p.uid} className="scoreboard-player-pill" style={{ borderLeftColor: pTeam.color }}>
                     <span className="p-name">{p.name}</span>
@@ -563,11 +563,11 @@ export default function TVDisplay() {
     // Group points by team
     const teamScores = {};
     leaderboard.forEach(p => {
-      const t = p.team || 'teal';
+      const t = p.team || 'blue';
       teamScores[t] = (teamScores[t] || 0) + (p.points ?? 0);
     });
     
-    let topTeamKey = 'teal';
+    let topTeamKey = 'blue';
     let maxTeamScore = -1;
     Object.keys(teamScores).forEach(t => {
       if (teamScores[t] > maxTeamScore) {
@@ -575,7 +575,7 @@ export default function TVDisplay() {
         topTeamKey = t;
       }
     });
-    const topTeam = TEAMS[topTeamKey] || TEAMS.teal;
+    const topTeam = TEAMS[topTeamKey] || TEAMS.blue;
 
     // Podium layout: 2nd, 1st, 3rd visually
     const podiumPlayers = [];
@@ -616,7 +616,7 @@ export default function TVDisplay() {
           ) : (
             <div className="podium-wrapper">
               {podiumPlayers.map((p) => {
-                const team = TEAMS[p.team] || TEAMS.teal;
+                const team = TEAMS[p.team] || TEAMS.blue;
                 const revealed = isPlayerRevealed(p.rank);
                 return (
                   <div key={p.uid} className={`podium-column rank-${p.rank} ${revealed ? 'revealed' : 'hidden-podium'}`} style={{ '--team-color': team.color }}>
@@ -755,7 +755,7 @@ export default function TVDisplay() {
             <div className="tv-players-container">
               {leaderboard.map((player, index) => {
                 const rank = index + 1;
-                const playerTeam = TEAMS[player.team] || TEAMS.teal;
+                const playerTeam = TEAMS[player.team] || TEAMS.blue;
                 const isTopThree = rank <= 3;
 
                 return (

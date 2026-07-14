@@ -44,7 +44,7 @@ export async function createUserProfile(userId, name, team, photoUrl) {
   const profile = {
     uid: userId,
     name: name.trim(),
-    team: team || 'teal',
+    team: team || 'blue',
     photoUrl: photoUrl || '',
     points: 0,
     isAdmin: false,

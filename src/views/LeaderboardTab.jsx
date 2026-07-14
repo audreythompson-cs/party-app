@@ -27,7 +27,7 @@ export default function LeaderboardTab({ leaderboard, currentUserId }) {
             {leaderboard.map((player, index) => {
               const rank = index + 1;
               const isSelf = player.uid === currentUserId;
-              const playerTeam = TEAMS[player.team] || TEAMS.teal;
+              const playerTeam = TEAMS[player.team] || TEAMS.blue;
 
               return (
                 <div 
