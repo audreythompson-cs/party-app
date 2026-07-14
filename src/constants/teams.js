@@ -3,29 +3,29 @@ export const TEAMS = {
   blue: {
     id: 'blue',
     name: 'Light Blue',
-    color: '#9ddcfa',
-    secondary: '#60a5fa',
-    gradient: 'linear-gradient(135deg, #0b151b, #04080b)',
-    glow: 'rgba(157, 220, 250, 0.35)',
-    accentBg: 'rgba(157, 220, 250, 0.08)'
+    color: '#60a5fa',
+    secondary: '#3b82f6',
+    gradient: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #e0f2fe 100%)',
+    glow: 'rgba(96, 165, 250, 0.25)',
+    accentBg: 'rgba(96, 165, 250, 0.05)'
   },
   purple: {
     id: 'purple',
     name: 'Light Purple',
-    color: '#d8b4fe',
-    secondary: '#a78bfa',
-    gradient: 'linear-gradient(135deg, #130f1b, #07050a)',
-    glow: 'rgba(216, 180, 254, 0.35)',
-    accentBg: 'rgba(216, 180, 254, 0.08)'
+    color: '#a78bfa',
+    secondary: '#8b5cf6',
+    gradient: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #f3e8ff 100%)',
+    glow: 'rgba(167, 139, 250, 0.25)',
+    accentBg: 'rgba(167, 139, 250, 0.05)'
   },
   pink: {
     id: 'pink',
     name: 'Light Pink',
-    color: '#ffccd5',
-    secondary: '#f87171',
-    gradient: 'linear-gradient(135deg, #1c0e11, #0a0506)',
-    glow: 'rgba(255, 204, 213, 0.35)',
-    accentBg: 'rgba(255, 204, 213, 0.08)'
+    color: '#f87171',
+    secondary: '#ef4444',
+    gradient: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #ffe4e6 100%)',
+    glow: 'rgba(248, 113, 113, 0.25)',
+    accentBg: 'rgba(248, 113, 113, 0.05)'
   }
 };
 

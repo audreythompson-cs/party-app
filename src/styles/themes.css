@@ -2,25 +2,25 @@
 
 :root {
   /* Blue Theme Specifics (Light Blue) */
-  --blue-primary: #9ddcfa;
-  --blue-secondary: #60a5fa;
-  --blue-glow: rgba(157, 220, 250, 0.35);
-  --blue-bg: rgba(157, 220, 250, 0.08);
-  --blue-gradient: linear-gradient(135deg, #0b151b, #04080b);
+  --blue-primary: #60a5fa;
+  --blue-secondary: #3b82f6;
+  --blue-glow: rgba(96, 165, 250, 0.25);
+  --blue-bg: rgba(96, 165, 250, 0.05);
+  --blue-gradient: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #e0f2fe 100%);
 
   /* Purple Theme Specifics (Light Purple) */
-  --purple-primary: #d8b4fe;
-  --purple-secondary: #a78bfa;
-  --purple-glow: rgba(216, 180, 254, 0.35);
-  --purple-bg: rgba(216, 180, 254, 0.08);
-  --purple-gradient: linear-gradient(135deg, #130f1b, #07050a);
+  --purple-primary: #a78bfa;
+  --purple-secondary: #8b5cf6;
+  --purple-glow: rgba(167, 139, 250, 0.25);
+  --purple-bg: rgba(167, 139, 250, 0.05);
+  --purple-gradient: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #f3e8ff 100%);
 
   /* Pink Theme Specifics (Light Pink) */
-  --pink-primary: #ffccd5;
-  --pink-secondary: #f87171;
-  --pink-glow: rgba(255, 204, 213, 0.35);
-  --pink-bg: rgba(255, 204, 213, 0.08);
-  --pink-gradient: linear-gradient(135deg, #1c0e11, #0a0506);
+  --pink-primary: #f87171;
+  --pink-secondary: #ef4444;
+  --pink-glow: rgba(248, 113, 113, 0.25);
+  --pink-bg: rgba(248, 113, 113, 0.05);
+  --pink-gradient: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #ffe4e6 100%);
 }
 
 /* Active Theme Mapping Classes */
