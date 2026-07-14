@@ -58,7 +58,6 @@ function playIncorrect() {
 
 export default function TVDisplay() {
   const [leaderboard, setLeaderboard] = useState([]);
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [isAuthed, setIsAuthed] = useState(false);
   const [isBalloonsReleased, setIsBalloonsReleased] = useState(false);
 
@@ -150,11 +149,6 @@ export default function TVDisplay() {
     setLastClueId(currentClueId);
   }, [gameState, lastBuzzedId, lastClueId]);
 
-  // Update clock every second
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const handleStartJeopardy = async () => {
     const currentJeopardy = gameState?.jeopardy || {
@@ -876,11 +870,6 @@ export default function TVDisplay() {
             onClick={isLeaderboardScreen ? handleStartJeopardy : undefined}
           >
             <h1>{getHeaderTitle()}</h1>
-          </div>
-          <div className="tv-header-right">
-            <span className="tv-clock">
-              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </span>
           </div>
         </header>
       )}
