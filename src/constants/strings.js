@@ -65,7 +65,7 @@ export const STRINGS = {
     donationFailed: 'Donation failed. Please try again.'
   },
   tv: {
-    title: 'GRADUATION PARTY 2026',
+    title: 'LEADERBOARD',
     joinText: 'JOIN THE PARTY!',
     scanQr: 'Scan the QR code to sign up, see your rank, and send points!',
     rankHeader: 'RANK',
