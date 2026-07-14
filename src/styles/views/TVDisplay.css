@@ -1,7 +1,7 @@
 .tv-page {
   min-height: 100vh;
   width: 100vw;
-  background: #060606;
+  background: radial-gradient(circle at center, #ffffff 0%, #e2e8f0 100%);
   color: var(--text-main);
   overflow: hidden;
   position: relative;
@@ -18,7 +18,7 @@
   filter: blur(120px);
   z-index: 1;
   pointer-events: none;
-  opacity: 0.12;
+  opacity: 0.18;
 }
 
 .glow-1 {
@@ -26,7 +26,7 @@
   left: -10%;
   width: 50vw;
   height: 50vw;
-  background: radial-gradient(circle, #d4af37 0%, transparent 70%);
+  background: radial-gradient(circle, #ca8a04 0%, transparent 70%);
 }
 
 .glow-2 {
@@ -34,7 +34,7 @@
   right: -10%;
   width: 50vw;
   height: 50vw;
-  background: radial-gradient(circle, #aa7c11 0%, transparent 70%);
+  background: radial-gradient(circle, #cbd5e1 0%, transparent 70%);
 }
 
 /* Top TV Header styling */
@@ -62,7 +62,7 @@
   font-size: 32px;
   font-weight: 800;
   letter-spacing: 0.05em;
-  background: linear-gradient(135deg, #ffffff 0%, #d4af37 100%);
+  background: linear-gradient(135deg, #0f172a 0%, var(--accent) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -73,7 +73,7 @@
   font-weight: 700;
   color: var(--text-bright);
   letter-spacing: 0.05em;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Content split grid */
@@ -97,13 +97,14 @@
   text-align: center;
   gap: 20px;
   border-radius: 28px;
-  border-color: rgba(212, 175, 55, 0.15);
-  background: rgba(18, 18, 18, 0.7);
+  border: 1px solid rgba(202, 138, 4, 0.18);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
 }
 
 .tv-join-card h2 {
   font-size: 26px;
-  background: linear-gradient(135deg, #ffffff 0%, #d4af37 100%);
+  background: linear-gradient(135deg, #0f172a 0%, var(--accent) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -118,10 +119,11 @@
 .qr-container {
   position: relative;
   padding: 15px;
-  background: #121212;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 20px;
   margin: 15px 0;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
 .qr-image {
@@ -135,7 +137,7 @@
   position: absolute;
   width: 20px;
   height: 20px;
-  border: 3px solid #d4af37;
+  border: 3px solid var(--accent);
 }
 
 .top-left { top: 0; left: 0; border-right: none; border-bottom: none; border-top-left-radius: 12px; }
@@ -147,8 +149,8 @@
   display: flex;
   gap: 8px;
   padding: 10px 18px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 30px;
   font-size: 14px;
 }
@@ -167,8 +169,8 @@
 /* TV Leaderboard styling */
 .tv-leaderboard {
   border-radius: 28px;
-  background: rgba(18, 18, 18, 0.5);
-  border-color: rgba(212, 175, 55, 0.15);
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(202, 138, 4, 0.15);
   padding: 30px;
   display: flex;
   flex-direction: column;
@@ -208,26 +210,27 @@
   display: flex;
   align-items: center;
   padding: 14px 24px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 18px;
   gap: 20px;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.02);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Top 3 Player styles */
 .top-1 {
-  background: linear-gradient(90deg, rgba(234, 179, 8, 0.08) 0%, rgba(234, 179, 8, 0.02) 100%);
-  border-color: rgba(234, 179, 8, 0.3);
-  box-shadow: 0 0 15px rgba(234, 179, 8, 0.1);
+  background: linear-gradient(90deg, rgba(202, 138, 4, 0.12) 0%, rgba(202, 138, 4, 0.03) 100%);
+  border-color: rgba(202, 138, 4, 0.35);
+  box-shadow: 0 4px 15px rgba(202, 138, 4, 0.08);
 }
 .top-2 {
-  background: linear-gradient(90deg, rgba(148, 163, 184, 0.08) 0%, rgba(148, 163, 184, 0.02) 100%);
-  border-color: rgba(148, 163, 184, 0.2);
+  background: linear-gradient(90deg, rgba(100, 116, 139, 0.1) 0%, rgba(100, 116, 139, 0.03) 100%);
+  border-color: rgba(100, 116, 139, 0.25);
 }
 .top-3 {
-  background: linear-gradient(90deg, rgba(180, 83, 9, 0.08) 0%, rgba(180, 83, 9, 0.02) 100%);
-  border-color: rgba(180, 83, 9, 0.2);
+  background: linear-gradient(90deg, rgba(180, 83, 9, 0.1) 0%, rgba(180, 83, 9, 0.03) 100%);
+  border-color: rgba(180, 83, 9, 0.25);
 }
 
 /* Column spacing */
@@ -389,9 +392,9 @@
 
 .jeopardy-clue-card {
   flex: 1;
-  background: linear-gradient(135deg, rgba(18, 18, 18, 0.85) 0%, rgba(10, 10, 10, 0.95) 100%);
-  border: 2px solid rgba(255, 255, 255, 0.05);
-  color: #fbbf24;
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+  border: 2px solid rgba(202, 138, 4, 0.2);
+  color: #ca8a04;
   font-family: var(--font-heading);
   font-size: 28px;
   font-weight: 800;
@@ -401,7 +404,7 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
   min-height: 70px;
 }
 
@@ -462,8 +465,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-left: 4px solid var(--accent);
   padding: 8px 16px;
   border-radius: 30px;
@@ -480,7 +483,7 @@
   font-family: var(--font-heading);
   font-weight: 800;
   font-size: 15px;
-  color: #fbbf24;
+  color: #ca8a04;
 }
 
 .no-scores-msg {

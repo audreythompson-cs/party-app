@@ -5,28 +5,28 @@
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-heading: 'Outfit', var(--font-sans);
 
-  /* Graduation Theme Base Tokens (Black, White, Gold) */
-  --bg-dark: #080808;
-  --bg-card: rgba(18, 18, 18, 0.7);
-  --bg-card-hover: rgba(28, 28, 28, 0.85);
-  --border-glass: rgba(212, 175, 55, 0.15);
-  --border-focus: rgba(212, 175, 55, 0.4);
-  --text-main: #f3f4f6;
-  --text-muted: #9ca3af;
-  --text-bright: #ffffff;
+  /* Graduation Theme Base Tokens (White, Silver-Grey, Gold, Black) */
+  --bg-dark: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --bg-card-hover: rgba(255, 255, 255, 0.9);
+  --border-glass: rgba(202, 138, 4, 0.18);
+  --border-focus: rgba(15, 23, 42, 0.25);
+  --text-main: #334155;
+  --text-muted: #64748b;
+  --text-bright: #0f172a;
   
   /* Shared Aesthetics */
-  --shadow-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 8px 32px 0 rgba(15, 23, 42, 0.08);
   --radius-lg: 16px;
   --radius-md: 12px;
   --radius-sm: 8px;
 
   /* Accent default variable (overridden by theme-xxx classes) */
-  --accent: #d4af37;
-  --accent-secondary: #aa7c11;
-  --accent-glow: rgba(212, 175, 55, 0.35);
-  --accent-bg: rgba(212, 175, 55, 0.08);
-  --theme-gradient: linear-gradient(135deg, #161309 0%, #060606 100%);
+  --accent: #ca8a04;
+  --accent-secondary: #854d0e;
+  --accent-glow: rgba(202, 138, 4, 0.25);
+  --accent-bg: rgba(202, 138, 4, 0.06);
+  --theme-gradient: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #e2e8f0 100%);
 }
 
 /* Reset and Global Styles */
@@ -82,8 +82,8 @@ a:hover {
 input, select, textarea {
   width: 100%;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-glass);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: var(--radius-md);
   color: var(--text-bright);
   font-family: var(--font-sans);
@@ -94,8 +94,8 @@ input, select, textarea {
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-bg), 0 0 12px var(--accent-glow);
-  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 2px var(--accent-bg), 0 0 8px var(--accent-glow);
+  background: #ffffff;
 }
 
 button {
@@ -109,11 +109,11 @@ button {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-  color: var(--text-bright);
+  background: #0f172a;
+  color: #ffffff;
   padding: 14px 24px;
   border-radius: var(--radius-md);
-  box-shadow: 0 4px 14px var(--accent-glow);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -122,8 +122,8 @@ button {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--accent-glow);
-  filter: brightness(1.1);
+  background: #ca8a04;
+  box-shadow: 0 6px 20px rgba(202, 138, 4, 0.25);
 }
 
 .btn-primary:active {
@@ -131,24 +131,24 @@ button {
 }
 
 .btn-primary:disabled {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-muted);
+  background: rgba(15, 23, 42, 0.12);
+  color: rgba(15, 23, 42, 0.4);
   box-shadow: none;
   cursor: not-allowed;
   transform: none;
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--border-glass);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   color: var(--text-bright);
   padding: 14px 24px;
   border-radius: var(--radius-md);
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--border-focus);
+  background: rgba(202, 138, 4, 0.05);
+  border-color: var(--accent);
 }
 
 /* Cards & Layout */
