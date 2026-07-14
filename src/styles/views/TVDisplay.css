@@ -55,6 +55,15 @@
   gap: 15px;
 }
 
+.clickable-header {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.clickable-header:hover {
+  transform: scale(1.05);
+}
+
 .tv-header-right {
   grid-column: 3;
   justify-self: end;
@@ -86,10 +95,14 @@
 .tv-content {
   flex: 1;
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: 280px 1fr 280px;
   gap: 40px;
   z-index: 2;
   min-height: 0; /* Important to enable overflow scrolling inside columns */
+}
+
+.tv-content .welcome-side-column {
+  align-self: end;
 }
 
 /* Join QR Code Card styling */

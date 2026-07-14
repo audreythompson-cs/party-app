@@ -68,11 +68,21 @@ export default function TVDisplay() {
   const deductPoints = gameState?.jeopardy?.deductPoints || false;
   const [lastBuzzedId, setLastBuzzedId] = useState(null);
   const [lastClueId, setLastClueId] = useState(null);
+  const [leftBalloonsReleased, setLeftBalloonsReleased] = useState(false);
+  const [rightBalloonsReleased, setRightBalloonsReleased] = useState(false);
 
   // Sync balloon released state
   useEffect(() => {
     setIsBalloonsReleased(gameState?.welcomeState === 'released');
   }, [gameState?.welcomeState]);
+
+  // Reset local balloon release states when not on leaderboard
+  useEffect(() => {
+    if (gameState?.activeGame) {
+      setLeftBalloonsReleased(false);
+      setRightBalloonsReleased(false);
+    }
+  }, [gameState?.activeGame]);
 
   // Balloon release automatically redirects back to leaderboard after 2.5 seconds
   useEffect(() => {
@@ -188,6 +198,20 @@ export default function TVDisplay() {
       welcomeState: null,
       finaleStep: null
     });
+  };
+
+  const handleLeftClick = () => {
+    setLeftBalloonsReleased(true);
+    setTimeout(() => {
+      handleStartWelcome();
+    }, 2500);
+  };
+
+  const handleRightClick = () => {
+    setRightBalloonsReleased(true);
+    setTimeout(() => {
+      handleStartFinale();
+    }, 2500);
   };
 
   const handleEndJeopardy = async () => {
@@ -704,40 +728,29 @@ export default function TVDisplay() {
   };
 
   const renderStandardLeaderboard = () => {
+    const balloonIndices = [1, 2, 3, 4, 5];
     return (
       <div className="tv-content">
-        {/* Left Side: Entry Card & QR code */}
-        <section className="tv-join-card glass-panel animate-scale-up">
-          <h2>{STRINGS.tv.joinText}</h2>
-          <p className="tv-join-instructions">{STRINGS.tv.scanQr}</p>
-          
-          <div className="qr-container">
-            <img src={qrCodeUrl} alt="Join QR Code" className="qr-image" />
-            <div className="qr-border-corner top-left"></div>
-            <div className="qr-border-corner top-right"></div>
-            <div className="qr-border-corner bottom-left"></div>
-            <div className="qr-border-corner bottom-right"></div>
+        {/* Left Side: Balloon Bundle + QR Anchor */}
+        <div 
+          className={`welcome-side-column left-side ${leftBalloonsReleased ? 'released' : ''}`}
+          onClick={handleLeftClick}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className="balloon-bundle">
+            {balloonIndices.map((i) => (
+              <img
+                key={`left-${i}`}
+                src="/balloon.svg"
+                alt={`Left Balloon ${i}`}
+                className={`balloon-item balloon-${i}`}
+              />
+            ))}
           </div>
-          
-          <div className="join-url-pill" style={{ marginBottom: '10px' }}>
-            <span className="join-url-label">Visit:</span>
-            <span className="join-url-text">{joinUrl.replace(/(^\w+:|^)\/\//, '')}</span>
-          </div>
+          <img src={qrCodeUrl} alt="Join QR Code" className="welcome-qr-image" />
+        </div>
 
-          <div className="tv-navigation-buttons">
-            <button onClick={handleStartWelcome} className="btn-secondary tv-nav-btn">
-              {STRINGS.tv.welcomeBtn}
-            </button>
-            <button onClick={handleStartJeopardy} className="btn-primary tv-nav-btn">
-              {STRINGS.tv.jeopardyBtn}
-            </button>
-            <button onClick={handleStartFinale} className="btn-secondary tv-nav-btn">
-              {STRINGS.tv.finaleBtn}
-            </button>
-          </div>
-        </section>
-
-        {/* Right Side: Ranks Board */}
+        {/* Center: Ranks Board */}
         <section className="tv-leaderboard glass-panel">
           <div className="board-header">
             <span className="col-rank">{STRINGS.tv.rankHeader}</span>
@@ -793,6 +806,25 @@ export default function TVDisplay() {
             </div>
           )}
         </section>
+
+        {/* Right Side: Balloon Bundle + QR Anchor */}
+        <div 
+          className={`welcome-side-column right-side ${rightBalloonsReleased ? 'released' : ''}`}
+          onClick={handleRightClick}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className="balloon-bundle">
+            {balloonIndices.map((i) => (
+              <img
+                key={`right-${i}`}
+                src="/balloon.svg"
+                alt={`Right Balloon ${i}`}
+                className={`balloon-item balloon-${i}`}
+              />
+            ))}
+          </div>
+          <img src={qrCodeUrl} alt="Join QR Code" className="welcome-qr-image" />
+        </div>
       </div>
     );
   };
@@ -827,6 +859,7 @@ export default function TVDisplay() {
     }
   };
 
+  const isLeaderboardScreen = !gameState?.activeGame;
   const showHeader = gameState?.activeGame !== 'welcome';
 
   return (
@@ -838,7 +871,10 @@ export default function TVDisplay() {
       {/* Top Header Panel */}
       {showHeader && (
         <header className="tv-header">
-          <div className="tv-header-left">
+          <div 
+            className={`tv-header-left ${isLeaderboardScreen ? 'clickable-header' : ''}`}
+            onClick={isLeaderboardScreen ? handleStartJeopardy : undefined}
+          >
             <h1>{getHeaderTitle()}</h1>
           </div>
           <div className="tv-header-right">
