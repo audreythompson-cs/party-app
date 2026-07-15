@@ -609,156 +609,41 @@ export default function AdminDashboard() {
             >
               finale screen
             </button>
+            <button 
+              onClick={() => handleSwitchScreen('goodbye')} 
+              className={`remote-nav-btn ${gameState?.activeGame === 'goodbye' ? 'active' : ''}`}
+            >
+              goodbye screen
+            </button>
           </div>
 
-          {/* Context Specific Panels (Stacked vertically, flat list, no cards) */}
-          {gameState?.activeGame === 'welcome' && (
-            <div className="flat-section animate-fade-in">
-              <button 
-                onClick={handleReleaseBalloonsAdmin} 
-                disabled={gameState?.welcomeState === 'released'}
-                className="btn-primary" 
-                style={{ width: '100%', padding: '14px' }}
-              >
-                {gameState?.welcomeState === 'released' ? 'balloons released' : 'release balloons'}
-              </button>
-            </div>
-          )}
-
-          {gameState?.activeGame === 'jeopardy' && (
-            <div className="flat-section animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <label style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <input 
-                  type="checkbox" 
-                  checked={gameState?.jeopardy?.deductPoints || false} 
-                  onChange={(e) => handleToggleDeductAdmin(e.target.checked)} 
-                />
-                <span>deduct points on wrong answer</span>
-              </label>
-
-              {gameState?.jeopardy?.activeClue ? (
-                <div className="active-clue-flat" style={{ padding: '12px 0', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--accent)', fontWeight: 'bold' }}>
-                    <span>{gameState.jeopardy.activeClue.categoryName}</span>
-                    <span>{gameState.jeopardy.activeClue.points} pts</span>
-                  </div>
-                  <p style={{ margin: '8px 0', fontSize: '15px', fontStyle: 'italic' }}>“{gameState.jeopardy.activeClue.question}”</p>
-                  <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#10b981', fontWeight: 'bold' }}>answer: {gameState.jeopardy.activeClue.answer}</p>
-
-                  <div style={{ background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '8px', textAlign: 'center', marginBottom: '12px' }}>
-                    {gameState.jeopardy.buzzedPlayerId ? (
-                      <span style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--accent)' }}>🙋‍♂️ {gameState.jeopardy.buzzedPlayerName}</span>
-                    ) : (
-                      <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>waiting for buzzers...</span>
-                    )}
-                  </div>
-
-                  <div className="vertical-actions">
-                    <button 
-                      disabled={!gameState.jeopardy.buzzedPlayerId} 
-                      onClick={() => handleResolveClueAdmin(true)} 
-                      className="btn-primary success-btn" 
-                    >
-                      correct (+{gameState.jeopardy.activeClue.points} pts)
-                    </button>
-                    <button 
-                      disabled={!gameState.jeopardy.buzzedPlayerId} 
-                      onClick={() => handleResolveClueAdmin(false)} 
-                      className="btn-secondary error-btn" 
-                    >
-                      incorrect
-                    </button>
-                    <button 
-                      onClick={handleSkipClueAdmin} 
-                      className="btn-secondary" 
-                    >
-                      skip clue
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  {jeopardyCategories.map((cat) => (
-                    <div key={cat.id} style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '10px' }}>
-                      <strong style={{ fontSize: '13px', color: 'var(--text-bright)' }}>{cat.name}</strong>
-                      <div className="vertical-actions">
-                        {[100, 200, 300, 400, 500].map((pts, idx) => {
-                          const clueId = `${cat.id}_${pts}`;
-                          const isCompleted = gameState?.jeopardy?.completedClues?.includes(clueId);
-                          const clue = cat.clues[idx] || { points: pts, question: '', answer: '' };
-                          return (
-                            <button
-                              key={pts}
-                              disabled={isCompleted || !clue.question}
-                              onClick={() => handleSelectClueAdmin(cat, idx, clue)}
-                              className="remote-clue-row-btn"
-                              style={{
-                                padding: '10px',
-                                fontSize: '12px',
-                                borderRadius: '8px',
-                                background: isCompleted ? 'rgba(255,255,255,0.02)' : clue.question ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.01)',
-                                color: isCompleted ? 'rgba(255,255,255,0.1)' : clue.question ? 'var(--text-bright)' : 'rgba(255,255,255,0.15)',
-                                cursor: isCompleted || !clue.question ? 'not-allowed' : 'pointer',
-                                textAlign: 'left',
-                                border: '1px solid rgba(255,255,255,0.03)'
-                              }}
-                            >
-                              {!clue.question ? `${pts} pts (empty)` : isCompleted ? `${pts} pts [completed]` : `${pts} pts`}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <button onClick={handleEndJeopardyAdmin} className="btn-secondary" style={{ marginTop: '10px' }}>
-                end jeopardy
-              </button>
-            </div>
-          )}
-
+          {/* Only render simple navigation arrows for the finale view */}
           {gameState?.activeGame === 'finale' && (
-            <div className="flat-section animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="flat-section animate-fade-in" style={{ marginTop: '10px' }}>
               <div className="vertical-actions">
-                <button 
-                  disabled={(gameState?.finaleStep ?? 0) >= 5} 
-                  onClick={handleNextFinaleStepAdmin} 
-                  className="btn-primary" 
-                >
-                  {(gameState?.finaleStep ?? 0) === 0 ? 'reveal 3rd place' :
-                   (gameState?.finaleStep ?? 0) === 1 ? 'reveal 2nd place' :
-                   (gameState?.finaleStep ?? 0) === 2 ? 'reveal winner' :
-                   (gameState?.finaleStep ?? 0) === 3 ? 'reveal stats' :
-                   (gameState?.finaleStep ?? 0) === 4 ? 'show wrap up controls' :
-                   'all reveals completed'}
-                </button>
-                <button 
-                  disabled={(gameState?.finaleStep ?? 0) === 0} 
-                  onClick={handlePrevFinaleStepAdmin} 
-                  className="btn-secondary" 
-                >
-                  back step
-                </button>
-                <button onClick={handleResetFinaleStepsAdmin} className="btn-secondary">
-                  reset reveals
-                </button>
-                <button onClick={() => handleSwitchScreen('goodbye')} className="btn-primary">
-                  go to goodbye view
-                </button>
-                <button onClick={() => handleSwitchScreen(null)} className="btn-secondary">
-                  leaderboard
-                </button>
+                {(gameState?.finaleStep ?? 0) === 0 && (
+                  <button onClick={handleNextFinaleStepAdmin} className="btn-primary" style={{ fontSize: '20px' }}>
+                    →
+                  </button>
+                )}
+                
+                {(gameState?.finaleStep ?? 0) > 0 && (gameState?.finaleStep ?? 0) < 5 && (
+                  <div className="vertical-stack" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <button onClick={handleNextFinaleStepAdmin} className="btn-primary" style={{ fontSize: '20px' }}>
+                      →
+                    </button>
+                    <button onClick={handlePrevFinaleStepAdmin} className="btn-secondary" style={{ fontSize: '20px' }}>
+                      ←
+                    </button>
+                  </div>
+                )}
+                
+                {(gameState?.finaleStep ?? 0) === 5 && (
+                  <button onClick={handlePrevFinaleStepAdmin} className="btn-secondary" style={{ fontSize: '20px' }}>
+                    ←
+                  </button>
+                )}
               </div>
-            </div>
-          )}
-
-          {gameState?.activeGame === 'goodbye' && (
-            <div className="flat-section animate-fade-in">
-              <button onClick={() => handleSwitchScreen(null)} className="btn-secondary" style={{ width: '100%' }}>
-                leaderboard
-              </button>
             </div>
           )}
         </div>
