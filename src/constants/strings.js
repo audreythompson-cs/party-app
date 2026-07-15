@@ -89,7 +89,7 @@ export const STRINGS = {
     deductToggle: 'Deduct points on wrong answers',
     endGame: 'End Game',
     scores: 'SCORES',
-    jeopardyMode: 'JEOPARDY MODE',
+    jeopardyMode: 'JEOPARDY',
     
     // New Screens
     welcomeTitle: 'WELCOME TO THE PARTY!',
