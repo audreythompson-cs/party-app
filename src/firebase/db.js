@@ -4,7 +4,9 @@ import {
 import { 
   doc, 
   getDoc, 
+  getDocs,
   setDoc, 
+  deleteDoc,
   collection, 
   query, 
   where, 
@@ -268,8 +270,8 @@ export function onAllUserGoalsChange(callback) {
 /**
  * Submits a claim request for a goal.
  */
-export async function claimGoal(userId, userName, goalId, goalTitle, points) {
-  const recordId = `${userId}_${goalId}`;
+export async function claimGoal(userId, userName, goalId, goalTitle, points, isRepeatable = false) {
+  const recordId = isRepeatable ? `${userId}_${goalId}_${Date.now()}` : `${userId}_${goalId}`;
   const userGoalRef = doc(db, 'userGoals', recordId);
   const userDocRef = doc(db, 'users', userId);
   const historyColRef = collection(db, 'pointHistory');
@@ -282,10 +284,12 @@ export async function claimGoal(userId, userName, goalId, goalTitle, points) {
       throw new Error('User profile does not exist.');
     }
     
-    // 2. Prevent double-claiming
-    const goalSnapshot = await transaction.get(userGoalRef);
-    if (goalSnapshot.exists() && goalSnapshot.data().status === 'completed') {
-      throw new Error('Goal already completed.');
+    // 2. Prevent double-claiming (only for single use goals)
+    if (!isRepeatable) {
+      const goalSnapshot = await transaction.get(userGoalRef);
+      if (goalSnapshot.exists() && goalSnapshot.data().status === 'completed') {
+        throw new Error('Goal already completed.');
+      }
     }
 
     const userData = userSnapshot.data();
@@ -428,8 +432,7 @@ export async function deleteGoalTemplate(goalId) {
   const ref = doc(db, 'goals', goalId);
   await deleteDoc(ref); // Make sure deleteDoc is imported if needed, or implement manually
 }
-// We can import deleteDoc from firebase/firestore if we need it. Let's make sure it's imported.
-import { deleteDoc } from 'firebase/firestore';
+// Deletion handled by top imports
 
 /**
  * Admin creates or updates a Jeopardy category with clues.
@@ -544,5 +547,159 @@ export async function registerBuzz(playerId, playerName, clientTimestamp) {
     console.error('Error during buzz transaction:', error);
     return false;
   }
+}
+
+/**
+ * Listens to the teams collection in Firestore. Auto-seeds default teams if empty.
+ */
+import { TEAMS } from '../constants/teams';
+
+export function onTeamsChange(callback) {
+  const collRef = collection(db, 'teams');
+  return onSnapshot(collRef, async (snapshot) => {
+    if (snapshot.empty) {
+      try {
+        const batchPromises = Object.values(TEAMS).map(t => {
+          return setDoc(doc(db, 'teams', t.id), t);
+        });
+        await Promise.all(batchPromises);
+      } catch (err) {
+        console.error('Failed to seed teams:', err);
+      }
+    } else {
+      const list = [];
+      snapshot.forEach((doc) => {
+        list.push(doc.data());
+      });
+      callback(list);
+    }
+  }, (error) => {
+    console.error('Error listening to teams:', error);
+  });
+}
+
+/**
+ * Creates or updates a team.
+ */
+export async function saveTeam(teamId, teamData) {
+  const ref = doc(db, 'teams', teamId);
+  await setDoc(ref, teamData, { merge: true });
+}
+
+/**
+ * Deletes a team.
+ */
+export async function deleteTeam(teamId) {
+  const ref = doc(db, 'teams', teamId);
+  await deleteDoc(ref);
+}
+
+/**
+ * Creates a placeholder player in users collection.
+ */
+export async function createPlaceholderPlayer(name, team) {
+  const slug = name.trim().replace(/\s+/g, '_').toLowerCase();
+  const placeholderId = `pre_${slug}_${Date.now()}`;
+  const userRef = doc(db, 'users', placeholderId);
+  
+  await setDoc(userRef, {
+    uid: placeholderId,
+    name: name.trim(),
+    team: team || '',
+    points: 0,
+    isPlaceholder: true,
+    createdAt: serverTimestamp()
+  });
+  return placeholderId;
+}
+
+/**
+ * Deletes a player (admin only).
+ */
+export async function deletePlayerAdmin(userId) {
+  const userRef = doc(db, 'users', userId);
+  await deleteDoc(userRef);
+}
+
+/**
+ * Updates a player's team.
+ */
+export async function updatePlayerTeam(userId, teamId) {
+  const userRef = doc(db, 'users', userId);
+  await setDoc(userRef, { team: teamId }, { merge: true });
+}
+
+/**
+ * Saves or updates a goal/side quest template in Firestore.
+ */
+export async function saveGoalTemplate(goalId, { title, description, points, assignedTo = [], isRepeatable = false }) {
+  const ref = doc(db, 'goals', goalId);
+  await setDoc(ref, {
+    id: goalId,
+    title: title.trim(),
+    description: description.trim(),
+    points: parseInt(points, 10) || 0,
+    assignedTo: assignedTo,
+    isRepeatable: isRepeatable
+  }, { merge: true });
+}
+
+/**
+ * Claims a placeholder player for the current authenticated user and remaps their quests.
+ */
+export async function claimPlaceholderPlayer(currentUser, placeholderId, name, team) {
+  const userRef = doc(db, 'users', currentUser.uid);
+  const placeholderRef = doc(db, 'users', placeholderId);
+  
+  await runTransaction(db, async (transaction) => {
+    // 1. Create the new user profile
+    transaction.set(userRef, {
+      uid: currentUser.uid,
+      name: name.trim(),
+      team: team || '',
+      photoUrl: '',
+      points: 0,
+      isAdmin: false,
+      createdAt: serverTimestamp()
+    });
+    
+    // 2. Delete the placeholder
+    transaction.delete(placeholderRef);
+  });
+
+  // 3. Remap all goals assigned to the placeholder to the real uid
+  try {
+    const goalsRef = collection(db, 'goals');
+    const q = query(goalsRef, where('assignedTo', 'array-contains', placeholderId));
+    const snapshot = await getDocs(q);
+    const batchPromises = [];
+    
+    snapshot.forEach(goalDoc => {
+      const data = goalDoc.data();
+      const updatedAssigned = (data.assignedTo || []).map(uid => uid === placeholderId ? currentUser.uid : uid);
+      batchPromises.push(setDoc(doc(db, 'goals', goalDoc.id), { assignedTo: updatedAssigned }, { merge: true }));
+    });
+    
+    await Promise.all(batchPromises);
+  } catch (err) {
+    console.error('Error remapping guest quests during onboarding claim:', err);
+  }
+}
+
+/**
+ * Listens to all completed userGoals.
+ */
+export function onAllCompletedGoals(callback) {
+  const ref = collection(db, 'userGoals');
+  const q = query(ref, where('status', '==', 'completed'));
+  return onSnapshot(q, (snapshot) => {
+    const list = [];
+    snapshot.forEach((doc) => {
+      list.push(doc.data());
+    });
+    callback(list);
+  }, (error) => {
+    console.error('Error listening to all completed goals:', error);
+  });
 }
 

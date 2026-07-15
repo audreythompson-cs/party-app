@@ -1,13 +1,22 @@
 import { STRINGS } from '../constants/strings';
-import { TEAMS } from '../constants/teams';
+import { useAuth } from '../context/AuthContext';
 import '../styles/views/LeaderboardTab.css';
 
 export default function LeaderboardTab({ leaderboard, currentUserId }) {
+  const { teamsMap } = useAuth();
+  
   const getRankBadge = (rank) => {
     if (rank === 1) return <span className="rank-badge gold">1st</span>;
     if (rank === 2) return <span className="rank-badge silver">2nd</span>;
     if (rank === 3) return <span className="rank-badge bronze">3rd</span>;
     return <span className="rank-number">{rank}</span>;
+  };
+
+  const fallbackTeam = { 
+    name: 'No Team', 
+    color: '#cbd5e1', 
+    glow: 'rgba(203,213,225,0.1)', 
+    accentBg: 'rgba(203,213,225,0.01)' 
   };
 
   return (
@@ -27,7 +36,7 @@ export default function LeaderboardTab({ leaderboard, currentUserId }) {
             {leaderboard.map((player, index) => {
               const rank = index + 1;
               const isSelf = player.uid === currentUserId;
-              const playerTeam = TEAMS[player.team] || TEAMS.blue;
+              const playerTeam = (teamsMap && teamsMap[player.team]) || fallbackTeam;
 
               return (
                 <div 
@@ -42,8 +51,6 @@ export default function LeaderboardTab({ leaderboard, currentUserId }) {
                   <div className="rank-col">
                     {getRankBadge(rank)}
                   </div>
-
-
 
                   <div className="name-col">
                     <div className="name-wrapper">
@@ -65,8 +72,6 @@ export default function LeaderboardTab({ leaderboard, currentUserId }) {
           </div>
         )}
       </div>
-
-
     </div>
   );
 }

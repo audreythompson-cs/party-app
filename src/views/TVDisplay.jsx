@@ -7,7 +7,7 @@ import {
   adjustPointsAdmin
 } from '../firebase/db';
 import { STRINGS } from '../constants/strings';
-import { TEAMS } from '../constants/teams';
+import { useAuth } from '../context/AuthContext';
 import { auth } from '../firebase/config';
 import '../styles/views/TVDisplay.css';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
@@ -57,6 +57,8 @@ function playIncorrect() {
 }
 
 export default function TVDisplay() {
+  const { teamsMap } = useAuth();
+  const fallbackTeam = { name: 'No Team', color: '#cbd5e1', glow: 'rgba(203,213,225,0.1)', accentBg: 'rgba(203,213,225,0.01)' };
   const [leaderboard, setLeaderboard] = useState([]);
   const [isAuthed, setIsAuthed] = useState(false);
   const [isBalloonsReleased, setIsBalloonsReleased] = useState(false);
@@ -460,7 +462,7 @@ export default function TVDisplay() {
               <p className="no-scores-msg">No players registered yet.</p>
             ) : (
               leaderboard.slice(0, 10).map((p) => {
-                const pTeam = TEAMS[p.team] || TEAMS.blue;
+                const pTeam = (teamsMap && teamsMap[p.team]) || fallbackTeam;
                 return (
                   <div key={p.uid} className="scoreboard-player-pill" style={{ borderLeftColor: pTeam.color }}>
                     <span className="p-name">{p.name}</span>
@@ -643,7 +645,7 @@ export default function TVDisplay() {
             <div className="tv-players-container">
               {leaderboard.map((player, index) => {
                 const rank = index + 1;
-                const playerTeam = TEAMS[player.team] || TEAMS.blue;
+                const playerTeam = (teamsMap && teamsMap[player.team]) || fallbackTeam;
                 const isTopThree = rank <= 3;
 
                 return (
@@ -755,7 +757,9 @@ export default function TVDisplay() {
         </header>
       )}
 
-      {renderActiveScreen()}
+      <div key={gameState?.activeGame || 'leaderboard'} className="tv-screen-wrapper animate-scale-up" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        {renderActiveScreen()}
+      </div>
     </div>
   );
 }

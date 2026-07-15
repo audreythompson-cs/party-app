@@ -2,7 +2,13 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from '../firebase/config';
 import { signInAnonymously, signOut, onAuthStateChanged } from 'firebase/auth';
-import { verifyPasscode, createUserProfile, onUserProfileChange } from '../firebase/db';
+import { 
+  verifyPasscode, 
+  createUserProfile, 
+  onUserProfileChange, 
+  onTeamsChange, 
+  claimPlaceholderPlayer 
+} from '../firebase/db';
 
 const AuthContext = createContext(null);
 
@@ -14,7 +20,11 @@ export function AuthProvider({ children }) {
     return sessionStorage.getItem('passcode_verified') === 'true';
   });
 
-  // Track Auth State changes
+  // Dynamic Teams state
+  const [teams, setTeams] = useState([]);
+  const [teamsMap, setTeamsMap] = useState({});
+
+  // Listen to Auth State changes
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
@@ -36,6 +46,20 @@ export function AuthProvider({ children }) {
     });
 
     return () => unsubscribeAuth();
+  }, []);
+
+  // Listen to dynamic teams in Firestore
+  useEffect(() => {
+    const unsubscribeTeams = onTeamsChange((data) => {
+      setTeams(data);
+      const mapping = (data || []).reduce((acc, t) => {
+        acc[t.id] = t;
+        return acc;
+      }, {});
+      setTeamsMap(mapping);
+    });
+
+    return () => unsubscribeTeams();
   }, []);
 
   // Passcode verification
@@ -69,7 +93,7 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Complete registration by writing profile to Firestore
+  // Complete registration by writing profile to Firestore (custom write-in name)
   const registerProfile = async (name, team, photoUrl, sideQuest = '') => {
     if (!currentUser) {
       throw new Error('No authenticated user session found.');
@@ -77,6 +101,14 @@ export function AuthProvider({ children }) {
     const profile = await createUserProfile(currentUser.uid, name, team, photoUrl, sideQuest);
     setUserProfile(profile);
     return profile;
+  };
+
+  // Claim a pre-created placeholder player
+  const claimProfile = async (placeholderId, name, team) => {
+    if (!currentUser) {
+      throw new Error('No authenticated user session found.');
+    }
+    await claimPlaceholderPlayer(currentUser, placeholderId, name, team);
   };
 
   const logout = async () => {
@@ -96,7 +128,10 @@ export function AuthProvider({ children }) {
     isPasscodeVerified,
     loginWithPasscode,
     registerProfile,
-    logout
+    claimProfile,
+    logout,
+    teams,
+    teamsMap
   };
 
   return (

@@ -1,25 +1,31 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { TEAMS } from '../constants/teams';
 import { STRINGS } from '../constants/strings';
-import { PREDEFINED_GUESTS } from '../constants/guests';
 import { onLeaderboardChange } from '../firebase/db';
 import '../styles/views/Onboarding.css';
 
 export default function Onboarding() {
-  const { registerProfile } = useAuth();
+  const { registerProfile, claimProfile, teams } = useAuth();
   const [name, setName] = useState('');
-  const [team, setTeam] = useState('blue');
+  const [team, setTeam] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   // Predefined Guests State
   const [registeredPlayers, setRegisteredPlayers] = useState([]);
   const [selectedGuestName, setSelectedGuestName] = useState('');
+  const [selectedGuestId, setSelectedGuestId] = useState('');
   const [customName, setCustomName] = useState('');
   const [isCustomName, setIsCustomName] = useState(false);
 
-  // Subscribe to registered users on mount
+  // Set default team from loaded dynamic teams list
+  useEffect(() => {
+    if (teams && teams.length > 0 && !team) {
+      setTeam(teams[0].id);
+    }
+  }, [teams, team]);
+
+  // Subscribe to registered users (both real players and placeholder/predefined ones) on mount
   useEffect(() => {
     const unsubscribe = onLeaderboardChange((data) => {
       setRegisteredPlayers(data);
@@ -31,6 +37,7 @@ export default function Onboarding() {
   const handleTeamChange = (newTeam) => {
     setTeam(newTeam);
     setSelectedGuestName('');
+    setSelectedGuestId('');
     setCustomName('');
     setIsCustomName(false);
     setName('');
@@ -48,20 +55,14 @@ export default function Onboarding() {
     setError('');
     setLoading(true);
 
-    // Find if they selected a predefined guest to get their side quest
-    let sideQuest = '';
-    if (!isCustomName) {
-      const guestObj = PREDEFINED_GUESTS.find(
-        (g) => g.name.toLowerCase() === finalName.toLowerCase()
-      );
-      if (guestObj) {
-        sideQuest = guestObj.sideQuest || '';
-      }
-    }
-
     try {
-      // Save profile in Firestore (storing empty photoUrl)
-      await registerProfile(finalName, team, '', sideQuest);
+      if (isCustomName) {
+        // Create new user profile normally
+        await registerProfile(finalName, team, '', '');
+      } else {
+        // Claim the existing placeholder player record
+        await claimProfile(selectedGuestId, selectedGuestName, team);
+      }
       // Routing guards in App.jsx will automatically route us to /dashboard
     } catch (err) {
       console.error(err);
@@ -71,6 +72,11 @@ export default function Onboarding() {
   };
 
   const finalNameValue = isCustomName ? customName.trim() : selectedGuestName.trim();
+
+  // Filter placeholder players assigned to this team
+  const availablePlaceholders = (registeredPlayers || []).filter(
+    p => p.isPlaceholder && p.team === team
+  );
 
   return (
     <div className={`onboarding-page themed-background theme-${team}`}>
@@ -85,7 +91,7 @@ export default function Onboarding() {
             <div className="input-group">
               <label>{STRINGS.onboarding.teamLabel}</label>
               <div className="teams-grid">
-                {Object.values(TEAMS).map((t) => {
+                {teams.map((t) => {
                   const isSelected = team === t.id;
                   return (
                     <button
@@ -119,10 +125,13 @@ export default function Onboarding() {
                   if (val === 'custom') {
                     setIsCustomName(true);
                     setSelectedGuestName('');
+                    setSelectedGuestId('');
                     setName('');
                   } else {
+                    const match = availablePlaceholders.find(p => p.name === val);
                     setIsCustomName(false);
                     setSelectedGuestName(val);
+                    setSelectedGuestId(match ? match.uid : '');
                     setName(val);
                   }
                 }}
@@ -139,15 +148,11 @@ export default function Onboarding() {
                 }}
               >
                 <option value="">{STRINGS.onboarding.nameSelectPlaceholder}</option>
-                {PREDEFINED_GUESTS
-                  .filter((g) => g.team === team)
-                  .filter((g) => !registeredPlayers.some(p => p.name.trim().toLowerCase() === g.name.trim().toLowerCase()))
-                  .map((g) => (
-                    <option key={g.name} value={g.name}>
-                      {g.name}
-                    </option>
-                  ))
-                }
+                {availablePlaceholders.map((g) => (
+                  <option key={g.uid} value={g.name}>
+                    {g.name}
+                  </option>
+                ))}
                 <option value="custom">{STRINGS.onboarding.nameSelectCustom}</option>
               </select>
             </div>
