@@ -573,150 +573,31 @@ export default function TVDisplay() {
   };
 
   const renderFinale = () => {
-    const topThree = leaderboard.slice(0, 3);
-    const totalPlayers = leaderboard.length;
-    const totalPoints = leaderboard.reduce((sum, p) => sum + (p.points ?? 0), 0);
-    const avgPoints = totalPlayers > 0 ? Math.round(totalPoints / totalPlayers) : 0;
-    
-    // Group points by team
-    const teamScores = {};
-    leaderboard.forEach(p => {
-      const t = p.team || 'blue';
-      teamScores[t] = (teamScores[t] || 0) + (p.points ?? 0);
-    });
-    
-    let topTeamKey = 'blue';
-    let maxTeamScore = -1;
-    Object.keys(teamScores).forEach(t => {
-      if (teamScores[t] > maxTeamScore) {
-        maxTeamScore = teamScores[t];
-        topTeamKey = t;
-      }
-    });
-    const topTeam = TEAMS[topTeamKey] || TEAMS.blue;
-
-    // Podium layout: 2nd, 1st, 3rd visually
-    const podiumPlayers = [];
-    if (topThree[1]) podiumPlayers.push({ ...topThree[1], rank: 2, label: '🥈 2nd' });
-    if (topThree[0]) podiumPlayers.push({ ...topThree[0], rank: 1, label: '👑 1st' });
-    if (topThree[2]) podiumPlayers.push({ ...topThree[2], rank: 3, label: '🥉 3rd' });
-
-    const currentStep = gameState?.finaleStep ?? 0;
-
-    const isPlayerRevealed = (rank) => {
-      if (rank === 3) return currentStep >= 1;
-      if (rank === 2) return currentStep >= 2;
-      if (rank === 1) return currentStep >= 3;
-      return false;
-    };
-
-    const showStats = currentStep >= 4;
-
-    const handleNextStep = async () => {
-      const nextStep = currentStep + 1;
-      if (nextStep <= 5) {
-        await updateGameState({ finaleStep: nextStep });
-      }
-    };
-
-    const handlePrevStep = async () => {
-      if (currentStep > 0) {
-        await updateGameState({ finaleStep: currentStep - 1 });
-      }
-    };
-
     return (
-      <div className="tv-finale-screen animate-fade-in">
-        {/* Podium Area */}
-        <div className="podium-container">
-          {podiumPlayers.length === 0 ? (
-            <p className="no-players-msg">No players registered yet.</p>
-          ) : (
-            <div className="podium-wrapper">
-              {podiumPlayers.map((p) => {
-                const team = TEAMS[p.team] || TEAMS.blue;
-                const revealed = isPlayerRevealed(p.rank);
-                return (
-                  <div key={p.uid} className={`podium-column rank-${p.rank} ${revealed ? 'revealed' : 'hidden-podium'}`} style={{ '--team-color': team.color }}>
-                    {revealed ? (
-                      <div className="podium-player-card glass-panel animate-scale-up">
-                        {p.rank === 1 && <div className="podium-crown">👑</div>}
-                        <span className="podium-player-name">{p.name}</span>
-                        <span className="podium-player-points">{p.points ?? 0} pts</span>
-                        <span className="podium-player-team" style={{ borderColor: team.color, color: team.color }}>
-                          {team.name}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="podium-player-card glass-panel placeholder-card" style={{ opacity: 0.4, borderStyle: 'dashed' }}>
-                        <span className="podium-player-name">???</span>
-                        <span className="podium-player-points">—</span>
-                      </div>
-                    )}
-                    <div className="podium-pedestal">
-                      <span className="podium-rank-label">{p.label}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Stats Section */}
-        {showStats && (
-          <div className="finale-stats-section animate-scale-up">
-            <h2>{STRINGS.tv.finaleStatsTitle}</h2>
-            <div className="stats-grid">
-              <div className="stat-card glass-panel">
-                <span className="stat-value">{totalPoints}</span>
-                <span className="stat-label">{STRINGS.tv.finaleTotalPoints}</span>
-              </div>
-              <div className="stat-card glass-panel">
-                <span className="stat-value">{avgPoints}</span>
-                <span className="stat-label">{STRINGS.tv.finaleAvgPoints}</span>
-              </div>
-              <div className="stat-card glass-panel">
-                <span className="stat-value">{totalPlayers}</span>
-                <span className="stat-label">{STRINGS.tv.finaleTotalPlayers}</span>
-              </div>
-              <div className="stat-card glass-panel" style={{ '--accent-color': topTeam.color }}>
-                <span className="stat-value team-name-val" style={{ color: topTeam.color }}>{topTeam.name}</span>
-                <span className="stat-label">{STRINGS.tv.finaleTopTeam} ({maxTeamScore} pts)</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Action Controls */}
-        <div className="finale-actions" style={{ marginTop: '30px', display: 'flex', gap: '15px', justifyContent: 'center' }}>
-          {currentStep > 0 && (
-            <button onClick={handlePrevStep} className="btn-secondary">
-              ◀ Back
-            </button>
-          )}
-          {currentStep < 4 ? (
-            <button onClick={handleNextStep} className="btn-primary">
-              {currentStep === 0 ? "Reveal 3rd Place" :
-               currentStep === 1 ? "Reveal 2nd Place" :
-               currentStep === 2 ? "Reveal 1st Place! 👑" :
-               "Show Party Stats"} ▶
-            </button>
-          ) : currentStep === 4 ? (
-            <button onClick={handleNextStep} className="btn-primary">
-              Show Wrap Up Controls ▶
-            </button>
-          ) : (
-            <>
-              <button onClick={handleStartGoodbye} className="btn-primary goodbye-wrapup-btn">
-                {STRINGS.tv.goodbyeWrapUpBtn}
-              </button>
-              <button onClick={handleBackToLeaderboard} className="btn-secondary">
-                {STRINGS.tv.backToLeaderboard}
-              </button>
-            </>
-          )}
-        </div>
+      <div className="tv-finale-screen animate-fade-in" style={{ justifyContent: 'flex-start', alignItems: 'flex-start', padding: '20px' }}>
+        <button 
+          onClick={handleBackToLeaderboard} 
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-light, #fff)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '18px',
+            padding: '10px',
+            opacity: 0.8,
+            transition: 'opacity 0.2s',
+          }}
+          className="back-to-leaderboard-btn"
+          aria-label="Back to Leaderboard"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+        </button>
       </div>
     );
   };
