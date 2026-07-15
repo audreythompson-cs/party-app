@@ -406,28 +406,6 @@ export default function TVDisplay() {
 
     return (
       <div className="jeopardy-container animate-fade-in">
-        {/* Controls row */}
-        <div className="jeopardy-controls-row">
-          <label className="deduct-toggle glass-panel">
-            <input 
-              type="checkbox" 
-              checked={deductPoints} 
-              onChange={async (e) => {
-                await updateGameState({
-                  jeopardy: {
-                    ...(gameState?.jeopardy || {}),
-                    deductPoints: e.target.checked
-                  }
-                });
-              }} 
-            />
-            <span>{STRINGS.tv.deductToggle}</span>
-          </label>
-          <button onClick={handleEndJeopardy} className="btn-secondary end-game-btn">
-            {STRINGS.tv.endGame}
-          </button>
-        </div>
-
         {/* The Grid */}
         <div className="jeopardy-board glass-panel">
           <div className="jeopardy-grid" style={{ gridTemplateColumns: `repeat(${jeopardyCategories.length}, 1fr)` }}>
@@ -451,26 +429,6 @@ export default function TVDisplay() {
                 })}
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Scoreboard at Bottom */}
-        <div className="jeopardy-scoreboard glass-panel">
-          <h3>{STRINGS.tv.scores}</h3>
-          <div className="scoreboard-players">
-            {leaderboard.length === 0 ? (
-              <p className="no-scores-msg">No players registered yet.</p>
-            ) : (
-              leaderboard.slice(0, 10).map((p) => {
-                const pTeam = (teamsMap && teamsMap[p.team]) || fallbackTeam;
-                return (
-                  <div key={p.uid} className="scoreboard-player-pill" style={{ borderLeftColor: pTeam.color }}>
-                    <span className="p-name">{p.name}</span>
-                    <span className="p-pts">{p.points ?? 0} pts</span>
-                  </div>
-                );
-              })
-            )}
           </div>
         </div>
       </div>
@@ -749,8 +707,8 @@ export default function TVDisplay() {
       {showHeader && (
         <header className="tv-header">
           <div 
-            className={`tv-header-left ${isLeaderboardScreen ? 'clickable-header' : ''}`}
-            onClick={isLeaderboardScreen ? handleStartJeopardy : undefined}
+            className={`tv-header-left ${isLeaderboardScreen || gameState?.activeGame === 'jeopardy' ? 'clickable-header' : ''}`}
+            onClick={isLeaderboardScreen ? handleStartJeopardy : (gameState?.activeGame === 'jeopardy' ? handleEndJeopardy : undefined)}
           >
             <h1>{getHeaderTitle()}</h1>
           </div>
