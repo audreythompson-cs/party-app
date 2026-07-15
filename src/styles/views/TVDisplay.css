@@ -43,9 +43,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 30px;
-  padding-bottom: 30px;
-  margin-bottom: 30px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
   z-index: 2;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
