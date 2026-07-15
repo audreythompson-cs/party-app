@@ -609,12 +609,6 @@ export default function AdminDashboard() {
             >
               finale screen
             </button>
-            <button 
-              onClick={() => handleSwitchScreen('goodbye')} 
-              className={`remote-nav-btn ${gameState?.activeGame === 'goodbye' ? 'active' : ''}`}
-            >
-              goodbye screen
-            </button>
           </div>
 
           {/* Only render simple navigation arrows for the finale view */}
@@ -622,24 +616,24 @@ export default function AdminDashboard() {
             <div className="flat-section animate-fade-in" style={{ marginTop: '10px' }}>
               <div className="vertical-actions">
                 {(gameState?.finaleStep ?? 0) === 0 && (
-                  <button onClick={handleNextFinaleStepAdmin} className="btn-primary" style={{ fontSize: '20px' }}>
+                  <button onClick={handleNextFinaleStepAdmin} className="btn-primary" style={{ padding: '8px', fontSize: '16px' }}>
                     →
                   </button>
                 )}
                 
                 {(gameState?.finaleStep ?? 0) > 0 && (gameState?.finaleStep ?? 0) < 5 && (
-                  <div className="vertical-stack" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <button onClick={handleNextFinaleStepAdmin} className="btn-primary" style={{ fontSize: '20px' }}>
-                      →
-                    </button>
-                    <button onClick={handlePrevFinaleStepAdmin} className="btn-secondary" style={{ fontSize: '20px' }}>
+                  <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', width: '100%' }}>
+                    <button onClick={handlePrevFinaleStepAdmin} className="btn-secondary" style={{ flex: 1, padding: '8px', fontSize: '16px' }}>
                       ←
+                    </button>
+                    <button onClick={handleNextFinaleStepAdmin} className="btn-primary" style={{ flex: 1, padding: '8px', fontSize: '16px' }}>
+                      →
                     </button>
                   </div>
                 )}
                 
                 {(gameState?.finaleStep ?? 0) === 5 && (
-                  <button onClick={handlePrevFinaleStepAdmin} className="btn-secondary" style={{ fontSize: '20px' }}>
+                  <button onClick={handlePrevFinaleStepAdmin} className="btn-secondary" style={{ padding: '8px', fontSize: '16px' }}>
                     ←
                   </button>
                 )}
