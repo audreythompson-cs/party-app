@@ -11,7 +11,8 @@ import {
   deleteJeopardyCategory,
   onJeopardyCategoriesChange,
   listenToGameState,
-  updateGameState
+  updateGameState,
+  updateUserSideQuest
 } from '../firebase/db';
 import { TEAMS } from '../constants/teams';
 import { STRINGS } from '../constants/strings';
@@ -60,6 +61,7 @@ export default function AdminDashboard() {
   // Point Adjustment State
   const [customPoints, setCustomPoints] = useState({}); // { userId: amount }
   const [customDesc, setCustomDesc] = useState({});   // { userId: desc }
+  const [playerQuests, setPlayerQuests] = useState({}); // { userId: questText }
 
   // Monitor Firebase Auth state & log in anonymously behind the scenes
   useEffect(() => {
@@ -183,6 +185,19 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error(err);
       alert(STRINGS.admin.adjustErrorFailed + err.message);
+    }
+  };
+
+  // Update user's side quest
+  const handleUpdateQuest = async (userId) => {
+    const quest = playerQuests[userId];
+    if (quest === undefined) return;
+    try {
+      await updateUserSideQuest(userId, quest);
+      alert('Side quest updated successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update side quest: ' + err.message);
     }
   };
 
@@ -797,6 +812,30 @@ export default function AdminDashboard() {
                             <span className="player-team-tag" style={{ color: pTeam.color }}>{pTeam.name}</span>
                           </div>
                           <span className="player-points-tag">{p.points ?? 0} pts</span>
+                        </div>
+
+                        {/* Side Quest Assignment */}
+                        <div style={{ marginTop: '10px', fontSize: '13px', padding: '0 5px' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Quest: </span>
+                          <span style={{ fontWeight: '500', color: 'var(--text-bright)' }}>
+                            {p.sideQuest ? `“${p.sideQuest}”` : <em style={{ color: 'var(--text-muted)' }}>No quest assigned</em>}
+                          </span>
+                        </div>
+                        <div className="custom-adjust-row" style={{ marginTop: '10px', gap: '8px', padding: '0 5px' }}>
+                          <input
+                            type="text"
+                            placeholder="Assign or edit secret side quest..."
+                            value={playerQuests[p.uid] !== undefined ? playerQuests[p.uid] : (p.sideQuest || '')}
+                            onChange={(e) => setPlayerQuests(prev => ({ ...prev, [p.uid]: e.target.value }))}
+                            style={{ flex: 1, fontSize: '12px', padding: '8px 10px', borderRadius: 'var(--radius-md)', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-glass)', color: 'var(--text-bright)' }}
+                          />
+                          <button
+                            onClick={() => handleUpdateQuest(p.uid)}
+                            className="btn-secondary"
+                            style={{ fontSize: '11px', padding: '8px 12px', whiteSpace: 'nowrap' }}
+                          >
+                            Save Quest
+                          </button>
                         </div>
 
                         {/* Adjustment Tools */}

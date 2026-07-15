@@ -159,3 +159,125 @@
 .item-amount.negative {
   color: #ef4444; /* Red */
 }
+
+/* Side Quest Section styling */
+.quest-section {
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-left: 4px solid var(--accent);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.quest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.quest-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.quest-status {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.quest-status.completed {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.quest-status.pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.quest-reveal-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 0;
+  text-align: center;
+}
+
+.quest-reveal-text {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.reveal-btn {
+  padding: 12px 24px;
+  font-weight: 700;
+}
+
+.quest-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quest-description {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-bright);
+  font-style: italic;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.quest-instructions {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.quest-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.claim-quest-btn {
+  width: 100%;
+  padding: 12px;
+  font-weight: 700;
+}
+
+.quest-badge {
+  width: 100%;
+  padding: 12px;
+  text-align: center;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.quest-badge.pending {
+  background: rgba(245, 158, 11, 0.08);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.quest-badge.completed {
+  background: rgba(16, 185, 129, 0.08);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}

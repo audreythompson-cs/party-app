@@ -39,19 +39,28 @@ export async function verifyPasscode(passcode) {
 /**
  * Creates the user profile document in Firestore.
  */
-export async function createUserProfile(userId, name, team, photoUrl) {
+export async function createUserProfile(userId, name, team, photoUrl, sideQuest = '') {
   const userRef = doc(db, 'users', userId);
   const profile = {
     uid: userId,
     name: name.trim(),
     team: team || 'blue',
     photoUrl: photoUrl || '',
+    sideQuest: sideQuest || '',
     points: 0,
     isAdmin: false,
     createdAt: serverTimestamp()
   };
   await setDoc(userRef, profile);
   return profile;
+}
+
+/**
+ * Admin updates a user's secret side quest description.
+ */
+export async function updateUserSideQuest(userId, sideQuest) {
+  const userRef = doc(db, 'users', userId);
+  await setDoc(userRef, { sideQuest: sideQuest.trim() }, { merge: true });
 }
 
 /**
@@ -261,17 +270,55 @@ export function onAllUserGoalsChange(callback) {
  */
 export async function claimGoal(userId, userName, goalId, goalTitle, points) {
   const recordId = `${userId}_${goalId}`;
-  const ref = doc(db, 'userGoals', recordId);
-  
-  await setDoc(ref, {
-    id: recordId,
-    userId,
-    userName,
-    goalId,
-    goalTitle,
-    points: parseInt(points, 10),
-    status: 'pending',
-    submittedAt: serverTimestamp()
+  const userGoalRef = doc(db, 'userGoals', recordId);
+  const userDocRef = doc(db, 'users', userId);
+  const historyColRef = collection(db, 'pointHistory');
+  const parsedPoints = parseInt(points, 10);
+
+  await runTransaction(db, async (transaction) => {
+    // 1. Read user profile
+    const userSnapshot = await transaction.get(userDocRef);
+    if (!userSnapshot.exists()) {
+      throw new Error('User profile does not exist.');
+    }
+    
+    // 2. Prevent double-claiming
+    const goalSnapshot = await transaction.get(userGoalRef);
+    if (goalSnapshot.exists() && goalSnapshot.data().status === 'completed') {
+      throw new Error('Goal already completed.');
+    }
+
+    const userData = userSnapshot.data();
+    const currentPoints = userData.points || 0;
+
+    // 3. Mark goal as completed
+    transaction.set(userGoalRef, {
+      id: recordId,
+      userId,
+      userName,
+      goalId,
+      goalTitle,
+      points: parsedPoints,
+      status: 'completed',
+      submittedAt: serverTimestamp(),
+      completedAt: serverTimestamp()
+    });
+
+    // 4. Update user points
+    transaction.update(userDocRef, {
+      points: currentPoints + parsedPoints
+    });
+
+    // 5. Write to pointHistory
+    const newLogRef = doc(historyColRef);
+    transaction.set(newLogRef, {
+      id: newLogRef.id,
+      userId: userId,
+      amount: parsedPoints,
+      description: `Completed Goal: ${goalTitle}`,
+      type: 'earn',
+      timestamp: serverTimestamp()
+    });
   });
 }
 

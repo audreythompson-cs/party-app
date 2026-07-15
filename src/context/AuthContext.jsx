@@ -70,11 +70,11 @@ export function AuthProvider({ children }) {
   };
 
   // Complete registration by writing profile to Firestore
-  const registerProfile = async (name, team, photoUrl) => {
+  const registerProfile = async (name, team, photoUrl, sideQuest = '') => {
     if (!currentUser) {
       throw new Error('No authenticated user session found.');
     }
-    const profile = await createUserProfile(currentUser.uid, name, team, photoUrl);
+    const profile = await createUserProfile(currentUser.uid, name, team, photoUrl, sideQuest);
     setUserProfile(profile);
     return profile;
   };

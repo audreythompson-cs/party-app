@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { TEAMS } from '../constants/teams';
 import { STRINGS } from '../constants/strings';
+import { PREDEFINED_GUESTS } from '../constants/guests';
+import { onLeaderboardChange } from '../firebase/db';
 import '../styles/views/Onboarding.css';
 
 export default function Onboarding() {
@@ -11,9 +13,34 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Predefined Guests State
+  const [registeredPlayers, setRegisteredPlayers] = useState([]);
+  const [selectedGuestName, setSelectedGuestName] = useState('');
+  const [customName, setCustomName] = useState('');
+  const [isCustomName, setIsCustomName] = useState(false);
+
+  // Subscribe to registered users on mount
+  useEffect(() => {
+    const unsubscribe = onLeaderboardChange((data) => {
+      setRegisteredPlayers(data);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // When the team changes, reset selected options so we don't bleed inputs
+  const handleTeamChange = (newTeam) => {
+    setTeam(newTeam);
+    setSelectedGuestName('');
+    setCustomName('');
+    setIsCustomName(false);
+    setName('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim()) {
+    
+    const finalName = isCustomName ? customName.trim() : selectedGuestName.trim();
+    if (!finalName) {
       setError(STRINGS.onboarding.errorNameRequired);
       return;
     }
@@ -21,9 +48,20 @@ export default function Onboarding() {
     setError('');
     setLoading(true);
 
+    // Find if they selected a predefined guest to get their side quest
+    let sideQuest = '';
+    if (!isCustomName) {
+      const guestObj = PREDEFINED_GUESTS.find(
+        (g) => g.name.toLowerCase() === finalName.toLowerCase()
+      );
+      if (guestObj) {
+        sideQuest = guestObj.sideQuest || '';
+      }
+    }
+
     try {
-      // Save profile in Firestore (storing empty photoUrl/svgDataUrl)
-      await registerProfile(name, team, '');
+      // Save profile in Firestore (storing empty photoUrl)
+      await registerProfile(finalName, team, '', sideQuest);
       // Routing guards in App.jsx will automatically route us to /dashboard
     } catch (err) {
       console.error(err);
@@ -31,6 +69,8 @@ export default function Onboarding() {
       setLoading(false);
     }
   };
+
+  const finalNameValue = isCustomName ? customName.trim() : selectedGuestName.trim();
 
   return (
     <div className={`onboarding-page themed-background theme-${team}`}>
@@ -41,22 +81,7 @@ export default function Onboarding() {
 
           <form onSubmit={handleSubmit} className="onboarding-form">
             
-            {/* Name Input */}
-            <div className="input-group">
-              <label htmlFor="name">{STRINGS.onboarding.nameLabel}</label>
-              <input
-                type="text"
-                id="name"
-                maxLength="20"
-                placeholder={STRINGS.onboarding.namePlaceholder}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={loading}
-                autoComplete="off"
-              />
-            </div>
-
-            {/* Team / Table Selector */}
+            {/* Team / Table Selector (Must select table first) */}
             <div className="input-group">
               <label>{STRINGS.onboarding.teamLabel}</label>
               <div className="teams-grid">
@@ -66,7 +91,7 @@ export default function Onboarding() {
                     <button
                       key={t.id}
                       type="button"
-                      onClick={() => setTeam(t.id)}
+                      onClick={() => handleTeamChange(t.id)}
                       className={`team-option ${isSelected ? 'selected' : ''}`}
                       style={{
                         '--team-color': t.color,
@@ -83,12 +108,76 @@ export default function Onboarding() {
               </div>
             </div>
 
+            {/* Name Selector (Pre-defined guest names for selected team) */}
+            <div className="input-group">
+              <label htmlFor="guest-select">{STRINGS.onboarding.nameSelectLabel}</label>
+              <select
+                id="guest-select"
+                value={isCustomName ? 'custom' : selectedGuestName}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'custom') {
+                    setIsCustomName(true);
+                    setSelectedGuestName('');
+                    setName('');
+                  } else {
+                    setIsCustomName(false);
+                    setSelectedGuestName(val);
+                    setName(val);
+                  }
+                }}
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'rgba(0, 0, 0, 0.2)',
+                  border: '1px solid var(--border-glass)',
+                  color: 'var(--text-bright)',
+                  fontSize: '14px',
+                  outline: 'none',
+                }}
+              >
+                <option value="">{STRINGS.onboarding.nameSelectPlaceholder}</option>
+                {PREDEFINED_GUESTS
+                  .filter((g) => g.team === team)
+                  .filter((g) => !registeredPlayers.some(p => p.name.trim().toLowerCase() === g.name.trim().toLowerCase()))
+                  .map((g) => (
+                    <option key={g.name} value={g.name}>
+                      {g.name}
+                    </option>
+                  ))
+                }
+                <option value="custom">{STRINGS.onboarding.nameSelectCustom}</option>
+              </select>
+            </div>
+
+            {/* Custom Name Write-in (Hidden unless user selects custom) */}
+            {isCustomName && (
+              <div className="input-group animate-fade-in">
+                <label htmlFor="custom-name">{STRINGS.onboarding.customNameLabel}</label>
+                <input
+                  type="text"
+                  id="custom-name"
+                  maxLength="20"
+                  placeholder={STRINGS.onboarding.namePlaceholder}
+                  value={customName}
+                  onChange={(e) => {
+                    setCustomName(e.target.value);
+                    setName(e.target.value);
+                  }}
+                  disabled={loading}
+                  autoComplete="off"
+                />
+              </div>
+            )}
+
             {error && <div className="error-message">{error}</div>}
 
             <button
               type="submit"
               className="btn-primary join-btn animate-glow"
-              disabled={loading || !name.trim()}
+              disabled={loading || !finalNameValue}
             >
               {loading ? STRINGS.onboarding.buttonSubmitEntering : STRINGS.onboarding.buttonSubmit}
             </button>
