@@ -98,7 +98,8 @@ export default function Login() {
             width: `${b.size}px`,
             animation: `${b.swayName} ${b.speed}s linear infinite`,
             animationDelay: `${b.delay}s`,
-            filter: b.filter
+            filter: b.filter,
+            zIndex: isLoggingIn ? 9999 : 2
           }}
         />
       ))}
