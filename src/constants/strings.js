@@ -40,8 +40,8 @@ export const STRINGS = {
   },
   goals: {
     title: 'Goals',
-    subtitle: 'Complete these challenges during the party to earn points.',
-    claimButton: 'Claim Points',
+    subtitle: 'Complete these challenges during the party to earn points. The winners will be audited at the end, so tell the truth!',
+    claimButton: 'Done!',
     claimButtonClaiming: 'Claiming...',
     pendingStatus: 'Awaiting Host Approval...',
     completedStatus: 'Completed (+{points} pts)',
