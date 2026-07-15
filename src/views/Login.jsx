@@ -29,8 +29,8 @@ export default function Login() {
 
   return (
     <div className="login-page themed-background">
-      <div className="login-content-wrapper animate-scale-up" style={{ width: '100%', maxWidth: '360px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <h1 style={{ fontSize: '32px', margin: '0 0 10px 0' }}>{STRINGS.login.title}</h1>
+      <div className="login-card glass-panel animate-scale-up">
+        <h1>{STRINGS.login.title}</h1>
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="input-group">
