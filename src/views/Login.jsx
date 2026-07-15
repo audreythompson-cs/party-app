@@ -21,7 +21,7 @@ export default function Login() {
       delay: Math.random() * 8,
       speed: Math.random() * 6 + 7,
       size: Math.random() * 40 + 60,
-      swayClass: ['sway-left', 'sway-right', 'sway-straight'][i % 3],
+      swayName: ['login-float-left', 'login-float-right', 'login-float-straight'][i % 3],
       filter: [
         '',
         'hue-rotate(120deg) brightness(1.2)',
@@ -39,7 +39,7 @@ export default function Login() {
       delay: Math.random() * 1.2,
       speed: Math.random() * 1.2 + 1.6,
       size: Math.random() * 60 + 80,
-      swayClass: ['sway-left', 'sway-right', 'sway-straight'][i % 3],
+      swayName: ['login-float-left', 'login-float-right', 'login-float-straight'][i % 3],
       filter: [
         '',
         'hue-rotate(120deg) brightness(1.2)',
@@ -92,12 +92,12 @@ export default function Login() {
           key={b.id}
           src="/balloon.svg"
           alt="Floating Balloon"
-          className={`login-balloon ${b.swayClass}`}
+          className="login-balloon"
           style={{
             left: `${b.left}%`,
             width: `${b.size}px`,
+            animation: `${b.swayName} ${b.speed}s linear infinite`,
             animationDelay: `${b.delay}s`,
-            animationDuration: `${b.speed}s`,
             filter: b.filter
           }}
         />
@@ -109,12 +109,12 @@ export default function Login() {
           key={b.id}
           src="/balloon.svg"
           alt="Storm Balloon"
-          className={`storm-balloon ${b.swayClass}`}
+          className="storm-balloon"
           style={{
             left: `${b.left}%`,
             width: `${b.size}px`,
+            animation: `${b.swayName} ${b.speed}s ease-in forwards`,
             animationDelay: `${b.delay}s`,
-            animationDuration: `${b.speed}s`,
             filter: b.filter
           }}
         />

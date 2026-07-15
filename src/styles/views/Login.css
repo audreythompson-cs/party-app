@@ -20,6 +20,8 @@
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  position: relative;
+  z-index: 10;
 }
 
 .logo-area {
@@ -114,9 +116,8 @@ h1 {
   position: absolute;
   bottom: -150px;
   pointer-events: none;
-  z-index: 1; /* Behind the card */
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
+  z-index: 2; /* In front of page background, behind card */
+  height: auto;
 }
 
 /* Storm transition balloons */
@@ -125,19 +126,7 @@ h1 {
   bottom: -150px;
   pointer-events: none;
   z-index: 9999; /* Cover everything! */
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
-  animation-timing-function: ease-in;
-}
-
-.sway-left {
-  animation-name: login-float-left;
-}
-.sway-right {
-  animation-name: login-float-right;
-}
-.sway-straight {
-  animation-name: login-float-straight;
+  height: auto;
 }
 
 @keyframes login-float-left {
