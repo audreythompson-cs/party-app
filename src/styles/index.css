@@ -179,3 +179,72 @@ button {
   gap: 20px;
 }
 
+/* Background floating balloons */
+.login-balloon {
+  position: absolute;
+  bottom: -150px;
+  pointer-events: none;
+  z-index: 2; /* In front of page background, behind card */
+  height: auto;
+}
+
+/* Storm transition balloons */
+.storm-balloon {
+  position: absolute;
+  bottom: -150px;
+  pointer-events: none;
+  z-index: 9999; /* Cover everything! */
+  height: auto;
+}
+
+@keyframes login-float-left {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-130vh) translateX(-60px) rotate(-20deg);
+    opacity: 0;
+  }
+}
+
+@keyframes login-float-right {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-130vh) translateX(60px) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+@keyframes login-float-straight {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-130vh) translateX(15px) rotate(5deg);
+    opacity: 0;
+  }
+}
+

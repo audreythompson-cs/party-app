@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { STRINGS } from '../constants/strings';
 import { onLeaderboardChange } from '../firebase/db';
@@ -10,6 +10,7 @@ export default function Onboarding() {
   const [team, setTeam] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Predefined Guests State
   const [registeredPlayers, setRegisteredPlayers] = useState([]);
@@ -31,6 +32,42 @@ export default function Onboarding() {
       setRegisteredPlayers(data);
     });
     return () => unsubscribe();
+  }, []);
+
+  // Background floating balloons (idle state)
+  const backgroundBalloons = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 90 + 5,
+      delay: Math.random() * 8,
+      speed: Math.random() * 6 + 7,
+      size: Math.random() * 40 + 60,
+      swayName: ['login-float-left', 'login-float-right', 'login-float-straight'][i % 3],
+      filter: [
+        '',
+        'hue-rotate(120deg) brightness(1.2)',
+        'hue-rotate(240deg) brightness(1.2)',
+        'hue-rotate(320deg) brightness(1.2)'
+      ][i % 4]
+    }));
+  }, []);
+
+  // Screen-covering transition balloons (active logging in state)
+  const stormBalloons = useMemo(() => {
+    return Array.from({ length: 45 }, (_, i) => ({
+      id: `storm-${i}`,
+      left: Math.random() * 96 - 2,
+      delay: Math.random() * 1.2,
+      speed: Math.random() * 1.2 + 1.6,
+      size: Math.random() * 60 + 80,
+      swayName: ['login-float-left', 'login-float-right', 'login-float-straight'][i % 3],
+      filter: [
+        '',
+        'hue-rotate(120deg) brightness(1.2)',
+        'hue-rotate(240deg) brightness(1.2)',
+        'hue-rotate(320deg) brightness(1.2)'
+      ][i % 4]
+    }));
   }, []);
 
   // When the team changes, reset selected options so we don't bleed inputs
@@ -56,18 +93,23 @@ export default function Onboarding() {
     setLoading(true);
 
     try {
+      // 1. Show the transition balloons first (so they cover the screen)
+      setIsTransitioning(true);
+
+      // Wait 2.5s for the balloons to cover the screen
+      await new Promise(resolve => setTimeout(resolve, 2500));
+
+      // 2. Now write the profile to Firestore (which immediately triggers the redirect)
       if (isCustomName) {
-        // Create new user profile normally
         await registerProfile(finalName, team, '', '');
       } else {
-        // Claim the existing placeholder player record
         await claimProfile(selectedGuestId, selectedGuestName, team);
       }
-      // Routing guards in App.jsx will automatically route us to /dashboard
     } catch (err) {
       console.error(err);
       setError(err.message || STRINGS.onboarding.errorSubmitFailed);
       setLoading(false);
+      setIsTransitioning(false);
     }
   };
 
@@ -80,6 +122,41 @@ export default function Onboarding() {
 
   return (
     <div className={`onboarding-page themed-background theme-${team}`}>
+      {/* Background balloons floating constantly */}
+      {backgroundBalloons.map((b) => (
+        <img
+          key={b.id}
+          src="/balloon.svg"
+          alt="Floating Balloon"
+          className="login-balloon"
+          style={{
+            left: `${b.left}%`,
+            width: `${b.size}px`,
+            animation: `${b.swayName} ${b.speed}s linear infinite`,
+            animationDelay: `${b.delay}s`,
+            filter: b.filter,
+            zIndex: isTransitioning ? 9999 : 2
+          }}
+        />
+      ))}
+
+      {/* Screen-covering transition balloons once onboarding is complete */}
+      {isTransitioning && stormBalloons.map((b) => (
+        <img
+          key={b.id}
+          src="/balloon.svg"
+          alt="Storm Balloon"
+          className="storm-balloon"
+          style={{
+            left: `${b.left}%`,
+            width: `${b.size}px`,
+            animation: `${b.swayName} ${b.speed}s ease-in forwards`,
+            animationDelay: `${b.delay}s`,
+            filter: b.filter
+          }}
+        />
+      ))}
+
       <div className="onboarding-container app-container animate-fade-in">
         <div className="onboarding-card glass-panel animate-scale-up">
           <h2>{STRINGS.onboarding.title}</h2>
