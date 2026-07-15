@@ -6,6 +6,8 @@
   justify-content: center;
   padding: 20px;
   background: radial-gradient(circle at center, #ffffff 0%, #cbd5e1 100%);
+  position: relative;
+  overflow: hidden;
 }
 
 .login-card {
@@ -105,4 +107,86 @@ h1 {
 
 .animate-shake {
   animation: shake 0.3s ease-in-out;
+}
+
+/* Background floating balloons */
+.login-balloon {
+  position: absolute;
+  bottom: -150px;
+  pointer-events: none;
+  z-index: 1; /* Behind the card */
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+/* Storm transition balloons */
+.storm-balloon {
+  position: absolute;
+  bottom: -150px;
+  pointer-events: none;
+  z-index: 9999; /* Cover everything! */
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-in;
+}
+
+.sway-left {
+  animation-name: login-float-left;
+}
+.sway-right {
+  animation-name: login-float-right;
+}
+.sway-straight {
+  animation-name: login-float-straight;
+}
+
+@keyframes login-float-left {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-130vh) translateX(-60px) rotate(-20deg);
+    opacity: 0;
+  }
+}
+
+@keyframes login-float-right {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-130vh) translateX(60px) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+@keyframes login-float-straight {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-130vh) translateX(15px) rotate(5deg);
+    opacity: 0;
+  }
 }
