@@ -1,471 +1,51 @@
-/* Admin Passcode Gate Page Styles */
+/* Flat Phone-First Admin Dashboard Styles - Opaque and Solid Colors */
+
 .admin-gate-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 15px;
 }
 
 .admin-gate-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 360px;
   text-align: center;
-  padding: 40px 30px;
-  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .gate-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
 .error-message {
   color: #ff6f61;
-  font-size: 13px;
+  font-size: 12px;
 }
 
-/* Main Admin Panel Styles */
+/* Main Admin Page Container - Preserving original light gray/white color */
 .admin-page {
   min-height: 100vh;
   background: radial-gradient(circle at top left, #ffffff 0%, #cbd5e1 100%);
   color: var(--text-main);
-  padding: 30px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 15px;
   font-family: var(--font-sans);
 }
 
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-}
-
-.admin-header h1 {
-  font-size: 24px;
-}
-
-.admin-tab-nav {
-  display: flex;
-  gap: 15px;
-  padding: 12px 20px;
-  border-radius: 12px;
-  margin-bottom: 5px;
-}
-
-.tab-nav-btn {
-  background: none;
-  border: none;
-  padding: 8px 16px;
-  color: var(--text-muted);
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.tab-nav-btn:hover {
-  color: var(--text-bright);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.tab-nav-btn.active {
-  color: var(--accent);
-  background: var(--accent-bg);
-  box-shadow: 0 0 10px var(--accent-glow);
-}
-
-.admin-main-container {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 30px;
-  flex: 1;
-}
-
-.admin-col {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.admin-section {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: fit-content;
-}
-
-.admin-section h3 {
-  font-size: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 10px;
-}
-
-.empty-msg {
-  color: var(--text-muted);
-  font-size: 13px;
-  text-align: center;
-  padding: 20px 0;
-}
-
-/* Queue List */
-.queue-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 250px;
-  overflow-y: auto;
-}
-
-.queue-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 12px 16px;
-  border-radius: var(--radius-md);
-}
-
-.queue-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 2px;
-}
-
-.queue-player {
-  font-weight: 700;
-  color: var(--text-bright);
-}
-
-.queue-goal {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.queue-points {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--accent);
-}
-
-.approve-btn {
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: 8px;
-}
-
-/* Goal Builder Form */
-.goal-builder-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.goals-templates-list {
-  margin-top: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.goals-templates-list h4 {
-  font-size: 13px;
-  color: var(--text-muted);
-  text-align: left;
-  margin-bottom: 5px;
-}
-
-.template-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.02);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-}
-
-.template-info {
-  display: flex;
-  gap: 6px;
-}
-
-.template-title {
-  font-weight: 600;
-  color: var(--text-bright);
-}
-
-.template-pts {
-  color: var(--accent);
-}
-
-.delete-goal-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-
-.delete-goal-btn:hover {
-  color: #ff6f61;
-}
-
-/* Player Manager */
-.players-admin-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  max-height: 550px;
-  overflow-y: auto;
-  padding-right: 5px;
-}
-
-.player-admin-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-left: 4px solid var(--accent);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.player-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.header-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-
-.player-name-bold {
-  font-weight: 700;
-  color: var(--text-bright);
-}
-
-.player-team-tag {
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.player-points-tag {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 16px;
-  color: var(--text-bright);
-}
-
-/* Adjustments layout */
-.adjustment-tools {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.quick-adjust-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-
-.btn-quick {
-  padding: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-main);
-}
-
-.btn-quick:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-bright);
-}
-
-.custom-adjust-row {
-  display: grid;
-  grid-template-columns: 80px 1fr auto;
-  gap: 8px;
-}
-
-.custom-adjust-row input {
-  padding: 8px 10px;
-  font-size: 12px;
-  border-radius: 8px;
-}
-
-.adjust-apply-btn {
-  padding: 8px 14px;
-  font-size: 12px;
-  border-radius: 8px;
-}
-
-/* TV Remote Panel Styles */
-.admin-remote-panel {
-  border: 1px solid rgba(139, 92, 246, 0.25); /* Purple accent tint */
-  background: linear-gradient(135deg, rgba(20, 16, 45, 0.6) 0%, rgba(10, 8, 25, 0.8) 100%);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  padding: 20px;
-  border-radius: 16px;
-}
-
-.remote-status-badge {
-  font-size: 11px;
-  background: rgba(139, 92, 246, 0.15);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  padding: 6px 12px;
-  border-radius: 20px;
-  color: var(--text-bright);
-}
-
-.remote-screen-selector {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.remote-label {
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-}
-
-.remote-btn-group {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-.remote-nav-btn {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-main);
-  padding: 14px 10px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-}
-
-.remote-nav-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-bright);
-}
-
-.remote-nav-btn.active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-  box-shadow: 0 0 15px var(--accent-glow);
-}
-
-/* Success/Error button styles for Clue Resolution */
-.success-btn {
-  background: #10b981;
-  color: white;
-  border: none;
-}
-.success-btn:hover {
-  background: #059669;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
-}
-.success-btn:disabled, .error-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  box-shadow: none !important;
-  background: rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.2);
-}
-
-.error-btn {
-  background: #ef4444;
-  color: white;
-  border: none;
-}
-.error-btn:hover {
-  background: #dc2626;
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-}
-
-/* Responsive Mobile Adjustments */
-@media (max-width: 768px) {
-  .admin-page {
-    padding: 15px;
-    gap: 15px;
-  }
-
-  .admin-header h1 {
-    font-size: 18px;
-  }
-
-  .admin-header {
-    padding: 12px 16px;
-  }
-
-  .admin-main-container {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .admin-tab-nav {
-    padding: 8px 12px;
-  }
-
-  .tab-nav-btn {
-    padding: 8px 12px;
-    font-size: 13px;
-    flex: 1;
-    text-align: center;
-  }
-
-  /* Remote button group full width or columns */
-  .remote-btn-group {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .remote-nav-btn {
-    padding: 16px 8px; /* Taller touch targets */
-    font-size: 12px;
-  }
-
-  .quick-adjust-row {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .custom-adjust-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-  
-  .custom-adjust-row button {
-    grid-column: span 1;
-  }
-}
-
-/* Admin Landing Menu Grid */
+/* Landing Menu View */
 .admin-menu-view {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 30px);
   justify-content: center;
   padding: 10px;
   box-sizing: border-box;
@@ -482,6 +62,7 @@
   justify-content: center;
 }
 
+/* Solid white, fully readable buttons - not see-through! */
 .menu-btn {
   flex: 1;
   min-height: 50px;
@@ -495,95 +76,293 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-bright);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #1e293b;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .menu-btn:hover, .menu-btn:active {
-  background: rgba(139, 92, 246, 0.1) !important;
-  border-color: rgba(139, 92, 246, 0.4) !important;
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3) !important;
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 4px 15px var(--accent-glow) !important;
   transform: scale(1.02);
 }
 
-/* Sub-page Navigation & Titles */
-.admin-subpage-view {
+/* Sub-page headers */
+.subpage-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.subpage-header h2 {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #1e293b;
+  margin: 0;
+}
+
+.back-arrow-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+.back-arrow-btn:active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+
+/* Flat layouts & sections (no cards!) */
+.flat-layout {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 1400px;
+  gap: 25px;
+  max-width: 600px;
   margin: 0 auto;
   width: 100%;
 }
 
-.subpage-header {
+.flat-section {
   display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 15px;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
-.subpage-header h2 {
-  font-family: var(--font-heading);
-  font-size: 20px;
-  color: var(--text-bright);
-  margin: 0;
+.flat-section h3 {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
   letter-spacing: 0.05em;
-  flex-grow: 1;
+  color: #64748b;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 5px;
+  margin: 0;
 }
 
-.back-btn {
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-size: 13px;
+/* Form Styles */
+.goal-builder-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.goal-builder-form input[type="text"],
+.goal-builder-form input[type="password"],
+.goal-builder-form input[type="number"],
+.goal-builder-form select,
+.flat-section select,
+.flat-section input[type="text"],
+.flat-section input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.goal-builder-form input:focus,
+.flat-section select:focus {
+  border-color: var(--accent);
+}
+
+/* Vertical actions list (never side by side) */
+.vertical-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.vertical-actions button {
+  width: 100%;
+  display: block;
+}
+
+/* Primary solid button */
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
   font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-main);
+  box-shadow: 0 4px 10px var(--accent-glow);
   transition: all 0.2s;
+  text-align: center;
 }
 
-.back-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-bright);
-  border-color: rgba(255, 255, 255, 0.15);
+.btn-primary:active {
+  transform: scale(0.98);
+  opacity: 0.9;
 }
 
-/* Team Management View Cards */
-.team-manage-card {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.02);
-}
-
-.team-player-pill {
+/* Secondary solid button */
+.btn-secondary {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
   transition: all 0.2s;
-}
-.team-player-pill:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.player-history-logs {
-  border: 1px solid rgba(255, 255, 255, 0.06);
+.btn-secondary:active {
+  background: #f1f5f9;
 }
 
-.player-history-logs::-webkit-scrollbar {
-  width: 5px;
+/* Remote Nav Button styling - Solid */
+.remote-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
 }
-.player-history-logs::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
+
+.remote-nav-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
-.player-history-logs::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+
+.remote-nav-btn.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px var(--accent-glow);
 }
-.player-history-logs::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+
+/* Resolution Buttons */
+.success-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+}
+.success-btn:active {
+  background: #059669;
+}
+.success-btn:disabled, .error-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: #e2e8f0;
+  color: #94a3b8;
+  border-color: #cbd5e1;
+  box-shadow: none;
+}
+
+.error-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+}
+.error-btn:active {
+  background: #dc2626;
+}
+
+/* Quick Point Adjust buttons */
+.btn-quick {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+.btn-quick:active {
+  background: #f1f5f9;
+}
+
+/* List element layouts */
+.delete-goal-btn {
+  background: none;
+  border: none;
+  color: #ff6f61;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.delete-goal-btn:active {
+  opacity: 0.7;
+}
+
+/* Custom list items flat styling */
+.vertical-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+/* Scroll bars custom styling */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 2px;
 }
