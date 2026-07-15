@@ -552,37 +552,22 @@ export default function AdminDashboard() {
   const renderMainMenu = () => {
     return (
       <div className="admin-menu-view animate-fade-in">
-        <p className="menu-intro">Choose a management dashboard from the menu options below:</p>
-        <div className="admin-menu-grid">
-          <div className="menu-card glass-panel animate-scale-up" onClick={() => setAdminView('remote')}>
-            <span className="menu-icon">📺</span>
-            <h3>TV Screen Remote</h3>
-            <p>Control what displays on the TV: welcome screens, live leaderboard, Jeopardy, or the finale winner podiums.</p>
-          </div>
-
-          <div className="menu-card glass-panel animate-scale-up" onClick={() => setAdminView('teams')}>
-            <span className="menu-icon">👥</span>
-            <h3>Team Management</h3>
-            <p>Add new tables/teams, configure custom theme colors, and assign or remove players from each team.</p>
-          </div>
-
-          <div className="menu-card glass-panel animate-scale-up" onClick={() => setAdminView('players')}>
-            <span className="menu-icon">👤</span>
-            <h3>Player Management</h3>
-            <p>Predefine guest names, assign side quests, adjust point balances (+/-), and audit transactional history logs.</p>
-          </div>
-
-          <div className="menu-card glass-panel animate-scale-up" onClick={() => setAdminView('quests')}>
-            <span className="menu-icon">🕵️‍♂️</span>
-            <h3>Side Quest & Goals</h3>
-            <p>Create challenges, configure point values, set as single-use or repeatable, and manage player assignments.</p>
-          </div>
-
-          <div className="menu-card glass-panel animate-scale-up" onClick={() => setAdminView('jeopardy')}>
-            <span className="menu-icon">🎮</span>
-            <h3>Jeopardy Category Manager</h3>
-            <p>Build and customize Jeopardy category boards, write clues and answers, and manage game categories.</p>
-          </div>
+        <div className="admin-menu-grid mobile-menu-grid">
+          <button className="menu-btn glass-panel animate-scale-up" onClick={() => setAdminView('remote')}>
+            remote
+          </button>
+          <button className="menu-btn glass-panel animate-scale-up" onClick={() => setAdminView('teams')}>
+            teams
+          </button>
+          <button className="menu-btn glass-panel animate-scale-up" onClick={() => setAdminView('players')}>
+            players
+          </button>
+          <button className="menu-btn glass-panel animate-scale-up" onClick={() => setAdminView('quests')}>
+            side quests
+          </button>
+          <button className="menu-btn glass-panel animate-scale-up" onClick={() => setAdminView('jeopardy')}>
+            jeopardy
+          </button>
         </div>
       </div>
     );
@@ -1610,10 +1595,12 @@ export default function AdminDashboard() {
   // Main Return Block
   return (
     <div className="admin-page">
-      <header className="admin-header glass-panel">
-        <h1 style={{ cursor: 'pointer' }} onClick={() => setAdminView('menu')}>{STRINGS.admin.headerTitle}</h1>
-        <button onClick={() => setIsAdminAuthenticated(false)} className="btn-secondary logout-btn">{STRINGS.admin.headerLock}</button>
-      </header>
+      {adminView !== 'menu' && (
+        <header className="admin-header glass-panel">
+          <h1 style={{ cursor: 'pointer' }} onClick={() => setAdminView('menu')}>{STRINGS.admin.headerTitle}</h1>
+          <button onClick={() => setIsAdminAuthenticated(false)} className="btn-secondary logout-btn">{STRINGS.admin.headerLock}</button>
+        </header>
+      )}
 
       {adminView === 'menu' && renderMainMenu()}
       {adminView === 'remote' && renderRemoteView()}
