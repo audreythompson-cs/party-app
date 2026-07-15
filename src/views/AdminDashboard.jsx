@@ -563,9 +563,6 @@ export default function AdminDashboard() {
           <button className="menu-btn animate-scale-up" onClick={() => setAdminView('quests')}>
             side quests
           </button>
-          <button className="menu-btn animate-scale-up" onClick={() => setAdminView('jeopardy')}>
-            jeopardy
-          </button>
         </div>
       </div>
     );
