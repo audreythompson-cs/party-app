@@ -92,7 +92,10 @@ export function onLeaderboardChange(callback) {
   return onSnapshot(q, (snapshot) => {
     const players = [];
     snapshot.forEach((doc) => {
-      players.push(doc.data());
+      const data = doc.data();
+      if (!data.isAdmin) {
+        players.push(data);
+      }
     });
     // Sort entirely in memory (handles missing/null points safely as 0)
     players.sort((a, b) => {

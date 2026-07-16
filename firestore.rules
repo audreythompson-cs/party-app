@@ -24,7 +24,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if request.auth != null;
       // Allow creation/modification of profile
-      allow create: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && (request.auth.uid == userId || isAdmin());
       allow update: if request.auth != null;
       allow delete: if isAdmin();
     }
