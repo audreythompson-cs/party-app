@@ -74,44 +74,83 @@ export default function TVDisplay() {
   const [showJeopardyBoard, setShowJeopardyBoard] = useState(false);
   const [leaderboardBalloonsReleased, setLeaderboardBalloonsReleased] = useState(false);
 
-  // Sync balloon released state
-  useEffect(() => {
-    setIsBalloonsReleased(gameState?.welcomeState === 'released');
-  }, [gameState?.welcomeState]);
+  const [currentScreen, setCurrentScreen] = useState(null);
 
-  // Reset local balloon release states when not on leaderboard
+  // Unified game screen and transition state machine
   useEffect(() => {
-    if (gameState?.activeGame) {
+    const targetScreen = gameState?.activeGame !== undefined ? gameState.activeGame : null;
+
+    if (currentScreen === targetScreen) return;
+
+    // Transition 1: Welcome page to Jeopardy
+    if (currentScreen === 'welcome' && targetScreen === 'jeopardy') {
+      setIsBalloonsReleased(true);
+      const timer = setTimeout(() => {
+        setCurrentScreen('jeopardy');
+        setShowJeopardyBoard(true);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+
+    // Transition 2: Jeopardy to Welcome page (Balloons release on leaderboard, but Welcome page has them weighed down)
+    if (currentScreen === 'jeopardy' && targetScreen === 'welcome') {
+      setCurrentScreen(null); // Show leaderboard first
+      setLeaderboardBalloonsReleased(true);
+      const timer = setTimeout(() => {
+        setCurrentScreen('welcome');
+        setIsBalloonsReleased(false);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+
+    // Transition 3: Welcome to Leaderboard (normal exit)
+    if (currentScreen === 'welcome' && targetScreen === null) {
+      setIsBalloonsReleased(true);
+      const timer = setTimeout(() => {
+        setCurrentScreen(null);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+
+    // Transition 4: Leaderboard to Jeopardy
+    if (currentScreen === null && targetScreen === 'jeopardy') {
+      setLeaderboardBalloonsReleased(true);
+      const timer = setTimeout(() => {
+        setCurrentScreen('jeopardy');
+        setShowJeopardyBoard(true);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+
+    // Default immediate transition
+    setCurrentScreen(targetScreen);
+    if (targetScreen !== 'jeopardy') {
+      setShowJeopardyBoard(false);
+    }
+    // Also reset float states when entering leaderboard
+    if (targetScreen === null) {
       setLeftBalloonsReleased(false);
       setRightBalloonsReleased(false);
-    }
-  }, [gameState?.activeGame]);
-
-  // Defer Jeopardy board display to allow balloons to float away
-  useEffect(() => {
-    if (gameState?.activeGame === 'jeopardy') {
-      if (!showJeopardyBoard) {
-        setLeaderboardBalloonsReleased(true);
-        const timer = setTimeout(() => {
-          setShowJeopardyBoard(true);
-        }, 2500);
-        return () => clearTimeout(timer);
-      }
-    } else {
-      setShowJeopardyBoard(false);
       setLeaderboardBalloonsReleased(false);
     }
-  }, [gameState?.activeGame, showJeopardyBoard]);
+  }, [gameState?.activeGame, currentScreen]);
 
-  // Balloon release automatically redirects back to leaderboard after 2.5 seconds
+  // Sync admin balloon release trigger on welcome screen
   useEffect(() => {
-    if (gameState?.activeGame === 'welcome' && gameState?.welcomeState === 'released') {
+    if (gameState?.welcomeState === 'released' && currentScreen === 'welcome') {
+      setIsBalloonsReleased(true);
+    }
+  }, [gameState?.welcomeState, currentScreen]);
+
+  // Balloon release automatically redirects back to leaderboard after 2.5 seconds (Admin triggered)
+  useEffect(() => {
+    if (currentScreen === 'welcome' && gameState?.welcomeState === 'released') {
       const timer = setTimeout(() => {
         handleBackToLeaderboard();
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [gameState?.activeGame, gameState?.welcomeState]);
+  }, [currentScreen, gameState?.welcomeState]);
 
   // Monitor Auth state & log in anonymously behind the scenes
   useEffect(() => {
@@ -692,7 +731,7 @@ export default function TVDisplay() {
   };
 
   const getHeaderTitle = () => {
-    switch (gameState?.activeGame) {
+    switch (currentScreen) {
       case 'welcome':
         return STRINGS.tv.welcomeTitle;
       case 'jeopardy':
@@ -707,13 +746,11 @@ export default function TVDisplay() {
   };
 
   const renderActiveScreen = () => {
-    switch (gameState?.activeGame) {
+    switch (currentScreen) {
       case 'welcome':
         return renderWelcome();
       case 'jeopardy':
-        return showJeopardyBoard 
-          ? (gameState.jeopardy?.activeClue ? renderActiveClue() : renderJeopardyBoard())
-          : renderStandardLeaderboard();
+        return gameState?.jeopardy?.activeClue ? renderActiveClue() : renderJeopardyBoard();
       case 'finale':
         return renderFinale();
       case 'goodbye':
@@ -723,8 +760,8 @@ export default function TVDisplay() {
     }
   };
 
-  const isLeaderboardScreen = !gameState?.activeGame;
-  const showHeader = gameState?.activeGame !== 'welcome';
+  const isLeaderboardScreen = currentScreen === null;
+  const showHeader = currentScreen !== 'welcome';
 
   return (
     <div className="tv-page">
@@ -736,15 +773,15 @@ export default function TVDisplay() {
       {showHeader && (
         <header className="tv-header">
           <div 
-            className={`tv-header-left ${isLeaderboardScreen || gameState?.activeGame === 'jeopardy' ? 'clickable-header' : ''}`}
-            onClick={isLeaderboardScreen ? handleStartJeopardy : (gameState?.activeGame === 'jeopardy' ? handleEndJeopardy : undefined)}
+            className={`tv-header-left ${isLeaderboardScreen || currentScreen === 'jeopardy' ? 'clickable-header' : ''}`}
+            onClick={isLeaderboardScreen ? handleStartJeopardy : (currentScreen === 'jeopardy' ? handleEndJeopardy : undefined)}
           >
             <h1>{getHeaderTitle()}</h1>
           </div>
         </header>
       )}
 
-      <div key={gameState?.activeGame || 'leaderboard'} className="tv-screen-wrapper animate-scale-up" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      <div key={currentScreen || 'leaderboard'} className="tv-screen-wrapper animate-scale-up" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         {renderActiveScreen()}
       </div>
     </div>
