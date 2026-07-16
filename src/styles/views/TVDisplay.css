@@ -227,6 +227,21 @@
   top: 0;
 }
 
+/* Top 3 Player styles */
+.top-1 {
+  background: linear-gradient(90deg, rgba(202, 138, 4, 0.12) 0%, #ffffff 100%);
+  border-color: rgba(202, 138, 4, 0.35);
+  box-shadow: 0 4px 15px rgba(202, 138, 4, 0.08);
+}
+.top-2 {
+  background: linear-gradient(90deg, rgba(100, 116, 139, 0.1) 0%, #ffffff 100%);
+  border-color: rgba(100, 116, 139, 0.25);
+}
+.top-3 {
+  background: linear-gradient(90deg, rgba(180, 83, 9, 0.1) 0%, #ffffff 100%);
+  border-color: rgba(180, 83, 9, 0.25);
+}
+
 .tv-player-row:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7);
@@ -282,6 +297,11 @@
   font-size: 26px;
   font-weight: 800;
   color: var(--text-bright);
+}
+
+.top-1 .tv-score-val {
+  color: #eab308;
+  text-shadow: 0 0 10px rgba(234, 179, 8, 0.4);
 }
 
 

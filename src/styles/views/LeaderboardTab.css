@@ -77,6 +77,38 @@
   box-shadow: 0 0 12px var(--player-glow);
 }
 
+/* Top 3 row highlights */
+.player-row.top-1 {
+  background: linear-gradient(180deg, rgba(202, 138, 4, 0.15) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border-color: rgba(202, 138, 4, 0.35);
+  box-shadow: 0 4px 15px rgba(202, 138, 4, 0.08);
+}
+.player-row.top-2 {
+  background: linear-gradient(180deg, rgba(100, 116, 139, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border-color: rgba(100, 116, 139, 0.25);
+}
+.player-row.top-3 {
+  background: linear-gradient(180deg, rgba(180, 83, 9, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border-color: rgba(180, 83, 9, 0.25);
+}
+
+/* Rank Badge Colors */
+.rank-badge.gold {
+  color: #ca8a04;
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(202, 138, 4, 0.4);
+}
+.rank-badge.silver {
+  color: #94a3b8;
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(148, 163, 184, 0.3);
+}
+.rank-badge.bronze {
+  color: #d97706;
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(217, 119, 6, 0.3);
+}
+
 /* Columns styling */
 .rank-col {
   width: 28px;

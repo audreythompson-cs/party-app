@@ -6,7 +6,10 @@ export default function LeaderboardTab({ leaderboard, currentUserId }) {
   const { teamsMap } = useAuth();
   
   const getRankBadge = (rank) => {
-    return <span className="rank-number">#{rank}</span>;
+    if (rank === 1) return <span className="rank-badge gold">1st</span>;
+    if (rank === 2) return <span className="rank-badge silver">2nd</span>;
+    if (rank === 3) return <span className="rank-badge bronze">3rd</span>;
+    return <span className="rank-number">{rank}</span>;
   };
 
   const fallbackTeam = { 
@@ -34,11 +37,12 @@ export default function LeaderboardTab({ leaderboard, currentUserId }) {
               const rank = index + 1;
               const isSelf = player.uid === currentUserId;
               const playerTeam = (teamsMap && teamsMap[player.team]) || fallbackTeam;
+              const isTopThree = rank <= 3;
 
               return (
                 <div 
                   key={player.uid} 
-                  className={`player-row animate-slide-in delay-${Math.min(rank, 10)} ${isSelf ? 'self-row' : ''}`}
+                  className={`player-row animate-slide-in delay-${Math.min(rank, 10)} ${isSelf ? 'self-row' : ''} ${isTopThree ? `top-${rank}` : ''}`}
                   style={{
                     '--player-accent': playerTeam.color,
                     '--player-glow': playerTeam.glow,
