@@ -19,13 +19,6 @@ export default function Onboarding() {
   const [customName, setCustomName] = useState('');
   const [isCustomName, setIsCustomName] = useState(false);
 
-  // Set default team from loaded dynamic teams list
-  useEffect(() => {
-    if (teams && teams.length > 0 && !team) {
-      setTeam(teams[0].id);
-    }
-  }, [teams, team]);
-
   // Subscribe to registered users (both real players and placeholder/predefined ones) on mount
   useEffect(() => {
     const unsubscribe = onLeaderboardChange((data) => {
@@ -120,6 +113,8 @@ export default function Onboarding() {
     p => p.isPlaceholder && p.team === team
   );
 
+  const selectedTeamObj = teams.find(t => t.id === team);
+
   return (
     <div className={`onboarding-page themed-background theme-${team}`}>
       {/* Background balloons floating constantly */}
@@ -160,7 +155,6 @@ export default function Onboarding() {
       <div className="onboarding-container app-container animate-fade-in">
         <div className="onboarding-card glass-panel animate-scale-up">
           <h2>{STRINGS.onboarding.title}</h2>
-          <p className="subtitle">{STRINGS.onboarding.subtitle}</p>
 
           <form onSubmit={handleSubmit} className="onboarding-form">
             
@@ -183,7 +177,6 @@ export default function Onboarding() {
                       }}
                       disabled={loading}
                     >
-                      <span className="team-indicator"></span>
                       <span className="team-name">{t.name}</span>
                     </button>
                   );
@@ -192,47 +185,53 @@ export default function Onboarding() {
             </div>
 
             {/* Name Selector (Pre-defined guest names for selected team) */}
-            <div className="input-group">
-              <label htmlFor="guest-select">{STRINGS.onboarding.nameSelectLabel}</label>
-              <select
-                id="guest-select"
-                value={isCustomName ? 'custom' : selectedGuestName}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === 'custom') {
-                    setIsCustomName(true);
-                    setSelectedGuestName('');
-                    setSelectedGuestId('');
-                    setName('');
-                  } else {
-                    const match = availablePlaceholders.find(p => p.name === val);
-                    setIsCustomName(false);
-                    setSelectedGuestName(val);
-                    setSelectedGuestId(match ? match.uid : '');
-                    setName(val);
-                  }
-                }}
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: 'var(--radius-md)',
-                  background: 'rgba(0, 0, 0, 0.2)',
-                  border: '1px solid var(--border-glass)',
-                  color: 'var(--text-bright)',
-                  fontSize: '14px',
-                  outline: 'none',
-                }}
-              >
-                <option value="">{STRINGS.onboarding.nameSelectPlaceholder}</option>
-                {availablePlaceholders.map((g) => (
-                  <option key={g.uid} value={g.name}>
-                    {g.name}
-                  </option>
-                ))}
-                <option value="custom">{STRINGS.onboarding.nameSelectCustom}</option>
-              </select>
-            </div>
+            {team && (
+              <div className="input-group animate-fade-in">
+                <label>{STRINGS.onboarding.nameSelectLabel}</label>
+                <div 
+                  className="players-grid"
+                  style={selectedTeamObj ? {
+                    '--team-color': selectedTeamObj.color,
+                    '--team-glow': selectedTeamObj.glow,
+                  } : {}}
+                >
+                  {availablePlaceholders.map((g) => {
+                    const isSelected = selectedGuestName === g.name && !isCustomName;
+                    return (
+                      <button
+                        key={g.uid}
+                        type="button"
+                        onClick={() => {
+                          setIsCustomName(false);
+                          setSelectedGuestName(g.name);
+                          setSelectedGuestId(g.uid);
+                          setName(g.name);
+                        }}
+                        className={`player-option ${isSelected ? 'selected' : ''}`}
+                        disabled={loading}
+                      >
+                        {g.name}
+                      </button>
+                    );
+                  })}
+                  
+                  {/* I'm not listed option */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCustomName(true);
+                      setSelectedGuestName('');
+                      setSelectedGuestId('');
+                      setName('');
+                    }}
+                    className={`player-option not-listed-option ${isCustomName ? 'selected' : ''}`}
+                    disabled={loading}
+                  >
+                    I'm not listed
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Custom Name Write-in (Hidden unless user selects custom) */}
             {isCustomName && (
