@@ -16,7 +16,8 @@ import {
   updatePlayerTeam,
   saveGoalTemplate,
   onPointHistoryChange,
-  onAllCompletedGoals
+  onAllCompletedGoals,
+  bootstrapAdmin
 } from '../firebase/db';
 import { useAuth } from '../context/AuthContext';
 import { STRINGS } from '../constants/strings';
@@ -149,11 +150,19 @@ export default function AdminDashboard() {
   }, [isAdminAuthenticated, isFirebaseAuthed]);
 
   // Check Admin Login
-  const handleAdminLogin = (e) => {
+  const handleAdminLogin = async (e) => {
     e.preventDefault();
     if (adminPasscode.trim().toUpperCase() === 'ADMIN2026') {
       setIsAdminAuthenticated(true);
       setPasscodeError('');
+      if (authUser) {
+        try {
+          await bootstrapAdmin(authUser.uid);
+          console.log("Admin profile bootstrapped successfully.");
+        } catch (err) {
+          console.error("Failed to bootstrap admin profile:", err);
+        }
+      }
     } else {
       setPasscodeError(STRINGS.admin.gateError);
     }

@@ -703,3 +703,18 @@ export function onAllCompletedGoals(callback) {
   });
 }
 
+/**
+ * Bootstraps the admin profile in the users collection.
+ */
+export async function bootstrapAdmin(uid) {
+  const userRef = doc(db, 'users', uid);
+  await setDoc(userRef, {
+    uid: uid,
+    name: 'Host',
+    team: 'blue',
+    points: 0,
+    isAdmin: true,
+    createdAt: serverTimestamp()
+  }, { merge: true });
+}
+
