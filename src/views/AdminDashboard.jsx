@@ -884,7 +884,7 @@ export default function AdminDashboard() {
 
                 const isExpanded = expandedPlayerId === p.uid;
                 return (
-                  <div key={p.uid} style={{ borderLeft: `3px solid ${pTeam.color}`, paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '15px' }}>
+                  <div key={p.uid} style={{ display: 'flex', flexDirection: 'column', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '15px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         {/* Name (toggles expanded quests/logs) */}
@@ -892,7 +892,7 @@ export default function AdminDashboard() {
                           onClick={() => setExpandedPlayerId(isExpanded ? null : p.uid)}
                           style={{ fontSize: '15px', color: 'var(--text-bright)', cursor: 'pointer', userSelect: 'none' }}
                         >
-                          {isExpanded ? '▼ ' : '▶ '} {p.name}
+                          {p.name}
                         </strong>
 
                         {/* Team Badge (toggles team selector inline) */}
@@ -913,52 +913,6 @@ export default function AdminDashboard() {
                         >
                           {p.team ? pTeam.name : 'None'}
                         </span>
-                      </div>
-
-                      {/* Tappable Points Count */}
-                      <div>
-                        {editingPointsPlayerId === p.uid ? (
-                          <input
-                            type="number"
-                            value={tempPointsVal}
-                            onChange={(e) => setTempPointsVal(e.target.value)}
-                            onBlur={() => handleSavePointsDirect(p.uid)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') handleSavePointsDirect(p.uid);
-                              if (e.key === 'Escape') setEditingPointsPlayerId(null);
-                            }}
-                            autoFocus
-                            style={{ 
-                              width: '80px', 
-                              padding: '6px', 
-                              fontSize: '14px', 
-                              textAlign: 'right',
-                              background: 'rgba(0,0,0,0.2)',
-                              border: '1px solid var(--accent)',
-                              color: '#fff',
-                              borderRadius: '6px'
-                            }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => {
-                              setEditingPointsPlayerId(p.uid);
-                              setTempPointsVal(p.points ?? 0);
-                            }}
-                            style={{ 
-                              cursor: 'pointer', 
-                              fontWeight: 'bold', 
-                              fontSize: '15px', 
-                              color: 'var(--accent)', 
-                              borderBottom: '1px dashed var(--accent)',
-                              paddingBottom: '2px',
-                              userSelect: 'none'
-                            }}
-                            title="Click to edit points directly"
-                          >
-                            {p.points ?? 0} pts
-                          </span>
-                        )}
                       </div>
                     </div>
 
@@ -1016,6 +970,54 @@ export default function AdminDashboard() {
                     {/* Collapsible Details Panel (Quests & Logs) */}
                     {isExpanded && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '5px', paddingLeft: '16px' }}>
+                        {/* Editable Points Count */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 'bold' }}>points:</span>
+                          <div>
+                            {editingPointsPlayerId === p.uid ? (
+                              <input
+                                type="number"
+                                value={tempPointsVal}
+                                onChange={(e) => setTempPointsVal(e.target.value)}
+                                onBlur={() => handleSavePointsDirect(p.uid)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleSavePointsDirect(p.uid);
+                                  if (e.key === 'Escape') setEditingPointsPlayerId(null);
+                                }}
+                                autoFocus
+                                style={{ 
+                                  width: '85px', 
+                                  padding: '6px', 
+                                  fontSize: '14px', 
+                                  textAlign: 'left',
+                                  background: 'rgba(0,0,0,0.2)',
+                                  border: '1px solid var(--accent)',
+                                  color: '#fff',
+                                  borderRadius: '6px'
+                                }}
+                              />
+                            ) : (
+                              <strong 
+                                onClick={() => {
+                                  setEditingPointsPlayerId(p.uid);
+                                  setTempPointsVal(p.points ?? 0);
+                                }}
+                                style={{ 
+                                  cursor: 'pointer', 
+                                  fontSize: '15px', 
+                                  color: 'var(--accent)', 
+                                  borderBottom: '1px dashed var(--accent)',
+                                  paddingBottom: '2px',
+                                  userSelect: 'none',
+                                  display: 'inline-block'
+                                }}
+                                title="Click to edit points directly"
+                              >
+                                {p.points ?? 0} pts
+                              </strong>
+                            )}
+                          </div>
+                        </div>
                         {/* Side quests list stacked vertically */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
