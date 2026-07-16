@@ -58,6 +58,7 @@ export default function AdminDashboard() {
   const [activeHistoryUserId, setActiveHistoryUserId] = useState(null);
   const [playerHistoryLogs, setPlayerHistoryLogs] = useState([]);
   const [expandedPlayerId, setExpandedPlayerId] = useState(null);
+  const [showAddQuestForPlayerId, setShowAddQuestForPlayerId] = useState(null);
 
   // Form State: Quests/Goals Page
   const [newQuestTitle, setNewQuestTitle] = useState('');
@@ -880,101 +881,152 @@ export default function AdminDashboard() {
                     {isExpanded && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '5px' }}>
                         {/* Change team selector */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                           <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>team/table:</span>
-                          <select
-                            value={p.team || ''}
-                            onChange={(e) => updatePlayerTeam(p.uid, e.target.value)}
-                            style={{ padding: '6px', fontSize: '12px' }}
-                          >
-                            <option value="">No Team</option>
-                            {teams.map(t => (
-                              <option key={t.id} value={t.id}>{t.name}</option>
-                            ))}
-                          </select>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                            <button
+                              type="button"
+                              onClick={() => updatePlayerTeam(p.uid, '')}
+                              className={!p.team ? 'btn-primary' : 'btn-secondary'}
+                              style={{
+                                fontSize: '11px',
+                                padding: '6px 12px',
+                                borderRadius: '8px',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                cursor: 'pointer',
+                                background: !p.team ? 'var(--text-muted)' : 'rgba(255, 255, 255, 0.03)',
+                                color: '#fff'
+                              }}
+                            >
+                              No Team
+                            </button>
+                            {teams.map(t => {
+                              const isSelected = p.team === t.id;
+                              return (
+                                <button
+                                  key={t.id}
+                                  type="button"
+                                  onClick={() => updatePlayerTeam(p.uid, t.id)}
+                                  style={{
+                                    fontSize: '11px',
+                                    padding: '6px 12px',
+                                    borderRadius: '8px',
+                                    border: isSelected ? `2px solid ${t.color}` : '1px solid rgba(255, 255, 255, 0.1)',
+                                    cursor: 'pointer',
+                                    background: isSelected ? t.color : 'rgba(255, 255, 255, 0.03)',
+                                    color: isSelected ? '#000000' : 'var(--text-main)',
+                                    fontWeight: isSelected ? 'bold' : 'normal',
+                                    boxShadow: isSelected ? `0 0 10px ${t.color}40` : 'none'
+                                  }}
+                                >
+                                  {t.name}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
 
                         {/* Compact point adjustments */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                           <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>adjust points:</span>
                           <div style={{ display: 'flex', gap: '6px' }}>
+                            <button 
+                              onClick={() => handleCustomAdjust(p.uid, true)} 
+                              className="btn-primary" 
+                              style={{ width: '38px', height: '38px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '16px', fontWeight: 'bold' }}
+                            >
+                              +
+                            </button>
+                            <button 
+                              onClick={() => handleCustomAdjust(p.uid, false)} 
+                              className="btn-secondary" 
+                              style={{ width: '38px', height: '38px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '16px', fontWeight: 'bold' }}
+                            >
+                              -
+                            </button>
                             <input
                               type="number"
                               placeholder="amount"
                               value={customPoints[p.uid] || ''}
                               onChange={(e) => setCustomPoints(prev => ({ ...prev, [p.uid]: e.target.value }))}
-                              style={{ flex: 1, padding: '8px', fontSize: '12px' }}
+                              style={{ flex: 1, padding: '8px', fontSize: '12px', height: '38px' }}
                             />
-                            <button 
-                              onClick={() => handleCustomAdjust(p.uid, true)} 
-                              className="btn-primary" 
-                              style={{ width: '38px', height: '38px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '16px', fontWeight: 'bold' }}
-                        >
-                          +
-                        </button>
-                        <button 
-                          onClick={() => handleCustomAdjust(p.uid, false)} 
-                          className="btn-secondary" 
-                          style={{ width: '38px', height: '38px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '16px', fontWeight: 'bold' }}
-                        >
-                          -
-                        </button>
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="reason (optional)"
-                        value={customDesc[p.uid] || ''}
-                        onChange={(e) => setCustomDesc(prev => ({ ...prev, [p.uid]: e.target.value }))}
-                        style={{ padding: '8px', fontSize: '12px' }}
-                      />
-                    </div>
-
-                    {/* Side quests list stacked vertically */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>assigned quests:</span>
-                      {playerQuests.map((g) => {
-                        const completions = allCompletedGoals.filter(cg => cg.userId === p.uid && cg.goalId === g.id);
-                        const isCompleted = completions.length > 0;
-                        return (
-                          <div key={g.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '6px 10px', borderRadius: '6px', fontSize: '12px' }}>
-                            <span>
-                              {isCompleted ? '✓' : '○'} {g.title} {g.isRepeatable && completions.length > 0 && `(x${completions.length})`}
-                            </span>
-                            <button 
-                              onClick={() => handleUnassignQuestFromPlayer(p.uid, g.id)}
-                              style={{ background: 'none', border: 'none', color: '#ff6f61', cursor: 'pointer', fontSize: '12px' }}
-                            >
-                              remove
-                            </button>
                           </div>
-                        );
-                      })}
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
-                        {goalsList.filter(g => !playerQuests.some(pq => pq.id === g.id)).length === 0 ? (
-                          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>all quests assigned</span>
-                        ) : (
-                          goalsList.filter(g => !playerQuests.some(pq => pq.id === g.id)).map(g => (
+                        </div>
+
+                        {/* Side quests list stacked vertically */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>assigned quests:</span>
                             <button
-                              key={g.id}
-                              onClick={() => handleAssignQuestToPlayer(p.uid, g.id)}
-                              className="btn-secondary"
+                              type="button"
+                              onClick={() => setShowAddQuestForPlayerId(showAddQuestForPlayerId === p.uid ? null : p.uid)}
                               style={{
-                                fontSize: '11px',
-                                padding: '4px 10px',
-                                borderRadius: '6px',
-                                background: 'rgba(255, 255, 255, 0.05)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                color: 'var(--text-muted)',
+                                background: 'rgba(255,255,255,0.06)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                color: 'var(--text-bright)',
+                                borderRadius: '50%',
+                                width: '22px',
+                                height: '22px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
                                 cursor: 'pointer'
                               }}
-                              title={`Assign quest: ${g.title} (+${g.points} pts)`}
+                              title="Assign new quest"
                             >
-                              + {g.title}
+                              {showAddQuestForPlayerId === p.uid ? '×' : '+'}
                             </button>
-                          ))
-                        )}
-                      </div>
-                    </div>
+                          </div>
+                          {playerQuests.map((g) => {
+                            const completions = allCompletedGoals.filter(cg => cg.userId === p.uid && cg.goalId === g.id);
+                            const isCompleted = completions.length > 0;
+                            return (
+                              <div key={g.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '6px 10px', borderRadius: '6px', fontSize: '12px' }}>
+                                <span>
+                                  {isCompleted ? '✓' : '○'} {g.title} {g.isRepeatable && completions.length > 0 && `(x${completions.length})`}
+                                </span>
+                                <button 
+                                  onClick={() => handleUnassignQuestFromPlayer(p.uid, g.id)}
+                                  style={{ background: 'none', border: 'none', color: '#ff6f61', cursor: 'pointer', fontSize: '12px' }}
+                                >
+                                  remove
+                                </button>
+                              </div>
+                            );
+                          })}
+                          
+                          {showAddQuestForPlayerId === p.uid && (
+                            <div style={{ background: 'rgba(0,0,0,0.15)', padding: '8px', borderRadius: '8px', display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+                              <span style={{ fontSize: '10px', color: 'var(--text-muted)', width: '100%', display: 'block', marginBottom: '2px' }}>available quests to assign:</span>
+                              {goalsList.filter(g => !playerQuests.some(pq => pq.id === g.id)).length === 0 ? (
+                                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>all quests assigned</span>
+                              ) : (
+                                goalsList.filter(g => !playerQuests.some(pq => pq.id === g.id)).map(g => (
+                                  <button
+                                    key={g.id}
+                                    onClick={() => handleAssignQuestToPlayer(p.uid, g.id)}
+                                    className="btn-secondary"
+                                    style={{
+                                      fontSize: '11px',
+                                      padding: '4px 10px',
+                                      borderRadius: '6px',
+                                      background: 'rgba(255, 255, 255, 0.05)',
+                                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                                      color: 'var(--text-muted)',
+                                      cursor: 'pointer'
+                                    }}
+                                    title={`Assign quest: ${g.title} (+${g.points} pts)`}
+                                  >
+                                    + {g.title}
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
 
                     {/* Expandable History Logs */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
