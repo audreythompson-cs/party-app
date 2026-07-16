@@ -49,8 +49,8 @@
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  background: var(--player-bg);
-  border: 1px solid var(--player-glow);
+  background: var(--player-glow);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
   gap: 12px;

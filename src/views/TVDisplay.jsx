@@ -343,9 +343,6 @@ export default function TVDisplay() {
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&color=ffffff&bgcolor=0c0a1c&data=${encodeURIComponent(joinUrl)}`;
 
   const getRankEmoji = (rank) => {
-    if (rank === 1) return '1st';
-    if (rank === 2) return '2nd';
-    if (rank === 3) return '3rd';
     return `#${rank}`;
   };
 

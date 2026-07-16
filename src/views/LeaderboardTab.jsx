@@ -6,10 +6,7 @@ export default function LeaderboardTab({ leaderboard, currentUserId }) {
   const { teamsMap } = useAuth();
   
   const getRankBadge = (rank) => {
-    if (rank === 1) return <span className="rank-badge gold">1st</span>;
-    if (rank === 2) return <span className="rank-badge silver">2nd</span>;
-    if (rank === 3) return <span className="rank-badge bronze">3rd</span>;
-    return <span className="rank-number">{rank}</span>;
+    return <span className="rank-number">#{rank}</span>;
   };
 
   const fallbackTeam = { 
