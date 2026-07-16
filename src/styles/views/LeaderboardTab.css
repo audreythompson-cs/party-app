@@ -49,21 +49,20 @@
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--player-bg);
+  border: 1px solid var(--player-glow);
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
   gap: 12px;
 }
 
 .player-row:hover {
-  background: rgba(255, 255, 255, 0.04);
+  filter: brightness(1.15);
   transform: translateX(2px);
 }
 
 /* Current player card highlight */
 .self-row {
-  background: var(--player-bg);
   border-color: var(--player-accent);
   box-shadow: 0 0 12px var(--player-glow);
 }

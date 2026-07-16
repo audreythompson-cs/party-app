@@ -57,14 +57,10 @@ export default function LeaderboardTab({ leaderboard, currentUserId }) {
                       <span className="player-name">{player.name}</span>
                       {isSelf && <span className="self-tag">{STRINGS.leaderboard.youSelfTag}</span>}
                     </div>
-                    <span className="player-team-label" style={{ color: playerTeam.color }}>
-                      {playerTeam.name}
-                    </span>
                   </div>
 
                   <div className="points-col">
                     <span className="player-points">{player.points ?? 0}</span>
-                    <span className="points-label">{STRINGS.leaderboard.pointsUnit}</span>
                   </div>
                 </div>
               );

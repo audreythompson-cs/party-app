@@ -625,15 +625,11 @@ export default function TVDisplay() {
                     <div className="col-player">
                       <div className="tv-player-meta">
                         <span className="tv-player-name">{player.name}</span>
-                        <span className="tv-team-badge" style={{ borderColor: playerTeam.color, color: playerTeam.color }}>
-                          {playerTeam.name}
-                        </span>
                       </div>
                     </div>
 
                     <div className="col-score">
                       <span className="tv-score-val">{player.points ?? 0}</span>
-                      <span className="tv-score-unit">pts</span>
                     </div>
                   </div>
                 );
