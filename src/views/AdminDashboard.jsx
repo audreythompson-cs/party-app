@@ -59,6 +59,9 @@ export default function AdminDashboard() {
   const [playerHistoryLogs, setPlayerHistoryLogs] = useState([]);
   const [expandedPlayerId, setExpandedPlayerId] = useState(null);
   const [showAddQuestForPlayerId, setShowAddQuestForPlayerId] = useState(null);
+  const [activeTeamSelectorPlayerId, setActiveTeamSelectorPlayerId] = useState(null);
+  const [editingPointsPlayerId, setEditingPointsPlayerId] = useState(null);
+  const [tempPointsVal, setTempPointsVal] = useState('');
 
   // Form State: Quests/Goals Page
   const [newQuestTitle, setNewQuestTitle] = useState('');
@@ -443,6 +446,26 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error(err);
       alert(STRINGS.admin.adjustErrorFailed + err.message);
+    }
+  };
+
+  const handleSavePointsDirect = async (userId) => {
+    const val = parseInt(tempPointsVal, 10);
+    setEditingPointsPlayerId(null);
+    if (isNaN(val)) return;
+
+    const playerObj = players.find(p => p.uid === userId);
+    if (!playerObj) return;
+
+    const currentPoints = playerObj.points ?? 0;
+    const diff = val - currentPoints;
+    if (diff === 0) return;
+
+    try {
+      await adjustPointsAdmin(userId, diff, 'Direct score update');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update points: ' + err.message);
     }
   };
 
@@ -862,102 +885,141 @@ export default function AdminDashboard() {
                 const isExpanded = expandedPlayerId === p.uid;
                 return (
                   <div key={p.uid} style={{ borderLeft: `3px solid ${pTeam.color}`, paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '15px' }}>
-                    <div 
-                      onClick={() => setExpandedPlayerId(isExpanded ? null : p.uid)}
-                      style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'center', 
-                        cursor: 'pointer',
-                        userSelect: 'none'
-                      }}
-                    >
-                      <strong style={{ fontSize: '15px', color: 'var(--text-bright)' }}>
-                        {isExpanded ? '▼ ' : '▶ '} {p.name} {p.isPlaceholder && <span style={{ fontSize: '9px', background: 'rgba(139,92,246,0.1)', color: 'var(--accent)', padding: '2px 6px', borderRadius: '10px' }}>pre</span>}
-                      </strong>
-                      <span style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--accent)' }}>{p.points ?? 0} pts</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {/* Name (toggles expanded quests/logs) */}
+                        <strong 
+                          onClick={() => setExpandedPlayerId(isExpanded ? null : p.uid)}
+                          style={{ fontSize: '15px', color: 'var(--text-bright)', cursor: 'pointer', userSelect: 'none' }}
+                        >
+                          {isExpanded ? '▼ ' : '▶ '} {p.name}
+                        </strong>
+
+                        {/* Team Badge (toggles team selector inline) */}
+                        <span 
+                          onClick={() => setActiveTeamSelectorPlayerId(activeTeamSelectorPlayerId === p.uid ? null : p.uid)}
+                          style={{
+                            fontSize: '11px',
+                            padding: '2px 10px',
+                            borderRadius: '12px',
+                            background: p.team ? pTeam.color : 'rgba(255,255,255,0.08)',
+                            color: p.team ? '#000000' : 'var(--text-muted)',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            userSelect: 'none',
+                            border: '1px solid rgba(255,255,255,0.1)'
+                          }}
+                          title="Click to change team/table"
+                        >
+                          {p.team ? pTeam.name : 'None'}
+                        </span>
+                      </div>
+
+                      {/* Tappable Points Count */}
+                      <div>
+                        {editingPointsPlayerId === p.uid ? (
+                          <input
+                            type="number"
+                            value={tempPointsVal}
+                            onChange={(e) => setTempPointsVal(e.target.value)}
+                            onBlur={() => handleSavePointsDirect(p.uid)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleSavePointsDirect(p.uid);
+                              if (e.key === 'Escape') setEditingPointsPlayerId(null);
+                            }}
+                            autoFocus
+                            style={{ 
+                              width: '80px', 
+                              padding: '6px', 
+                              fontSize: '14px', 
+                              textAlign: 'right',
+                              background: 'rgba(0,0,0,0.2)',
+                              border: '1px solid var(--accent)',
+                              color: '#fff',
+                              borderRadius: '6px'
+                            }}
+                          />
+                        ) : (
+                          <span 
+                            onClick={() => {
+                              setEditingPointsPlayerId(p.uid);
+                              setTempPointsVal(p.points ?? 0);
+                            }}
+                            style={{ 
+                              cursor: 'pointer', 
+                              fontWeight: 'bold', 
+                              fontSize: '15px', 
+                              color: 'var(--accent)', 
+                              borderBottom: '1px dashed var(--accent)',
+                              paddingBottom: '2px',
+                              userSelect: 'none'
+                            }}
+                            title="Click to edit points directly"
+                          >
+                            {p.points ?? 0} pts
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    {isExpanded && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '5px' }}>
-                        {/* Change team selector */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>team/table:</span>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {/* Inline Team Selector */}
+                    {activeTeamSelectorPlayerId === p.uid && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '8px', marginTop: '4px' }}>
+                        <span style={{ fontSize: '10px', color: 'var(--text-muted)', width: '100%', display: 'block', marginBottom: '2px' }}>select table:</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updatePlayerTeam(p.uid, '');
+                            setActiveTeamSelectorPlayerId(null);
+                          }}
+                          style={{
+                            fontSize: '11px',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            cursor: 'pointer',
+                            background: !p.team ? 'var(--text-muted)' : 'rgba(255, 255, 255, 0.03)',
+                            color: '#fff'
+                          }}
+                        >
+                          None
+                        </button>
+                        {teams.map(t => {
+                          const isSelected = p.team === t.id;
+                          return (
                             <button
+                              key={t.id}
                               type="button"
-                              onClick={() => updatePlayerTeam(p.uid, '')}
-                              className={!p.team ? 'btn-primary' : 'btn-secondary'}
+                              onClick={() => {
+                                updatePlayerTeam(p.uid, t.id);
+                                setActiveTeamSelectorPlayerId(null);
+                              }}
                               style={{
                                 fontSize: '11px',
                                 padding: '6px 12px',
                                 borderRadius: '8px',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                border: isSelected ? `2px solid ${t.color}` : '1px solid rgba(255, 255, 255, 0.1)',
                                 cursor: 'pointer',
-                                background: !p.team ? 'var(--text-muted)' : 'rgba(255, 255, 255, 0.03)',
-                                color: '#fff'
+                                background: isSelected ? t.color : 'rgba(255, 255, 255, 0.03)',
+                                color: isSelected ? '#000000' : 'var(--text-muted)',
+                                fontWeight: isSelected ? 'bold' : 'normal',
+                                boxShadow: isSelected ? `0 0 10px ${t.color}40` : 'none'
                               }}
                             >
-                              No Team
+                              {t.name}
                             </button>
-                            {teams.map(t => {
-                              const isSelected = p.team === t.id;
-                              return (
-                                <button
-                                  key={t.id}
-                                  type="button"
-                                  onClick={() => updatePlayerTeam(p.uid, t.id)}
-                                  style={{
-                                    fontSize: '11px',
-                                    padding: '6px 12px',
-                                    borderRadius: '8px',
-                                    border: isSelected ? `2px solid ${t.color}` : '1px solid rgba(255, 255, 255, 0.1)',
-                                    cursor: 'pointer',
-                                    background: isSelected ? t.color : 'rgba(255, 255, 255, 0.03)',
-                                    color: isSelected ? '#000000' : 'var(--text-main)',
-                                    fontWeight: isSelected ? 'bold' : 'normal',
-                                    boxShadow: isSelected ? `0 0 10px ${t.color}40` : 'none'
-                                  }}
-                                >
-                                  {t.name}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
+                          );
+                        })}
+                      </div>
+                    )}
 
-                        {/* Compact point adjustments */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>adjust points:</span>
-                          <div style={{ display: 'flex', gap: '6px' }}>
-                            <button 
-                              onClick={() => handleCustomAdjust(p.uid, true)} 
-                              className="btn-primary" 
-                              style={{ width: '38px', height: '38px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '16px', fontWeight: 'bold' }}
-                            >
-                              +
-                            </button>
-                            <button 
-                              onClick={() => handleCustomAdjust(p.uid, false)} 
-                              className="btn-secondary" 
-                              style={{ width: '38px', height: '38px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '16px', fontWeight: 'bold' }}
-                            >
-                              -
-                            </button>
-                            <input
-                              type="number"
-                              placeholder="amount"
-                              value={customPoints[p.uid] || ''}
-                              onChange={(e) => setCustomPoints(prev => ({ ...prev, [p.uid]: e.target.value }))}
-                              style={{ flex: 1, padding: '8px', fontSize: '12px', height: '38px' }}
-                            />
-                          </div>
-                        </div>
-
+                    {/* Collapsible Details Panel (Quests & Logs) */}
+                    {isExpanded && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '5px', paddingLeft: '16px' }}>
                         {/* Side quests list stacked vertically */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>assigned quests:</span>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 'bold' }}>assigned quests:</span>
                             <button
                               type="button"
                               onClick={() => setShowAddQuestForPlayerId(showAddQuestForPlayerId === p.uid ? null : p.uid)}
@@ -1028,58 +1090,58 @@ export default function AdminDashboard() {
                           )}
                         </div>
 
-                    {/* Expandable History Logs */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (activeHistoryUserId === p.uid) {
-                            setActiveHistoryUserId(null);
-                          } else {
-                            setActiveHistoryUserId(p.uid);
-                          }
-                        }}
-                        className="btn-secondary"
-                        style={{ fontSize: '11px', padding: '6px' }}
-                      >
-                        {activeHistoryUserId === p.uid ? 'hide points log' : 'view points log'}
-                      </button>
-                      
-                      {activeHistoryUserId === p.uid && (
-                        <div style={{ background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '8px', maxHeight: '140px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '11px' }}>
-                          {playerHistoryLogs.length === 0 ? (
-                            <p style={{ margin: 0, fontStyle: 'italic', color: 'var(--text-muted)', textAlign: 'center' }}>no records</p>
-                          ) : (
-                            playerHistoryLogs.map((log) => (
-                              <div key={log.id} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '4px' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-                                  <span style={{ color: 'var(--text-bright)' }}>{log.description}</span>
-                                  <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>{log.timestamp?.toDate ? log.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
-                                </div>
-                                <strong style={{ color: log.amount > 0 ? '#10b981' : '#ef4444', alignSelf: 'center' }}>
-                                  {log.amount > 0 ? '+' : ''}{log.amount}
-                                </strong>
-                              </div>
-                            ))
+                        {/* Expandable History Logs */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (activeHistoryUserId === p.uid) {
+                                setActiveHistoryUserId(null);
+                              } else {
+                                setActiveHistoryUserId(p.uid);
+                              }
+                            }}
+                            className="btn-secondary"
+                            style={{ fontSize: '11px', padding: '6px', width: 'fit-content' }}
+                          >
+                            {activeHistoryUserId === p.uid ? 'hide points log' : 'view points log'}
+                          </button>
+                          
+                          {activeHistoryUserId === p.uid && (
+                            <div style={{ background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '8px', maxHeight: '140px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '11px' }}>
+                              {playerHistoryLogs.length === 0 ? (
+                                <p style={{ margin: 0, fontStyle: 'italic', color: 'var(--text-muted)', textAlign: 'center' }}>no records</p>
+                              ) : (
+                                playerHistoryLogs.map((log) => (
+                                  <div key={log.id} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '4px' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+                                      <span style={{ color: 'var(--text-bright)' }}>{log.description}</span>
+                                      <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>{log.timestamp?.toDate ? log.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
+                                    </div>
+                                    <strong style={{ color: log.amount > 0 ? '#10b981' : '#ef4444', alignSelf: 'center' }}>
+                                      {log.amount > 0 ? '+' : ''}{log.amount}
+                                    </strong>
+                                  </div>
+                                ))
+                              )}
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
 
-                    {/* Delete Player Button */}
-                    <button
-                      onClick={async () => {
-                        if (window.confirm(`Delete player "${p.name}"?`)) {
-                          await deletePlayerAdmin(p.uid);
-                          alert('Deleted.');
-                        }
-                      }}
-                      className="delete-goal-btn"
-                      style={{ fontSize: '11px', alignSelf: 'flex-end', color: '#ff6f61', border: 'none', background: 'none', cursor: 'pointer' }}
-                    >
-                      delete player permanently
-                    </button>
-                  </div>
+                        {/* Delete Player Button */}
+                        <button
+                          onClick={async () => {
+                            if (window.confirm(`Delete player "${p.name}"?`)) {
+                              await deletePlayerAdmin(p.uid);
+                              alert('Deleted.');
+                            }
+                          }}
+                          className="delete-goal-btn"
+                          style={{ fontSize: '11px', alignSelf: 'flex-start', color: '#ff6f61', border: 'none', background: 'none', cursor: 'pointer', padding: 0 }}
+                        >
+                          delete player permanently
+                        </button>
+                      </div>
                     )}
                   </div>
                 );
