@@ -71,6 +71,8 @@ export default function TVDisplay() {
   const [lastClueId, setLastClueId] = useState(null);
   const [leftBalloonsReleased, setLeftBalloonsReleased] = useState(false);
   const [rightBalloonsReleased, setRightBalloonsReleased] = useState(false);
+  const [showJeopardyBoard, setShowJeopardyBoard] = useState(false);
+  const [leaderboardBalloonsReleased, setLeaderboardBalloonsReleased] = useState(false);
 
   // Sync balloon released state
   useEffect(() => {
@@ -84,6 +86,22 @@ export default function TVDisplay() {
       setRightBalloonsReleased(false);
     }
   }, [gameState?.activeGame]);
+
+  // Defer Jeopardy board display to allow balloons to float away
+  useEffect(() => {
+    if (gameState?.activeGame === 'jeopardy') {
+      if (!showJeopardyBoard) {
+        setLeaderboardBalloonsReleased(true);
+        const timer = setTimeout(() => {
+          setShowJeopardyBoard(true);
+        }, 2500);
+        return () => clearTimeout(timer);
+      }
+    } else {
+      setShowJeopardyBoard(false);
+      setLeaderboardBalloonsReleased(false);
+    }
+  }, [gameState?.activeGame, showJeopardyBoard]);
 
   // Balloon release automatically redirects back to leaderboard after 2.5 seconds
   useEffect(() => {
@@ -581,7 +599,7 @@ export default function TVDisplay() {
       <div className="tv-content">
         {/* Left Side: Balloon Bundle + QR Anchor */}
         <div 
-          className={`welcome-side-column left-side ${leftBalloonsReleased ? 'released' : ''}`}
+          className={`welcome-side-column left-side ${leftBalloonsReleased || leaderboardBalloonsReleased ? 'released' : ''}`}
           onClick={handleLeftClick}
           style={{ cursor: 'pointer' }}
         >
@@ -653,7 +671,7 @@ export default function TVDisplay() {
 
         {/* Right Side: Balloon Bundle + QR Anchor */}
         <div 
-          className={`welcome-side-column right-side ${rightBalloonsReleased ? 'released' : ''}`}
+          className={`welcome-side-column right-side ${rightBalloonsReleased || leaderboardBalloonsReleased ? 'released' : ''}`}
           onClick={handleRightClick}
           style={{ cursor: 'pointer' }}
         >
@@ -693,7 +711,9 @@ export default function TVDisplay() {
       case 'welcome':
         return renderWelcome();
       case 'jeopardy':
-        return gameState.jeopardy?.activeClue ? renderActiveClue() : renderJeopardyBoard();
+        return showJeopardyBoard 
+          ? (gameState.jeopardy?.activeClue ? renderActiveClue() : renderJeopardyBoard())
+          : renderStandardLeaderboard();
       case 'finale':
         return renderFinale();
       case 'goodbye':
