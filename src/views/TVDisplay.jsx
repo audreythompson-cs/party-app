@@ -404,12 +404,25 @@ export default function TVDisplay() {
       );
     }
 
+    const sortedCategories = [...jeopardyCategories].sort((a, b) => {
+      const getPriority = (name) => {
+        const norm = (name || '').trim().toLowerCase();
+        if (norm === 'computer science') return 0;
+        if (norm === 'audrey') return 1;
+        if (norm === 'fun') return 2;
+        if (norm === 'lisa') return 3;
+        if (norm === 'criminal justice') return 4;
+        return 5;
+      };
+      return getPriority(a.name) - getPriority(b.name);
+    });
+
     return (
       <div className="jeopardy-container animate-fade-in">
         {/* The Grid */}
         <div className="jeopardy-board glass-panel">
-          <div className="jeopardy-grid" style={{ gridTemplateColumns: `repeat(${jeopardyCategories.length}, 1fr)` }}>
-            {jeopardyCategories.map((cat) => (
+          <div className="jeopardy-grid" style={{ gridTemplateColumns: `repeat(${sortedCategories.length}, 1fr)` }}>
+            {sortedCategories.map((cat) => (
               <div key={cat.id} className="jeopardy-col">
                 <div className="jeopardy-cat-header">{cat.name}</div>
                 {[100, 200, 300, 400, 500].map((pts, idx) => {

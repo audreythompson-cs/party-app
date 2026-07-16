@@ -381,12 +381,12 @@
   padding: 15px 10px;
   border-radius: 12px;
   font-family: var(--font-heading);
-  font-size: 16px;
+  font-size: 26px;
   font-weight: 800;
   color: var(--text-bright);
   text-transform: uppercase;
   text-align: center;
-  min-height: 60px;
+  min-height: 85px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -400,7 +400,7 @@
   border: 2px solid rgba(202, 138, 4, 0.2);
   color: #ca8a04;
   font-family: var(--font-heading);
-  font-size: 28px;
+  font-size: 48px;
   font-weight: 800;
   border-radius: 12px;
   display: flex;
@@ -409,7 +409,7 @@
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
-  min-height: 70px;
+  min-height: 85px;
 }
 
 .jeopardy-clue-card:hover:not(:disabled) {
