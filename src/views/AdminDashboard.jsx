@@ -57,6 +57,7 @@ export default function AdminDashboard() {
   // Real-time Player History logs state
   const [activeHistoryUserId, setActiveHistoryUserId] = useState(null);
   const [playerHistoryLogs, setPlayerHistoryLogs] = useState([]);
+  const [expandedPlayerId, setExpandedPlayerId] = useState(null);
 
   // Form State: Quests/Goals Page
   const [newQuestTitle, setNewQuestTitle] = useState('');
@@ -857,45 +858,57 @@ export default function AdminDashboard() {
                 const pTeam = (teamsMap && teamsMap[p.team]) || fallbackTeam;
                 const playerQuests = goalsList.filter(g => g.assignedTo && g.assignedTo.includes(p.uid));
 
+                const isExpanded = expandedPlayerId === p.uid;
                 return (
                   <div key={p.uid} style={{ borderLeft: `3px solid ${pTeam.color}`, paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '15px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div 
+                      onClick={() => setExpandedPlayerId(isExpanded ? null : p.uid)}
+                      style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center', 
+                        cursor: 'pointer',
+                        userSelect: 'none'
+                      }}
+                    >
                       <strong style={{ fontSize: '15px', color: 'var(--text-bright)' }}>
-                        {p.name} {p.isPlaceholder && <span style={{ fontSize: '9px', background: 'rgba(139,92,246,0.1)', color: 'var(--accent)', padding: '2px 6px', borderRadius: '10px' }}>pre</span>}
+                        {isExpanded ? '▼ ' : '▶ '} {p.name} {p.isPlaceholder && <span style={{ fontSize: '9px', background: 'rgba(139,92,246,0.1)', color: 'var(--accent)', padding: '2px 6px', borderRadius: '10px' }}>pre</span>}
                       </strong>
                       <span style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--accent)' }}>{p.points ?? 0} pts</span>
                     </div>
 
-                    {/* Change team selector */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>team/table:</span>
-                      <select
-                        value={p.team || ''}
-                        onChange={(e) => updatePlayerTeam(p.uid, e.target.value)}
-                        style={{ padding: '6px', fontSize: '12px' }}
-                      >
-                        <option value="">No Team</option>
-                        {teams.map(t => (
-                          <option key={t.id} value={t.id}>{t.name}</option>
-                        ))}
-                      </select>
-                    </div>
+                    {isExpanded && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '5px' }}>
+                        {/* Change team selector */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>team/table:</span>
+                          <select
+                            value={p.team || ''}
+                            onChange={(e) => updatePlayerTeam(p.uid, e.target.value)}
+                            style={{ padding: '6px', fontSize: '12px' }}
+                          >
+                            <option value="">No Team</option>
+                            {teams.map(t => (
+                              <option key={t.id} value={t.id}>{t.name}</option>
+                            ))}
+                          </select>
+                        </div>
 
-                    {/* Compact point adjustments */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>adjust points:</span>
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <input
-                          type="number"
-                          placeholder="amount"
-                          value={customPoints[p.uid] || ''}
-                          onChange={(e) => setCustomPoints(prev => ({ ...prev, [p.uid]: e.target.value }))}
-                          style={{ flex: 1, padding: '8px', fontSize: '12px' }}
-                        />
-                        <button 
-                          onClick={() => handleCustomAdjust(p.uid, true)} 
-                          className="btn-primary" 
-                          style={{ width: '38px', height: '38px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '16px', fontWeight: 'bold' }}
+                        {/* Compact point adjustments */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>adjust points:</span>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <input
+                              type="number"
+                              placeholder="amount"
+                              value={customPoints[p.uid] || ''}
+                              onChange={(e) => setCustomPoints(prev => ({ ...prev, [p.uid]: e.target.value }))}
+                              style={{ flex: 1, padding: '8px', fontSize: '12px' }}
+                            />
+                            <button 
+                              onClick={() => handleCustomAdjust(p.uid, true)} 
+                              className="btn-primary" 
+                              style={{ width: '38px', height: '38px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '16px', fontWeight: 'bold' }}
                         >
                           +
                         </button>
@@ -1014,6 +1027,8 @@ export default function AdminDashboard() {
                     >
                       delete player permanently
                     </button>
+                  </div>
+                    )}
                   </div>
                 );
               })}
