@@ -50,6 +50,11 @@ export function AuthProvider({ children }) {
 
   // Listen to dynamic teams in Firestore
   useEffect(() => {
+    if (!currentUser) {
+      setTeams([]);
+      setTeamsMap({});
+      return;
+    }
     const unsubscribeTeams = onTeamsChange((data) => {
       setTeams(data);
       const mapping = (data || []).reduce((acc, t) => {
@@ -60,7 +65,7 @@ export function AuthProvider({ children }) {
     });
 
     return () => unsubscribeTeams();
-  }, []);
+  }, [currentUser]);
 
   // Passcode verification
   const loginWithPasscode = async (passcode) => {
