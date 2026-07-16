@@ -1018,9 +1018,9 @@ export default function AdminDashboard() {
                     {isExpanded && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '5px', paddingLeft: '16px' }}>
                         {/* Side quests list stacked vertically */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 'bold' }}>assigned quests:</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                            <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 'bold' }}>assigned quests:</span>
                             <button
                               type="button"
                               onClick={() => setShowAddQuestForPlayerId(showAddQuestForPlayerId === p.uid ? null : p.uid)}
@@ -1029,12 +1029,12 @@ export default function AdminDashboard() {
                                 border: '1px solid rgba(255,255,255,0.1)',
                                 color: 'var(--text-bright)',
                                 borderRadius: '50%',
-                                width: '22px',
-                                height: '22px',
+                                width: '36px',
+                                height: '36px',
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                fontSize: '12px',
+                                fontSize: '20px',
                                 fontWeight: 'bold',
                                 cursor: 'pointer'
                               }}
@@ -1047,13 +1047,13 @@ export default function AdminDashboard() {
                             const completions = allCompletedGoals.filter(cg => cg.userId === p.uid && cg.goalId === g.id);
                             const isCompleted = completions.length > 0;
                             return (
-                              <div key={g.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '6px 10px', borderRadius: '6px', fontSize: '12px' }}>
+                              <div key={g.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '10px 14px', borderRadius: '6px', fontSize: '14px' }}>
                                 <span>
                                   {isCompleted ? '✓' : '○'} {g.title} {g.isRepeatable && completions.length > 0 && `(x${completions.length})`}
                                 </span>
                                 <button 
                                   onClick={() => handleUnassignQuestFromPlayer(p.uid, g.id)}
-                                  style={{ background: 'none', border: 'none', color: '#ff6f61', cursor: 'pointer', fontSize: '12px' }}
+                                  style={{ background: 'none', border: 'none', color: '#ff6f61', cursor: 'pointer', fontSize: '13px', padding: '4px 8px' }}
                                 >
                                   remove
                                 </button>
@@ -1062,10 +1062,10 @@ export default function AdminDashboard() {
                           })}
                           
                           {showAddQuestForPlayerId === p.uid && (
-                            <div style={{ background: 'rgba(0,0,0,0.15)', padding: '8px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
-                              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'bold', marginBottom: '2px' }}>available quests to assign:</span>
+                            <div style={{ background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+                              <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'bold', marginBottom: '2px' }}>available quests to assign:</span>
                               {goalsList.filter(g => !playerQuests.some(pq => pq.id === g.id)).length === 0 ? (
-                                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>all quests assigned</span>
+                                <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic' }}>all quests assigned</span>
                               ) : (
                                 goalsList.filter(g => !playerQuests.some(pq => pq.id === g.id)).map(g => (
                                   <button
@@ -1073,9 +1073,9 @@ export default function AdminDashboard() {
                                     onClick={() => handleAssignQuestToPlayer(p.uid, g.id)}
                                     className="btn-secondary"
                                     style={{
-                                      fontSize: '12px',
-                                      padding: '8px 12px',
-                                      borderRadius: '6px',
+                                      fontSize: '14px',
+                                      padding: '12px 16px',
+                                      borderRadius: '8px',
                                       background: 'rgba(255, 255, 255, 0.04)',
                                       border: '1px solid rgba(255, 255, 255, 0.08)',
                                       color: 'var(--text-bright)',
