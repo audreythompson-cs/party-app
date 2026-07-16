@@ -373,6 +373,30 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleUpdateTeamColor = async (teamId, newColor) => {
+    let hex = newColor.replace('#', '');
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    const r = parseInt(hex.substring(0, 2), 16) || 0;
+    const g = parseInt(hex.substring(2, 4), 16) || 0;
+    const b = parseInt(hex.substring(4, 6), 16) || 0;
+
+    const teamData = {
+      color: newColor,
+      secondary: newColor,
+      glow: `rgba(${r}, ${g}, ${b}, 0.25)`,
+      accentBg: `rgba(${r}, ${g}, ${b}, 0.05)`
+    };
+
+    try {
+      await saveTeam(teamId, teamData);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update team color: ' + err.message);
+    }
+  };
+
   // --- Sub-page 3: Player Management Handlers ---
   const handleCreatePlayer = async (e) => {
     e.preventDefault();
@@ -704,7 +728,24 @@ export default function AdminDashboard() {
                 return (
                   <div key={t.id} style={{ borderLeft: `3px solid ${t.color}`, paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <strong style={{ color: 'var(--text-bright)', fontSize: '15px' }}>{t.name}</strong>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <strong style={{ color: 'var(--text-bright)', fontSize: '15px' }}>{t.name}</strong>
+                        <input
+                          type="color"
+                          value={t.color || '#60a5fa'}
+                          onChange={(e) => handleUpdateTeamColor(t.id, e.target.value)}
+                          style={{
+                            width: '24px',
+                            height: '24px',
+                            padding: 0,
+                            border: 'none',
+                            borderRadius: '50%',
+                            cursor: 'pointer',
+                            background: 'none'
+                          }}
+                        />
+                        <span style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-muted)' }}>{t.color}</span>
+                      </div>
                       <button
                         onClick={async () => {
                           if (window.confirm(`Delete team "${t.name}"?`)) {
