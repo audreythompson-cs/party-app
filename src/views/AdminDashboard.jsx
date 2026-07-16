@@ -984,30 +984,31 @@ export default function AdminDashboard() {
                         >
                           None
                         </button>
-                        {teams.map(t => {
-                          const isSelected = p.team === t.id;
-                          return (
-                            <button
-                              key={t.id}
-                              type="button"
-                              onClick={() => {
-                                updatePlayerTeam(p.uid, t.id);
-                                setActiveTeamSelectorPlayerId(null);
-                              }}
-                              style={{
-                                fontSize: '11px',
-                                padding: '6px 12px',
-                                borderRadius: '8px',
-                                border: isSelected ? `2px solid ${t.color}` : '1px solid rgba(255, 255, 255, 0.1)',
-                                cursor: 'pointer',
-                                background: isSelected ? t.color : 'rgba(255, 255, 255, 0.03)',
-                                color: isSelected ? '#000000' : 'var(--text-muted)',
-                                fontWeight: isSelected ? 'bold' : 'normal',
-                                boxShadow: isSelected ? `0 0 10px ${t.color}40` : 'none'
-                              }}
-                            >
-                              {t.name}
-                            </button>
+                         {teams.map(t => {
+                           const isSelected = p.team === t.id;
+                           return (
+                             <button
+                               key={t.id}
+                               type="button"
+                               onClick={() => {
+                                 updatePlayerTeam(p.uid, t.id);
+                                 setActiveTeamSelectorPlayerId(null);
+                               }}
+                               style={{
+                                 fontSize: '11px',
+                                 padding: '6px 12px',
+                                 borderRadius: '8px',
+                                 border: `1px solid ${t.color}`,
+                                 cursor: 'pointer',
+                                 background: isSelected ? t.color : `${t.color}20`,
+                                 color: isSelected ? '#000000' : '#ffffff',
+                                 fontWeight: 'bold',
+                                 boxShadow: isSelected ? `0 0 10px ${t.color}40` : 'none',
+                                 transition: 'all 0.2s ease'
+                               }}
+                             >
+                               {t.name}
+                             </button>
                           );
                         })}
                       </div>
