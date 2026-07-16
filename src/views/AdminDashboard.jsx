@@ -1003,7 +1003,7 @@ export default function AdminDashboard() {
                                  border: `1px solid ${t.color}`,
                                  cursor: 'pointer',
                                  background: isSelected ? t.color : `${t.color}20`,
-                                 color: isSelected ? '#000000' : '#ffffff',
+                                 color: '#000000',
                                  fontWeight: 'bold',
                                  boxShadow: isSelected ? `0 0 10px ${t.color}40` : 'none',
                                  transition: 'all 0.2s ease'
@@ -1327,7 +1327,7 @@ export default function AdminDashboard() {
                                          borderRadius: '6px',
                                          border: `1px solid ${t.color}`,
                                          background: isSelected ? t.color : `${t.color}15`,
-                                         color: isSelected ? '#000000' : '#ffffff',
+                                         color: '#000000',
                                          fontWeight: 'bold',
                                          cursor: 'pointer'
                                        }}
