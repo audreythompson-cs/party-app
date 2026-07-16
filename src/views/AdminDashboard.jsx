@@ -421,13 +421,17 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleCustomAdjust = async (userId) => {
-    const amount = parseInt(customPoints[userId], 10);
+  const handleCustomAdjust = async (userId, isPositive) => {
+    let amount = parseInt(customPoints[userId], 10);
     const desc = customDesc[userId] || 'Host adjustment';
 
-    if (isNaN(amount)) {
-      alert(STRINGS.admin.adjustErrorAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid positive number for amount.");
       return;
+    }
+
+    if (!isPositive) {
+      amount = -amount;
     }
 
     try {
@@ -877,30 +881,39 @@ export default function AdminDashboard() {
                       </select>
                     </div>
 
-                    {/* Point adjustments stacked vertically */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {/* Compact point adjustments */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>adjust points:</span>
-                      <div className="vertical-actions">
-                        <button onClick={() => handleQuickAdjust(p.uid, 10)} className="btn-secondary">+10 pts</button>
-                        <button onClick={() => handleQuickAdjust(p.uid, 50)} className="btn-secondary">+50 pts</button>
-                        <button onClick={() => handleQuickAdjust(p.uid, -10)} className="btn-secondary">-10 pts</button>
-                        <button onClick={() => handleQuickAdjust(p.uid, -50)} className="btn-secondary">-50 pts</button>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <div style={{ display: 'flex', gap: '6px' }}>
                         <input
                           type="number"
-                          placeholder="points amount"
+                          placeholder="amount"
                           value={customPoints[p.uid] || ''}
                           onChange={(e) => setCustomPoints(prev => ({ ...prev, [p.uid]: e.target.value }))}
+                          style={{ flex: 1, padding: '8px', fontSize: '12px' }}
                         />
-                        <input
-                          type="text"
-                          placeholder="adjustment reason"
-                          value={customDesc[p.uid] || ''}
-                          onChange={(e) => setCustomDesc(prev => ({ ...prev, [p.uid]: e.target.value }))}
-                        />
-                        <button onClick={() => handleCustomAdjust(p.uid)} className="btn-primary" style={{ padding: '8px' }}>apply points</button>
+                        <button 
+                          onClick={() => handleCustomAdjust(p.uid, true)} 
+                          className="btn-primary" 
+                          style={{ width: '38px', height: '38px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '16px', fontWeight: 'bold' }}
+                        >
+                          +
+                        </button>
+                        <button 
+                          onClick={() => handleCustomAdjust(p.uid, false)} 
+                          className="btn-secondary" 
+                          style={{ width: '38px', height: '38px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '16px', fontWeight: 'bold' }}
+                        >
+                          -
+                        </button>
                       </div>
+                      <input
+                        type="text"
+                        placeholder="reason (optional)"
+                        value={customDesc[p.uid] || ''}
+                        onChange={(e) => setCustomDesc(prev => ({ ...prev, [p.uid]: e.target.value }))}
+                        style={{ padding: '8px', fontSize: '12px' }}
+                      />
                     </div>
 
                     {/* Side quests list stacked vertically */}
@@ -923,21 +936,31 @@ export default function AdminDashboard() {
                           </div>
                         );
                       })}
-                      <select
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (val) {
-                            handleAssignQuestToPlayer(p.uid, val);
-                            e.target.value = '';
-                          }
-                        }}
-                        style={{ fontSize: '12px', padding: '6px', width: '100%' }}
-                      >
-                        <option value="">+ assign quest...</option>
-                        {goalsList.filter(g => !playerQuests.some(pq => pq.id === g.id)).map(g => (
-                          <option key={g.id} value={g.id}>{g.title} (+{g.points} pts)</option>
-                        ))}
-                      </select>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+                        {goalsList.filter(g => !playerQuests.some(pq => pq.id === g.id)).length === 0 ? (
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>all quests assigned</span>
+                        ) : (
+                          goalsList.filter(g => !playerQuests.some(pq => pq.id === g.id)).map(g => (
+                            <button
+                              key={g.id}
+                              onClick={() => handleAssignQuestToPlayer(p.uid, g.id)}
+                              className="btn-secondary"
+                              style={{
+                                fontSize: '11px',
+                                padding: '4px 10px',
+                                borderRadius: '6px',
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                color: 'var(--text-muted)',
+                                cursor: 'pointer'
+                              }}
+                              title={`Assign quest: ${g.title} (+${g.points} pts)`}
+                            >
+                              + {g.title}
+                            </button>
+                          ))
+                        )}
+                      </div>
                     </div>
 
                     {/* Expandable History Logs */}
@@ -1120,21 +1143,30 @@ export default function AdminDashboard() {
                             </div>
                           );
                         })}
-                        <select
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val) {
-                              handleAssignQuestToPlayer(val, g.id);
-                              e.target.value = '';
-                            }
-                          }}
-                          style={{ fontSize: '12px', padding: '6px', width: '100%' }}
-                        >
-                          <option value="">+ assign guest...</option>
-                          {players.filter(p => !g.assignedTo?.includes(p.uid)).map(p => (
-                            <option key={p.uid} value={p.uid}>{p.name}</option>
-                          ))}
-                        </select>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+                          {players.filter(p => !g.assignedTo?.includes(p.uid)).length === 0 ? (
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>all guests assigned</span>
+                          ) : (
+                            players.filter(p => !g.assignedTo?.includes(p.uid)).map(p => (
+                              <button
+                                key={p.uid}
+                                onClick={() => handleAssignQuestToPlayer(p.uid, g.id)}
+                                className="btn-secondary"
+                                style={{
+                                  fontSize: '11px',
+                                  padding: '4px 10px',
+                                  borderRadius: '6px',
+                                  background: 'rgba(255, 255, 255, 0.05)',
+                                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                                  color: 'var(--text-muted)',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                + {p.name}
+                              </button>
+                            ))
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}
