@@ -155,9 +155,9 @@ export default function AdminDashboard() {
     if (adminPasscode.trim().toUpperCase() === 'ADMIN2026') {
       setIsAdminAuthenticated(true);
       setPasscodeError('');
-      if (authUser) {
+      if (auth.currentUser) {
         try {
-          await bootstrapAdmin(authUser.uid);
+          await bootstrapAdmin(auth.currentUser.uid);
           console.log("Admin profile bootstrapped successfully.");
         } catch (err) {
           console.error("Failed to bootstrap admin profile:", err);
