@@ -48,6 +48,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Teams collection rules
+    match /teams/{teamId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
     // User goals checklist
     match /userGoals/{userGoalId} {
       allow read: if request.auth != null;
