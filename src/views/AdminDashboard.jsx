@@ -27,8 +27,9 @@ import '../styles/views/AdminDashboard.css';
 
 export default function AdminDashboard() {
   const { teams, teamsMap } = useAuth();
-  
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    return sessionStorage.getItem('admin_authenticated') === 'true';
+  });
   const [adminPasscode, setAdminPasscode] = useState('');
   const [passcodeError, setPasscodeError] = useState('');
   const [isFirebaseAuthed, setIsFirebaseAuthed] = useState(false);
@@ -98,6 +99,11 @@ export default function AdminDashboard() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setIsFirebaseAuthed(true);
+        if (sessionStorage.getItem('admin_authenticated') === 'true') {
+          bootstrapAdmin(user.uid).catch((err) => {
+            console.error('Failed to bootstrap admin profile on refresh:', err);
+          });
+        }
       } else {
         setIsFirebaseAuthed(false);
         signInAnonymously(auth).catch((err) => {
@@ -154,6 +160,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (adminPasscode.trim().toUpperCase() === 'ADMIN2026') {
       setIsAdminAuthenticated(true);
+      sessionStorage.setItem('admin_authenticated', 'true');
       setPasscodeError('');
       if (auth.currentUser) {
         try {
