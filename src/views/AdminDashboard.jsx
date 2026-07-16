@@ -1195,11 +1195,12 @@ export default function AdminDashboard() {
                 onChange={(e) => setNewQuestPoints(e.target.value)}
                 required
               />
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '15px', cursor: 'pointer', padding: '8px 0', userSelect: 'none' }}>
                 <input
                   type="checkbox"
                   checked={newQuestRepeatable}
                   onChange={(e) => setNewQuestRepeatable(e.target.checked)}
+                  style={{ width: '24px', height: '24px', cursor: 'pointer', accentColor: 'var(--accent)' }}
                 />
                 <span>repeatable quest</span>
               </label>
@@ -1236,14 +1237,15 @@ export default function AdminDashboard() {
                         required
                         placeholder="points"
                       />
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}>
-                        <input
-                          type="checkbox"
-                          checked={editQuestRepeatable}
-                          onChange={(e) => setEditQuestRepeatable(e.target.checked)}
-                        />
-                        <span>repeatable</span>
-                      </label>
+                       <label style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '15px', cursor: 'pointer', padding: '8px 0', userSelect: 'none' }}>
+                         <input
+                           type="checkbox"
+                           checked={editQuestRepeatable}
+                           onChange={(e) => setEditQuestRepeatable(e.target.checked)}
+                           style={{ width: '24px', height: '24px', cursor: 'pointer', accentColor: 'var(--accent)' }}
+                         />
+                         <span>repeatable quest</span>
+                       </label>
                       <div className="vertical-actions">
                         <button type="submit" className="btn-primary">save</button>
                         <button type="button" onClick={() => setEditingQuestId(null)} className="btn-secondary">cancel</button>
