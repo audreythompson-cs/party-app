@@ -94,7 +94,7 @@ export function onLeaderboardChange(callback) {
     snapshot.forEach((doc) => {
       const data = doc.data();
       if (!data.isAdmin) {
-        players.push(data);
+        players.push({ uid: doc.id, ...data });
       }
     });
     // Sort entirely in memory (handles missing/null points safely as 0)
@@ -218,7 +218,7 @@ export function onGoalsChange(callback) {
   return onSnapshot(q, (snapshot) => {
     const goals = [];
     snapshot.forEach((doc) => {
-      goals.push(doc.data());
+      goals.push({ id: doc.id, ...doc.data() });
     });
     callback(goals);
   }, (error) => {
@@ -560,7 +560,7 @@ export function onTeamsChange(callback) {
   return onSnapshot(collRef, (snapshot) => {
     const list = [];
     snapshot.forEach((doc) => {
-      list.push(doc.data());
+      list.push({ id: doc.id, ...doc.data() });
     });
     callback(list);
   }, (error) => {
