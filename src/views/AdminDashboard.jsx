@@ -1061,8 +1061,8 @@ export default function AdminDashboard() {
                           })}
                           
                           {showAddQuestForPlayerId === p.uid && (
-                            <div style={{ background: 'rgba(0,0,0,0.15)', padding: '8px', borderRadius: '8px', display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
-                              <span style={{ fontSize: '10px', color: 'var(--text-muted)', width: '100%', display: 'block', marginBottom: '2px' }}>available quests to assign:</span>
+                            <div style={{ background: 'rgba(0,0,0,0.15)', padding: '8px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'bold', marginBottom: '2px' }}>available quests to assign:</span>
                               {goalsList.filter(g => !playerQuests.some(pq => pq.id === g.id)).length === 0 ? (
                                 <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>all quests assigned</span>
                               ) : (
@@ -1072,17 +1072,20 @@ export default function AdminDashboard() {
                                     onClick={() => handleAssignQuestToPlayer(p.uid, g.id)}
                                     className="btn-secondary"
                                     style={{
-                                      fontSize: '11px',
-                                      padding: '4px 10px',
+                                      fontSize: '12px',
+                                      padding: '8px 12px',
                                       borderRadius: '6px',
-                                      background: 'rgba(255, 255, 255, 0.05)',
-                                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                                      color: 'var(--text-muted)',
-                                      cursor: 'pointer'
+                                      background: 'rgba(255, 255, 255, 0.04)',
+                                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                                      color: 'var(--text-bright)',
+                                      cursor: 'pointer',
+                                      textAlign: 'left',
+                                      width: '100%',
+                                      display: 'block'
                                     }}
                                     title={`Assign quest: ${g.title} (+${g.points} pts)`}
                                   >
-                                    + {g.title}
+                                    + {g.title} (+{g.points} pts)
                                   </button>
                                 ))
                               )}
