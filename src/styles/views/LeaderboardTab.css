@@ -48,17 +48,29 @@
 .player-row {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  background: var(--player-glow);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 16px 10px 16px;
+  background: linear-gradient(180deg, var(--player-glow) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 4px solid var(--player-accent);
   border-radius: var(--radius-md);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
   gap: 12px;
+  position: relative;
+  top: 0;
 }
 
 .player-row:hover {
   filter: brightness(1.15);
-  transform: translateX(2px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.player-row:active {
+  transform: translateY(2px);
+  border-bottom-width: 1px;
+  padding-bottom: 13px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Current player card highlight */
