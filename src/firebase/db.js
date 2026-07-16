@@ -550,29 +550,16 @@ export async function registerBuzz(playerId, playerName, clientTimestamp) {
 }
 
 /**
- * Listens to the teams collection in Firestore. Auto-seeds default teams if empty.
+ * Listens to the teams collection in Firestore.
  */
-import { TEAMS } from '../constants/teams';
-
 export function onTeamsChange(callback) {
   const collRef = collection(db, 'teams');
-  return onSnapshot(collRef, async (snapshot) => {
-    if (snapshot.empty) {
-      try {
-        const batchPromises = Object.values(TEAMS).map(t => {
-          return setDoc(doc(db, 'teams', t.id), t);
-        });
-        await Promise.all(batchPromises);
-      } catch (err) {
-        console.error('Failed to seed teams:', err);
-      }
-    } else {
-      const list = [];
-      snapshot.forEach((doc) => {
-        list.push(doc.data());
-      });
-      callback(list);
-    }
+  return onSnapshot(collRef, (snapshot) => {
+    const list = [];
+    snapshot.forEach((doc) => {
+      list.push(doc.data());
+    });
+    callback(list);
   }, (error) => {
     console.error('Error listening to teams:', error);
   });
