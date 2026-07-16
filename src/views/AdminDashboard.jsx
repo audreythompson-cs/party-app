@@ -69,6 +69,7 @@ export default function AdminDashboard() {
   const [newQuestPoints, setNewQuestPoints] = useState('');
   const [newQuestRepeatable, setNewQuestRepeatable] = useState(false);
   const [selectedTeamForQuestAssign, setSelectedTeamForQuestAssign] = useState({});
+  const [showAssignDrawerForQuestId, setShowAssignDrawerForQuestId] = useState(null);
 
   // Editing Quest State
   const [editingQuestId, setEditingQuestId] = useState(null);
@@ -1267,83 +1268,107 @@ export default function AdminDashboard() {
                       <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.4' }}>{g.description}</p>
                       
                       {/* Assigned players stacked vertically */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '5px' }}>
-                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>assigned guests:</span>
-                        {(g.assignedTo || []).map(uid => {
-                          const playerObj = players.find(p => p.uid === uid);
-                          if (!playerObj) return null;
-                          return (
-                            <div key={uid} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '5px 8px', borderRadius: '6px', fontSize: '11px' }}>
-                              <span>{playerObj.name}</span>
-                              <button onClick={() => handleUnassignQuestFromPlayer(uid, g.id)} style={{ background: 'none', border: 'none', color: '#ff6f61', cursor: 'pointer', fontSize: '11px' }}>✕</button>
-                            </div>
-                          );
-                        })}
-                        {/* Select table first, then show the people in that table */}
-                        {(() => {
-                          const activeTeamId = selectedTeamForQuestAssign[g.id] || '';
-                          return (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '5px' }}>
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', background: 'rgba(0,0,0,0.1)', padding: '8px', borderRadius: '8px' }}>
-                                <span style={{ fontSize: '11px', color: 'var(--text-muted)', alignSelf: 'center', width: '100%', marginBottom: '2px', fontWeight: 'bold' }}>filter guest list by table:</span>
-                                {teams.map(t => {
-                                  const isSelected = activeTeamId === t.id;
-                                  return (
-                                    <button
-                                      key={t.id}
-                                      type="button"
-                                      onClick={() => setSelectedTeamForQuestAssign(prev => ({
-                                        ...prev,
-                                        [g.id]: isSelected ? '' : t.id
-                                      }))}
-                                      style={{
-                                        fontSize: '11px',
-                                        padding: '5px 10px',
-                                        borderRadius: '6px',
-                                        border: `1px solid ${t.color}`,
-                                        background: isSelected ? t.color : `${t.color}15`,
-                                        color: isSelected ? '#000000' : '#ffffff',
-                                        fontWeight: 'bold',
-                                        cursor: 'pointer'
-                                      }}
-                                    >
-                                      {t.name}
-                                    </button>
-                                  );
-                                })}
-                              </div>
+                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '5px' }}>
+                         <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>assigned guests:</span>
+                         {(g.assignedTo || []).map(uid => {
+                           const playerObj = players.find(p => p.uid === uid);
+                           if (!playerObj) return null;
+                           return (
+                             <div key={uid} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', padding: '6px 10px', borderRadius: '6px', fontSize: '12px', color: '#000000', fontWeight: 'bold' }}>
+                               <span>{playerObj.name}</span>
+                               <button onClick={() => handleUnassignQuestFromPlayer(uid, g.id)} style={{ background: 'none', border: 'none', color: '#ff6f61', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', padding: '2px 6px' }}>✕</button>
+                             </div>
+                           );
+                         })}
 
-                              {activeTeamId ? (
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', paddingLeft: '4px' }}>
-                                  {players.filter(p => p.team === activeTeamId && !g.assignedTo?.includes(p.uid)).length === 0 ? (
-                                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>all players in this table already assigned</span>
-                                  ) : (
-                                    players.filter(p => p.team === activeTeamId && !g.assignedTo?.includes(p.uid)).map(p => (
-                                      <button
-                                        key={p.uid}
-                                        onClick={() => handleAssignQuestToPlayer(p.uid, g.id)}
-                                        className="btn-secondary"
-                                        style={{
-                                          fontSize: '11px',
-                                          padding: '5px 10px',
-                                          borderRadius: '6px',
-                                          background: 'rgba(255, 255, 255, 0.05)',
-                                          border: '1px solid rgba(255, 255, 255, 0.1)',
-                                          color: 'var(--text-bright)',
-                                          cursor: 'pointer'
-                                        }}
-                                      >
-                                        + {p.name}
-                                      </button>
-                                    ))
-                                  )}
-                                </div>
-                              ) : (
-                                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic', paddingLeft: '4px' }}>select a table above to view players</span>
-                              )}
-                            </div>
-                          );
-                        })()}
+                         {/* Toggle button to assign quest */}
+                         <button
+                           type="button"
+                           onClick={() => setShowAssignDrawerForQuestId(showAssignDrawerForQuestId === g.id ? null : g.id)}
+                           className="btn-secondary"
+                           style={{
+                             fontSize: '12px',
+                             padding: '8px 16px',
+                             borderRadius: '8px',
+                             background: 'rgba(255, 255, 255, 0.05)',
+                             border: '1px solid rgba(255, 255, 255, 0.1)',
+                             color: 'var(--text-bright)',
+                             cursor: 'pointer',
+                             width: 'fit-content',
+                             marginTop: '5px',
+                             display: 'flex',
+                             alignItems: 'center',
+                             gap: '6px'
+                           }}
+                         >
+                           {showAssignDrawerForQuestId === g.id ? '✕ Close Assignment' : '+ Assign to Guest'}
+                         </button>
+
+                         {/* Toggleable Select table first, then show the people in that table */}
+                         {showAssignDrawerForQuestId === g.id && (() => {
+                           const activeTeamId = selectedTeamForQuestAssign[g.id] || '';
+                           return (
+                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', background: 'rgba(0,0,0,0.1)', padding: '8px', borderRadius: '8px' }}>
+                                 <span style={{ fontSize: '11px', color: 'var(--text-muted)', alignSelf: 'center', width: '100%', marginBottom: '2px', fontWeight: 'bold' }}>filter guest list by table:</span>
+                                 {teams.map(t => {
+                                   const isSelected = activeTeamId === t.id;
+                                   return (
+                                     <button
+                                       key={t.id}
+                                       type="button"
+                                       onClick={() => setSelectedTeamForQuestAssign(prev => ({
+                                         ...prev,
+                                         [g.id]: isSelected ? '' : t.id
+                                       }))}
+                                       style={{
+                                         fontSize: '11px',
+                                         padding: '5px 10px',
+                                         borderRadius: '6px',
+                                         border: `1px solid ${t.color}`,
+                                         background: isSelected ? t.color : `${t.color}15`,
+                                         color: isSelected ? '#000000' : '#ffffff',
+                                         fontWeight: 'bold',
+                                         cursor: 'pointer'
+                                       }}
+                                     >
+                                       {t.name}
+                                     </button>
+                                   );
+                                 })}
+                               </div>
+
+                               {activeTeamId ? (
+                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', paddingLeft: '4px' }}>
+                                   {players.filter(p => p.team === activeTeamId && !g.assignedTo?.includes(p.uid)).length === 0 ? (
+                                     <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>all players in this table already assigned</span>
+                                   ) : (
+                                     players.filter(p => p.team === activeTeamId && !g.assignedTo?.includes(p.uid)).map(p => (
+                                       <button
+                                         key={p.uid}
+                                         onClick={() => handleAssignQuestToPlayer(p.uid, g.id)}
+                                         className="btn-secondary"
+                                         style={{
+                                           fontSize: '11px',
+                                           padding: '5px 10px',
+                                           borderRadius: '6px',
+                                           background: 'rgba(255, 255, 255, 0.05)',
+                                           border: '1px solid rgba(255, 255, 255, 0.1)',
+                                           color: 'var(--text-bright)',
+                                           cursor: 'pointer'
+                                         }}
+                                       >
+                                         + {p.name}
+                                       </button>
+                                     ))
+                                   )}
+                                 </div>
+                               ) : (
+                                 <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic', paddingLeft: '4px' }}>select a table above to view players</span>
+                               )}
+                             </div>
+                           );
+                         })()}
                       </div>
                     </div>
                   )}
