@@ -1341,23 +1341,12 @@
   outline: none;
 }
 
-/* Subtle border indicator in the center */
 .buzz-click-half.left-half {
   justify-content: flex-start;
-  border-right: 1px dashed rgba(255, 255, 255, 0.15);
 }
 
 .buzz-click-half.right-half {
   justify-content: flex-end;
-}
-
-/* Hover highlights to guide the user when cursor moves to the sides */
-.buzz-click-half.left-half:hover {
-  background: rgba(239, 68, 68, 0.15); /* Soft red overlay */
-}
-
-.buzz-click-half.right-half:hover {
-  background: rgba(16, 185, 129, 0.15); /* Soft green overlay */
 }
 
 .buzzed-card-text {
