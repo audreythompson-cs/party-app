@@ -7,14 +7,13 @@ import '../styles/views/Dashboard.css';
 
 // Import Tabs
 import HomeTab from './HomeTab';
-import LeaderboardTab from './LeaderboardTab';
 import DonateTab from './DonateTab';
 import GoalsTab from './GoalsTab';
 import JeopardyBuzzerView from '../components/JeopardyBuzzerView';
 
 export default function Dashboard() {
-  const { userProfile, logout, teamsMap } = useAuth();
-  const [activeTab, setActiveTab] = useState('home');
+  const { userProfile, teamsMap } = useAuth();
+  const [activeTab, setActiveTab] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [pointHistory, setPointHistory] = useState([]);
   const [gameState, setGameState] = useState(null);
@@ -56,6 +55,7 @@ export default function Dashboard() {
 
   const renderTabContent = () => {
     switch (activeTab) {
+      case null:
       case 'home':
         return (
           <HomeTab
@@ -93,28 +93,24 @@ export default function Dashboard() {
       className={`dashboard-page theme-${userTeam}`}
       style={{ '--player-team-color': playerTeam.color }}
     >
-      {/* Dashboard Top Header */}
-      <header className="dashboard-header glass-panel">
-        <h2 className="player-name">{userProfile?.name}</h2>
-
-        <button onClick={logout} className="logout-btn" aria-label="Sign Out">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-        </button>
-      </header>
-
-      {/* Main Tab Content */}
       <main className="app-container">
-        {renderTabContent()}
+        <section className={`dashboard-shell glass-panel ${activeTab ? 'is-active' : 'is-welcome'}`}>
+          {activeTab && (
+            <header className="dashboard-shell-header">
+              <h2 className="player-name">{userProfile?.name}</h2>
+              <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} position="top" />
+            </header>
+          )}
+
+          <div className="dashboard-content">
+            {renderTabContent()}
+          </div>
+
+          {!activeTab && (
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} position="bottom" />
+          )}
+        </section>
       </main>
-
-      {/* Bottom Navigation */}
-      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
-
-
     </div>
   );
 }

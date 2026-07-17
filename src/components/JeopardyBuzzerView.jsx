@@ -37,8 +37,6 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
     }
   };
 
-  const userTeam = profile?.team || 'blue';
-
   // State B: Clue is active - buzzer screen
   const isGameActive = gameState?.activeGame === 'jeopardy';
   const isBuzzedByMe = buzzedPlayerId === profile.uid;
@@ -73,14 +71,7 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
 
   return (
     <div className="buzzer-container active-mode animate-fade-in">
-      {/* Category Clue Indicator */}
-      <div className="glass-panel clue-indicator-card">
-        <span className="clue-category">{activeClue ? activeClue.categoryName : STRINGS.jeopardyBuzzer.jeopardyBoardTitle}</span>
-        <span className="clue-points-pill">{activeClue ? `${activeClue.points} PTS` : "--"}</span>
-      </div>
-
-      {/* Main Buzzer Button Container */}
-      <div className="glass-panel main-buzzer-panel">
+      <div className="main-buzzer-panel">
         <div className="buzzer-wrapper">
           <button 
             onClick={handleBuzz}
@@ -97,23 +88,6 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
           {statusText}
         </p>
       </div>
-
-      {/* Current User Stats */}
-      <div className="glass-panel user-quick-stats">
-        <div className="quick-stat">
-          <span className="stat-label">{STRINGS.jeopardyBuzzer.yourPoints}</span>
-          <span className="stat-value text-glow">{profile.points ?? 0}</span>
-        </div>
-        <div className="quick-stat-divider"></div>
-        <div className="quick-stat">
-          <span className="stat-label">{STRINGS.jeopardyBuzzer.currentTeam}</span>
-          <span className="stat-value team-name" style={{ color: `var(--${userTeam}-primary)` }}>
-            {userTeam.toUpperCase()}
-          </span>
-        </div>
-      </div>
-
-
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import '../styles/components/BottomNav.css';
 
-export default function BottomNav({ activeTab, setActiveTab }) {
+export default function BottomNav({ activeTab, setActiveTab, position = 'bottom' }) {
   const tabs = [
     {
       id: 'home',
@@ -45,7 +45,7 @@ export default function BottomNav({ activeTab, setActiveTab }) {
   ];
 
   return (
-    <nav className="bottom-nav">
+    <nav className={`dashboard-nav dashboard-nav-${position}`} aria-label="Dashboard sections">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         return (
