@@ -840,7 +840,7 @@
 .welcome-side-column .balloon-bundle {
   position: absolute;
   top: 0;
-  bottom: 230px;
+  bottom: 380px;
   width: 100%;
   pointer-events: none;
 }
@@ -850,6 +850,7 @@
   position: absolute;
   width: 110px;
   height: auto;
+  opacity: 0.8;
 }
 
 /* Offset coordinates, initial rotations, and target paths to form a bundle cluster above QR code */
@@ -921,7 +922,7 @@
   0% {
     /* Starts exactly from initial rotation with no straight-snap */
     transform: translateY(0) translateX(0) rotate(var(--init-rot));
-    opacity: 1;
+    opacity: 0.8;
   }
   50% {
     /* Gentle wobble mid-flight. translateY(-67.5vh) maintains uniform speed (exactly half of -135vh target) */
