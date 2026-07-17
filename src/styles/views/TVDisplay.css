@@ -48,6 +48,7 @@
   margin-bottom: 10px;
   z-index: 2;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
 }
 
 .tv-header-left {
@@ -349,8 +350,12 @@
   position: relative;
 }
 
-/* Header Jeopardy Refresh Button */
+/* Header Jeopardy Refresh Button (aligned in-line, far right side) */
 .jeopardy-refresh-btn-header {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 40px;
   background: transparent;
   border: none;
   color: var(--text-bright);
@@ -361,6 +366,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 5;
   transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
   width: 46px;
   height: 46px;
@@ -368,12 +374,12 @@
 
 .jeopardy-refresh-btn-header:hover {
   opacity: 1;
-  transform: rotate(45deg);
+  transform: translateY(-50%) rotate(45deg);
   background: rgba(255, 255, 255, 0.08);
 }
 
 .jeopardy-refresh-btn-header:active {
-  transform: scale(0.9) rotate(90deg);
+  transform: translateY(-50%) scale(0.9) rotate(90deg);
 }
 
 .deduct-toggle {
