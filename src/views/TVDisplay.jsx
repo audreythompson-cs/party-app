@@ -524,12 +524,7 @@ export default function TVDisplay() {
 
     return (
       <div className={`tv-welcome-screen-redesign ${isBalloonsReleased ? 'released' : ''}`}>
-        {/* Hand-drawn Welcome Header at the top (Clickable return button) */}
-        <div className="welcome-header-container" onClick={handleWelcomeClick}>
-          <h1 className="welcome-title-text">Welcome to</h1>
-        </div>
-
-        {/* Bottom Columns Layout */}
+        {/* Main Columns Layout */}
         <div className="welcome-redesign-grid">
           
           {/* Left Side Column: Balloon Bundle + QR Anchor */}
@@ -547,14 +542,17 @@ export default function TVDisplay() {
             <img src={qrCodeUrl} alt="Join QR Code" className="welcome-qr-image" />
           </div>
 
-          {/* Center Column: Handwritten Message */}
+          {/* Center Column: Welcome to + Graphic + Graduation Party! */}
           <div className="welcome-center-column" onClick={handleWelcomeClick} style={{ cursor: 'pointer' }}>
+            <h1 className="welcome-title-text welcome-top-title">Welcome to</h1>
             <img
               src="/audrey-and-lisas.png"
               alt="Audrey & Lisa's"
               className="welcome-message-image"
             />
-            <h1 className="welcome-title-text welcome-sub-title">Graduation Party!</h1>
+            <div className="welcome-graduation-container">
+              <h1 className="welcome-title-text welcome-sub-title">Graduation Party!</h1>
+            </div>
           </div>
 
           {/* Right Side Column: Balloon Bundle + QR Anchor */}

@@ -812,24 +812,47 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end; /* Align bottom elements with the bottom of the grid */
   flex: 1;
   height: 100%;
   max-width: 1100px;
-  gap: 15px;
-  transition: transform 0.3s ease;
+  z-index: 5;
 }
 
-/* Hand-drawn message block */
+/* Symmetrical title spacing right above the graphic */
+.welcome-title-text.welcome-top-title {
+  margin-bottom: 55px; /* Matches the top margin of the graduation text inside the 220px box */
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+}
+
+/* Graduation Party container to vertically center-align with side QR codes */
+.welcome-graduation-container {
+  height: 220px; /* Sized exactly matching the 220px height of QR codes */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.welcome-title-text.welcome-sub-title {
+  margin: 0;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+}
+
+/* Hand-drawn message block (now larger!) */
 .welcome-message-image {
   width: 100%;
   height: auto;
-  max-height: 38vh;
+  max-height: 48vh; /* Scale up custom graphic */
   object-fit: contain;
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
 }
 
 .welcome-center-column:hover .welcome-message-image {
+  transform: scale(1.03);
+}
+
+.welcome-center-column:hover .welcome-top-title {
   transform: scale(1.03);
 }
 
