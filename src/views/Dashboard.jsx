@@ -13,7 +13,7 @@ import JeopardyBuzzerView from '../components/JeopardyBuzzerView';
 
 export default function Dashboard() {
   const { userProfile, teamsMap } = useAuth();
-  const [activeTab, setActiveTab] = useState(null);
+  const [activeTab, setActiveTab] = useState('home');
   const [leaderboard, setLeaderboard] = useState([]);
   const [pointHistory, setPointHistory] = useState([]);
   const [gameState, setGameState] = useState(null);
@@ -55,7 +55,6 @@ export default function Dashboard() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case null:
       case 'home':
         return (
           <HomeTab
@@ -103,21 +102,15 @@ export default function Dashboard() {
       style={{ '--player-team-color': playerTeam.color }}
     >
       <main className="app-container">
-        <section className={`dashboard-shell glass-panel ${activeTab ? 'is-active' : 'is-welcome'}`}>
-          {activeTab && (
-            <header className="dashboard-shell-header">
-              <h2 className="player-name">{userProfile?.name}</h2>
-              <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} position="top" />
-            </header>
-          )}
+        <section className="dashboard-shell glass-panel is-active">
+          <header className="dashboard-shell-header">
+            <h2 className="player-name">{userProfile?.name}</h2>
+            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} position="top" />
+          </header>
 
           <div className="dashboard-content">
             {renderTabContent()}
           </div>
-
-          {!activeTab && (
-            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} position="bottom" />
-          )}
         </section>
       </main>
     </div>
