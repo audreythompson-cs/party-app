@@ -555,7 +555,7 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteQuest = async (goalId) => {
-    if (window.confirm('Are you sure you want to delete this side quest/goal?')) {
+    if (window.confirm('Are you sure you want to delete this side quest?')) {
       try {
         await deleteGoalTemplate(goalId);
       } catch (err) {

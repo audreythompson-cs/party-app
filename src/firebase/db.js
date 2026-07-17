@@ -291,7 +291,7 @@ export async function claimGoal(userId, userName, goalId, goalTitle, points, isR
     if (!isRepeatable) {
       const goalSnapshot = await transaction.get(userGoalRef);
       if (goalSnapshot.exists() && goalSnapshot.data().status === 'completed') {
-        throw new Error('Goal already completed.');
+        throw new Error('Side quest already completed.');
       }
     }
 
@@ -322,7 +322,7 @@ export async function claimGoal(userId, userName, goalId, goalTitle, points, isR
       id: newLogRef.id,
       userId: userId,
       amount: parsedPoints,
-      description: `Completed Goal: ${goalTitle}`,
+      description: `Completed Side Quest: ${goalTitle}`,
       type: 'earn',
       timestamp: serverTimestamp()
     });
@@ -375,7 +375,7 @@ export async function approveGoalRequest(userGoalId) {
       id: newLogRef.id,
       userId: userId,
       amount: points,
-      description: `Completed Goal: ${goalTitle}`,
+      description: `Completed Side Quest: ${goalTitle}`,
       type: 'earn',
       timestamp: serverTimestamp()
     });
@@ -707,4 +707,3 @@ export async function bootstrapAdmin(uid) {
     createdAt: serverTimestamp()
   }, { merge: true });
 }
-
