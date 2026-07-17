@@ -75,6 +75,12 @@ export default function TVDisplay() {
   const [showJeopardyBoard, setShowJeopardyBoard] = useState(false);
   const [leaderboardBalloonsReleased, setLeaderboardBalloonsReleased] = useState(false);
 
+  const [localActiveClue, setLocalActiveClue] = useState(null);
+  const [localBuzzedId, setLocalBuzzedId] = useState(null);
+  const [localBuzzedName, setLocalBuzzedName] = useState(null);
+  const [resolveFeedback, setResolveFeedback] = useState(null);
+  const [isResolving, setIsResolving] = useState(false);
+
   const [currentScreen, setCurrentScreen] = useState(null);
 
   // Reset balloon release states when the active screen transitions
@@ -215,6 +221,64 @@ export default function TVDisplay() {
     setLastClueId(currentClueId);
   }, [gameState, lastBuzzedId, lastClueId]);
 
+  // Sync Firebase Jeopardy state to local TV display states for animated feedback transitions
+  useEffect(() => {
+    if (!gameState?.jeopardy) return;
+    const fbClue = gameState.jeopardy.activeClue;
+    const fbBuzzedId = gameState.jeopardy.buzzedPlayerId;
+    const fbBuzzedName = gameState.jeopardy.buzzedPlayerName;
+
+    // Case 1: A new clue is opened
+    if (fbClue && !localActiveClue) {
+      setLocalActiveClue(fbClue);
+      setLocalBuzzedId(fbBuzzedId);
+      setLocalBuzzedName(fbBuzzedName);
+      setResolveFeedback(null);
+      return;
+    }
+
+    // Case 2: Player buzzes in
+    if (fbClue && fbBuzzedId && fbBuzzedId !== localBuzzedId) {
+      setLocalBuzzedId(fbBuzzedId);
+      setLocalBuzzedName(fbBuzzedName);
+      setResolveFeedback(null);
+      return;
+    }
+
+    // Case 3: Player got it incorrect (fbBuzzedId becomes null, but active locally)
+    if (fbClue && localBuzzedId && !fbBuzzedId && !resolveFeedback) {
+      setResolveFeedback('incorrect');
+      playIncorrect();
+      const timer = setTimeout(() => {
+        setLocalBuzzedId(null);
+        setLocalBuzzedName(null);
+        setResolveFeedback(null);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+
+    // Case 4: Player got it correct (fbClue becomes null, but active locally)
+    if (!fbClue && localActiveClue && !resolveFeedback) {
+      if (localBuzzedId) {
+        setResolveFeedback('correct');
+        playCorrect();
+        const timer = setTimeout(() => {
+          setLocalActiveClue(null);
+          setLocalBuzzedId(null);
+          setLocalBuzzedName(null);
+          setResolveFeedback(null);
+        }, 1500);
+        return () => clearTimeout(timer);
+      } else {
+        // Just skipped or closed without buzzed player
+        setLocalActiveClue(null);
+        setLocalBuzzedId(null);
+        setLocalBuzzedName(null);
+        setResolveFeedback(null);
+      }
+    }
+  }, [gameState?.jeopardy, localActiveClue, localBuzzedId, resolveFeedback]);
+
 
   const handleStartJeopardy = async () => {
     const currentJeopardy = gameState?.jeopardy || {
@@ -318,7 +382,6 @@ export default function TVDisplay() {
       const clueId = `${clue.categoryId}_${clue.points}`;
 
       if (isCorrect) {
-        playCorrect();
         try {
           await adjustPointsAdmin(playerId, clue.points, `Jeopardy Correct: ${clue.categoryName}`);
         } catch (err) {
@@ -338,7 +401,6 @@ export default function TVDisplay() {
           }
         });
       } else {
-        playIncorrect();
         if (deductPoints) {
           try {
             await adjustPointsAdmin(playerId, -clue.points, `Jeopardy Incorrect: ${clue.categoryName}`);
@@ -396,10 +458,18 @@ export default function TVDisplay() {
   };
 
   const renderActiveClue = () => {
-    const clue = gameState.jeopardy.activeClue;
+    const clue = localActiveClue;
+    if (!clue) return null;
+
+    const buzzedId = localBuzzedId;
+    const buzzedName = localBuzzedName;
+    const buzzedPlayer = leaderboard.find(p => p.uid === buzzedId);
+    const playerTeam = (teamsMap && buzzedPlayer && teamsMap[buzzedPlayer.team]) || fallbackTeam;
+
+    const isBuzzed = !!buzzedId;
 
     return (
-      <div className="active-clue-screen animate-scale-up">
+      <div className={`active-clue-screen animate-scale-up ${isBuzzed ? 'buzzed-state' : ''}`}>
         {/* Top Header Row */}
         <div className="active-clue-header">
           <button onClick={handleSkipClue} className="clue-back-arrow-btn" title="Skip/Time's Up">
@@ -417,9 +487,66 @@ export default function TVDisplay() {
           <div className="active-clue-header-spacer"></div>
         </div>
 
-        {/* Giant Question Text Container */}
-        <div className="active-clue-question-container">
-          <p className="clue-text-giant">{clue.question}</p>
+        {/* Content Area with absolute Overlay Container */}
+        <div className="active-clue-content-area">
+          {/* Giant Question Text */}
+          <div className="active-clue-question-container">
+            <p className="clue-text-giant">{clue.question}</p>
+          </div>
+
+          {/* Buzzed-in Overlay Card */}
+          {isBuzzed && (
+            <div 
+              className={`buzzed-overlay-card ${resolveFeedback ? `feedback-${resolveFeedback}` : ''}`}
+              style={{
+                '--team-color': resolveFeedback === 'incorrect' ? '#ef4444' : playerTeam.color,
+                '--team-glow': resolveFeedback === 'incorrect' ? 'rgba(239, 68, 68, 0.4)' : playerTeam.glow
+              }}
+            >
+              {resolveFeedback === 'correct' ? (
+                <div className="buzzed-card-feedback-correct animate-scale-up">
+                  <span className="points-feedback-large">+{clue.points}</span>
+                </div>
+              ) : resolveFeedback === 'incorrect' ? (
+                <div className="buzzed-card-feedback-incorrect animate-scale-up">
+                  <span className="feedback-label-large">INCORRECT</span>
+                  {deductPoints && (
+                    <span className="points-feedback-large">-{clue.points}</span>
+                  )}
+                </div>
+              ) : (
+                <div className="buzzed-card-interactive animate-scale-up">
+                  {/* Thumbs Down Button */}
+                  <button 
+                    onClick={() => handleResolveClue(false)} 
+                    className="buzz-feedback-btn thumbs-down-btn" 
+                    title="Incorrect"
+                  >
+                    <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
+                    </svg>
+                  </button>
+
+                  {/* Player Name and Text */}
+                  <div className="buzzed-card-text">
+                    <h2>{buzzedName}</h2>
+                    <p>buzzed in</p>
+                  </div>
+
+                  {/* Thumbs Up Button */}
+                  <button 
+                    onClick={() => handleResolveClue(true)} 
+                    className="buzz-feedback-btn thumbs-up-btn" 
+                    title="Correct"
+                  >
+                    <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -729,7 +856,7 @@ export default function TVDisplay() {
       case 'welcome':
         return renderWelcome();
       case 'jeopardy':
-        return gameState?.jeopardy?.activeClue ? renderActiveClue() : renderJeopardyBoard();
+        return localActiveClue ? renderActiveClue() : renderJeopardyBoard();
       case 'finale':
         return renderFinale();
       case 'goodbye':
@@ -740,7 +867,7 @@ export default function TVDisplay() {
   };
 
   const isLeaderboardScreen = currentScreen === null;
-  const showHeader = currentScreen !== 'welcome' && !(currentScreen === 'jeopardy' && gameState?.jeopardy?.activeClue);
+  const showHeader = currentScreen !== 'welcome' && !(currentScreen === 'jeopardy' && localActiveClue);
 
   return (
     <div className="tv-page">
