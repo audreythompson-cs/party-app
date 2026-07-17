@@ -40,6 +40,7 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
   const userTeam = profile?.team || 'blue';
 
   // State B: Clue is active - buzzer screen
+  const isGameActive = gameState?.activeGame === 'jeopardy';
   const isBuzzedByMe = buzzedPlayerId === profile.uid;
   const isBuzzedBySomeoneElse = buzzedPlayerId && !isBuzzedByMe;
   const hasFailed = failedPlayers.includes(profile.uid);
@@ -48,7 +49,11 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
   let buzzerText = STRINGS.jeopardyBuzzer.buzz;
   let statusText = activeClue ? STRINGS.jeopardyBuzzer.tapToBuzz : STRINGS.jeopardyBuzzer.ready;
   
-  if (isBuzzedByMe) {
+  if (!isGameActive) {
+    buzzerClass = "buzzer-btn locked-state waiting-mode";
+    buzzerText = STRINGS.jeopardyBuzzer.waitingBtn || "WAITING FOR HOST...";
+    statusText = STRINGS.jeopardyBuzzer.waitingStatus || "Waiting for the host to activate the game board...";
+  } else if (isBuzzedByMe) {
     buzzerClass = "buzzer-btn success-state animate-float";
     buzzerText = STRINGS.jeopardyBuzzer.buzzed;
     statusText = STRINGS.jeopardyBuzzer.successMsg;
@@ -79,16 +84,16 @@ export default function JeopardyBuzzerView({ gameState, profile }) {
         <div className="buzzer-wrapper">
           <button 
             onClick={handleBuzz}
-            disabled={isRegistering || buzzerLocked || !!buzzedPlayerId || hasFailed}
+            disabled={!isGameActive || isRegistering || buzzerLocked || !!buzzedPlayerId || hasFailed}
             className={buzzerClass}
             aria-label="Buzz in"
           >
             <span className="btn-text-content">{buzzerText}</span>
             {/* Ambient glowing outer ring when active */}
-            {!buzzedPlayerId && !buzzerLocked && !hasFailed && <div className="btn-glow-ring"></div>}
+            {isGameActive && !buzzedPlayerId && !buzzerLocked && !hasFailed && <div className="btn-glow-ring"></div>}
           </button>
         </div>
-        <p className={`buzzer-status-label ${isBuzzedByMe ? 'success-text' : (isBuzzedBySomeoneElse || hasFailed) ? 'locked-text' : 'active-text'}`}>
+        <p className={`buzzer-status-label ${!isGameActive ? 'locked-text' : isBuzzedByMe ? 'success-text' : (isBuzzedBySomeoneElse || hasFailed) ? 'locked-text' : 'active-text'}`}>
           {statusText}
         </p>
       </div>

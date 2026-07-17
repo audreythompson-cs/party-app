@@ -13,13 +13,12 @@ export default function BottomNav({ activeTab, setActiveTab }) {
       )
     },
     {
-      id: 'leaderboard',
-      label: 'Ranks',
+      id: 'jeopardy',
+      label: 'Jeopardy',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="nav-icon">
-          <line x1="18" y1="20" x2="18" y2="10" />
-          <line x1="12" y1="20" x2="12" y2="4" />
-          <line x1="6" y1="20" x2="6" y2="14" />
+          <rect x="2" y="2" width="20" height="20" rx="2" ry="2" />
+          <path d="M6 12h12M12 6v12" />
         </svg>
       )
     },
@@ -59,7 +58,6 @@ export default function BottomNav({ activeTab, setActiveTab }) {
             <div className="nav-icon-container">
               {tab.icon}
             </div>
-            <span className="nav-label">{tab.label}</span>
           </button>
         );
       })}

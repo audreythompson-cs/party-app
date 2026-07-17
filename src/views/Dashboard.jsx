@@ -45,11 +45,6 @@ export default function Dashboard() {
     }
   }, [userProfile?.uid]);
 
-  // Compute Rank
-  const playerRankIndex = leaderboard.findIndex(player => player.uid === userProfile?.uid);
-  const userRank = playerRankIndex !== -1 ? playerRankIndex + 1 : '-';
-  const totalPlayers = leaderboard.length;
-
   // Apply Team Accent Styling to Dashboard view wrapper
   const userTeam = userProfile?.team || 'blue';
 
@@ -62,27 +57,16 @@ export default function Dashboard() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'home':
-        if (gameState?.activeGame === 'jeopardy') {
-          return (
-            <JeopardyBuzzerView
-              gameState={gameState}
-              profile={userProfile}
-            />
-          );
-        }
         return (
           <HomeTab
             profile={userProfile}
-            rank={userRank}
-            totalPlayers={totalPlayers}
-            pointHistory={pointHistory}
           />
         );
-      case 'leaderboard':
+      case 'jeopardy':
         return (
-          <LeaderboardTab
-            leaderboard={leaderboard}
-            currentUserId={userProfile?.uid}
+          <JeopardyBuzzerView
+            gameState={gameState}
+            profile={userProfile}
           />
         );
       case 'goals':
@@ -96,6 +80,7 @@ export default function Dashboard() {
           <DonateTab
             profile={userProfile}
             leaderboard={leaderboard}
+            pointHistory={pointHistory}
           />
         );
       default:
@@ -104,7 +89,10 @@ export default function Dashboard() {
   };
 
   return (
-    <div className={`dashboard-page themed-background theme-${userTeam}`}>
+    <div 
+      className={`dashboard-page theme-${userTeam}`}
+      style={{ backgroundColor: playerTeam.color, background: playerTeam.color }}
+    >
       {/* Dashboard Top Header */}
       <header className="dashboard-header glass-panel">
         <div className="header-left">

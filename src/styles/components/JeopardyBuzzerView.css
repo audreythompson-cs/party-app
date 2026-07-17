@@ -118,9 +118,9 @@
 
 /* State 3: Locked / Disabled (Gray/Red Theme) */
 .locked-state {
-  background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
-  border: 4px solid #475569;
-  color: var(--text-muted);
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%) !important;
+  border: 4px solid #94a3b8 !important;
+  color: #64748b !important;
   cursor: not-allowed;
   box-shadow: none;
   transform: none !important;

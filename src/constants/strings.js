@@ -35,6 +35,10 @@ export const STRINGS = {
     guestsSub: 'of {total} guests',
     guestTag: 'Guest'
   },
+  welcomeTab: {
+    cardTitle: 'Welcome to the Party!',
+    cardBody: 'Welcome, {name}! We are so glad you are here. Complete challenges to earn points, send points to friends, and get ready for Jeopardy!'
+  },
   leaderboard: {
     title: 'Leaderboard',
     subtitle: 'Score points to climb the ladder!',
@@ -50,7 +54,10 @@ export const STRINGS = {
     pendingStatus: 'Awaiting Host Approval...',
     completedStatus: 'Completed (+{points} pts)',
     noGoals: 'No goals available yet.',
-    claimFailed: 'Could not submit claim. Please try again.'
+    claimFailed: 'Could not submit claim. Please try again.',
+    popupTitle: 'Important Guidelines',
+    popupBody: 'Please read the instructions carefully. Complete the side quests during the party and claim your points. Be honest and fair!',
+    popupButton: 'I Acknowledge & Proceed'
   },
   donate: {
     title: 'Donate Points',
@@ -159,6 +166,8 @@ export const STRINGS = {
     buzzerLocked: 'Buzzer is currently locked.',
     jeopardyBoardTitle: 'JEOPARDY BOARD',
     yourPoints: 'YOUR POINTS',
-    currentTeam: 'CURRENT TEAM'
+    currentTeam: 'CURRENT TEAM',
+    waitingBtn: 'WAITING FOR HOST...',
+    waitingStatus: 'Waiting for the host to activate the game board...'
   }
 };

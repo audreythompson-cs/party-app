@@ -61,8 +61,8 @@ select {
 }
 
 select option {
-  background: #110e20;
-  color: var(--text-bright);
+  background: #ffffff;
+  color: #000000;
 }
 
 .status-alert {
@@ -101,4 +101,105 @@ select option {
 .donate-btn {
   width: 100%;
   margin-top: 10px;
+}
+
+/* History Section styling */
+.history-section {
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  margin-top: 20px;
+}
+
+.history-section h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.no-history-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  gap: 10px;
+}
+
+.no-history-icon {
+  font-size: 32px;
+  animation: float 4s ease-in-out infinite;
+}
+
+.no-history-state p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* custom scrollbar */
+.history-list::-webkit-scrollbar {
+  width: 4px;
+}
+.history-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-md);
+  transition: background 0.2s ease;
+}
+
+.history-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.item-description {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-bright);
+}
+
+.item-time {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.item-amount {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.item-amount.positive {
+  color: #10b981; /* Green */
+}
+
+.item-amount.negative {
+  color: #ef4444; /* Red */
 }

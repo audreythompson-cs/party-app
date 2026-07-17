@@ -153,18 +153,36 @@ button {
 
 /* Cards & Layout */
 .glass-panel {
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.82) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-glass);
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.06) !important;
   padding: 24px;
   transition: border-color 0.3s ease;
+  color: #000000 !important;
+  --text-main: #000000;
+  --text-muted: #334155;
+  --text-bright: #000000;
+  --border-glass: rgba(0, 0, 0, 0.08);
 }
 
 .glass-panel:hover {
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.glass-panel h1, 
+.glass-panel h2, 
+.glass-panel h3, 
+.glass-panel h4, 
+.glass-panel h5, 
+.glass-panel h6, 
+.glass-panel p, 
+.glass-panel span:not(.clue-points-pill):not(.quest-status):not(.self-tag), 
+.glass-panel label, 
+.glass-panel div:not(.buzzer-btn):not(.completed-badge):not(.quest-status):not(.btn-glow-ring) {
+  color: #000000 !important;
 }
 
 /* Page containers */
