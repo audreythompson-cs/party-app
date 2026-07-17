@@ -155,9 +155,9 @@ export const STRINGS = {
     jeopardySaveBtn: 'Save Category'
   },
   jeopardyBuzzer: {
-    buzz: '',
+    buzz: 'TAP TO BUZZ IN!',
     buzzed: 'YOU GOT IT! ANSWER OUT LOUD!',
-    tapToBuzz: 'TAP TO BUZZ IN!',
+    tapToBuzz: '',
     ready: '',
     successMsg: '',
     locked: 'Locked :(',
