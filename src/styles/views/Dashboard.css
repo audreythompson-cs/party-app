@@ -3,18 +3,21 @@
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-dark);
+  background: #ffffff;
+}
+
+.dashboard-page .glass-panel {
+  background: var(--player-team-color) !important;
 }
 
 .dashboard-header {
   position: sticky;
-  top: 0;
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
+  top: 12px;
+  width: calc(100% - 40px);
+  max-width: 440px;
+  margin: 12px auto 0;
   height: 72px;
-  border-radius: 0 0 20px 20px;
-  border-top: none;
+  border-radius: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -43,6 +46,26 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+}
+
+.dashboard-page .bottom-nav {
+  bottom: 12px;
+  width: calc(100% - 40px);
+  max-width: 440px;
+  height: 68px;
+  background: var(--player-team-color);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16);
+}
+
+.dashboard-page .nav-btn {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.dashboard-page .nav-btn:hover,
+.dashboard-page .nav-btn.active {
+  color: #000000;
 }
 
 .logout-btn:hover {

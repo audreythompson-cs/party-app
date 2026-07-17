@@ -91,7 +91,7 @@ export default function Dashboard() {
   return (
     <div 
       className={`dashboard-page theme-${userTeam}`}
-      style={{ backgroundColor: playerTeam.color, background: playerTeam.color }}
+      style={{ '--player-team-color': playerTeam.color }}
     >
       {/* Dashboard Top Header */}
       <header className="dashboard-header glass-panel">
