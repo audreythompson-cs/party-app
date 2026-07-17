@@ -77,6 +77,15 @@ export default function TVDisplay() {
 
   const [currentScreen, setCurrentScreen] = useState(null);
 
+  // Reset balloon release states when the active screen transitions back to the leaderboard (null)
+  useEffect(() => {
+    if (currentScreen === null) {
+      setLeftBalloonsReleased(false);
+      setRightBalloonsReleased(false);
+      setLeaderboardBalloonsReleased(false);
+    }
+  }, [currentScreen]);
+
   // Unified game screen and transition state machine
   useEffect(() => {
     const targetScreen = gameState?.activeGame !== undefined ? gameState.activeGame : null;
@@ -127,12 +136,6 @@ export default function TVDisplay() {
     setCurrentScreen(targetScreen);
     if (targetScreen !== 'jeopardy') {
       setShowJeopardyBoard(false);
-    }
-    // Also reset float states when entering leaderboard
-    if (targetScreen === null) {
-      setLeftBalloonsReleased(false);
-      setRightBalloonsReleased(false);
-      setLeaderboardBalloonsReleased(false);
     }
   }, [gameState?.activeGame, currentScreen]);
 
