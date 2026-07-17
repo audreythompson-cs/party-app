@@ -85,7 +85,6 @@ export default function GoalsTab({ profile }) {
                       </p>
                     )}
                   </div>
-                  <span className="goal-points font-heading">+{goal.points} {STRINGS.leaderboard.pointsUnit}</span>
                 </div>
 
                 <div className="goal-actions">
@@ -97,7 +96,7 @@ export default function GoalsTab({ profile }) {
                     >
                       {submittingId === goal.id 
                         ? STRINGS.goals.claimButtonClaiming 
-                        : (completedCount > 0 ? 'Claim Again' : STRINGS.goals.claimButton)
+                        : `+${goal.points} ${STRINGS.leaderboard.pointsUnit}`
                       }
                     </button>
                   ) : (
