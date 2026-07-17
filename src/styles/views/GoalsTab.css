@@ -35,7 +35,7 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-right: 4px;
+  padding-right: 14px;
   padding-bottom: 4px;
   scrollbar-width: thin;
 }
