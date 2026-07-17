@@ -349,7 +349,8 @@ export default function TVDisplay() {
     }
   };
 
-  const handleResetJeopardyState = async () => {
+  const handleResetJeopardyState = async (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
     if (window.confirm("Are you sure you want to restart Jeopardy fresh? This will clear all completed questions.")) {
       try {
         await updateGameState({
@@ -366,6 +367,7 @@ export default function TVDisplay() {
         });
       } catch (err) {
         console.error("Failed to reset Jeopardy state:", err);
+        alert("Error resetting game state: " + err.message);
       }
     }
   };
@@ -600,17 +602,6 @@ export default function TVDisplay() {
 
     return (
       <div className="jeopardy-container animate-fade-in">
-        {/* Floating Refresh Button in Top-Right Corner */}
-        <button 
-          onClick={handleResetJeopardyState} 
-          className="jeopardy-refresh-btn"
-          title="Reset Jeopardy Game"
-        >
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
-          </svg>
-        </button>
-
         {/* The Grid */}
         <div className="jeopardy-board glass-panel">
           <div className="jeopardy-grid" style={{ gridTemplateColumns: `repeat(${sortedCategories.length}, 1fr)` }}>
@@ -912,6 +903,19 @@ export default function TVDisplay() {
           >
             <h1>{getHeaderTitle()}</h1>
           </div>
+
+          {/* Refresh Button on the right of the header during Jeopardy */}
+          {currentScreen === 'jeopardy' && !gameState?.jeopardy?.activeClue && (
+            <button 
+              onClick={handleResetJeopardyState} 
+              className="jeopardy-refresh-btn-header"
+              title="Reset Jeopardy Game"
+            >
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+              </svg>
+            </button>
+          )}
         </header>
       )}
 
