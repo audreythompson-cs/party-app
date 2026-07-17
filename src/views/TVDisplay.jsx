@@ -77,12 +77,15 @@ export default function TVDisplay() {
 
   const [currentScreen, setCurrentScreen] = useState(null);
 
-  // Reset balloon release states when the active screen transitions back to the leaderboard (null)
+  // Reset balloon release states when the active screen transitions
   useEffect(() => {
     if (currentScreen === null) {
       setLeftBalloonsReleased(false);
       setRightBalloonsReleased(false);
       setLeaderboardBalloonsReleased(false);
+      setIsBalloonsReleased(false);
+    } else if (currentScreen === 'welcome') {
+      setIsBalloonsReleased(false);
     }
   }, [currentScreen]);
 
@@ -98,7 +101,7 @@ export default function TVDisplay() {
       const timer = setTimeout(() => {
         setCurrentScreen('jeopardy');
         setShowJeopardyBoard(true);
-      }, 2500);
+      }, 2000);
       return () => clearTimeout(timer);
     }
 
@@ -109,7 +112,7 @@ export default function TVDisplay() {
       const timer = setTimeout(() => {
         setCurrentScreen('welcome');
         setIsBalloonsReleased(false);
-      }, 2500);
+      }, 2000);
       return () => clearTimeout(timer);
     }
 
@@ -118,7 +121,7 @@ export default function TVDisplay() {
       setIsBalloonsReleased(true);
       const timer = setTimeout(() => {
         setCurrentScreen(null);
-      }, 2500);
+      }, 2000);
       return () => clearTimeout(timer);
     }
 
@@ -128,7 +131,7 @@ export default function TVDisplay() {
       const timer = setTimeout(() => {
         setCurrentScreen('jeopardy');
         setShowJeopardyBoard(true);
-      }, 2500);
+      }, 2000);
       return () => clearTimeout(timer);
     }
 
@@ -146,12 +149,12 @@ export default function TVDisplay() {
     }
   }, [gameState?.welcomeState, currentScreen]);
 
-  // Balloon release automatically redirects back to leaderboard after 2.5 seconds (Admin triggered)
+  // Balloon release automatically redirects back to leaderboard after 2.0 seconds (Admin triggered)
   useEffect(() => {
     if (currentScreen === 'welcome' && gameState?.welcomeState === 'released') {
       const timer = setTimeout(() => {
         handleBackToLeaderboard();
-      }, 2500);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [currentScreen, gameState?.welcomeState]);
@@ -261,14 +264,14 @@ export default function TVDisplay() {
     setLeftBalloonsReleased(true);
     setTimeout(() => {
       handleStartWelcome();
-    }, 2500);
+    }, 2000);
   };
 
   const handleRightClick = () => {
     setRightBalloonsReleased(true);
     setTimeout(() => {
       handleStartFinale();
-    }, 2500);
+    }, 2000);
   };
 
   const handleEndJeopardy = async () => {
@@ -514,7 +517,7 @@ export default function TVDisplay() {
       setIsBalloonsReleased(true);
       setTimeout(() => {
         handleBackToLeaderboard();
-      }, 2500);
+      }, 2000);
     };
 
     const balloonIndices = [1, 2, 3, 4, 5];
