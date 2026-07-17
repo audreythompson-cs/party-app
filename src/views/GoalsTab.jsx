@@ -25,6 +25,9 @@ export default function GoalsTab({ profile }) {
   }, [profile.uid]);
 
   const handleClaim = async (goal) => {
+    const confirmed = window.confirm('The winners will be audited at the end, so tell the truth!');
+    if (!confirmed) return;
+
     setSubmittingId(goal.id);
     try {
       await claimGoal(profile.uid, profile.name, goal.id, goal.title, goal.points, goal.isRepeatable);
@@ -45,7 +48,6 @@ export default function GoalsTab({ profile }) {
     <div className="goals-tab animate-fade-in">
       <div className="goals-header">
         <h3>{STRINGS.goals.title}</h3>
-        <p className="subtitle">{STRINGS.goals.subtitle}</p>
       </div>
 
       {myGoals.length === 0 ? (

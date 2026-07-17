@@ -160,7 +160,7 @@ export const STRINGS = {
     tapToBuzz: '',
     ready: '',
     successMsg: '',
-    locked: 'Locked :(',
+    locked: '',
     incorrectLocked: 'Incorrect answer — no more buzzing for you this round.',
     someoneBuzzedFirst: '{name} buzzed first!',
     buzzerLocked: 'Buzzer is currently locked.',
