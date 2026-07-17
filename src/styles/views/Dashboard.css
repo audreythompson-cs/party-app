@@ -16,6 +16,7 @@
   position: relative;
   width: 100%;
   min-height: calc(100svh - 40px);
+  height: calc(100svh - 40px);
   background-color: var(--player-team-color) !important;
   background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.14) 0%, transparent 36%, rgba(0, 0, 0, 0.16) 100%) !important;
   backdrop-filter: blur(24px) saturate(135%);
