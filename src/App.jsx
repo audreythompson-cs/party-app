@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -34,6 +35,10 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/onboarding" replace />;
   }
 
+  if (userProfile.isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
+
   return children;
 }
 
@@ -53,6 +58,9 @@ function OnboardingRoute({ children }) {
   }
 
   if (userProfile) {
+    if (userProfile.isAdmin) {
+      return <Navigate to="/admin" replace />;
+    }
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -60,9 +68,15 @@ function OnboardingRoute({ children }) {
 }
 
 function LoginRoute({ children }) {
-  const { userProfile, loading, isPasscodeVerified } = useAuth();
+  const { userProfile, loading, isPasscodeVerified, logout } = useAuth();
 
-  if (loading) {
+  useEffect(() => {
+    if (userProfile?.isAdmin) {
+      logout();
+    }
+  }, [userProfile, logout]);
+
+  if (loading || userProfile?.isAdmin) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#fff' }}>
         <div>Loading...</div>
