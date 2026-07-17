@@ -11,22 +11,35 @@
 .points-total {
   padding: 24px;
   display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 8px;
+  align-items: stretch;
+  justify-content: space-around;
   text-align: center;
 }
 
-.points-total > span:first-child {
-  margin-right: auto;
-  font-size: 14px;
+.points-total-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.points-total-column span {
+  font-size: 12px;
   font-weight: 700;
 }
 
-.points-total strong {
+.points-total-column strong {
   font-family: var(--font-heading);
   font-size: 36px;
   line-height: 1;
+}
+
+.points-total-divider {
+  width: 1px;
+  min-height: 54px;
+  background: rgba(0, 0, 0, 0.12);
 }
 
 .donate-container {
@@ -169,8 +182,6 @@ select option {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: 280px;
-  overflow-y: auto;
   padding-right: 4px;
 }
 
@@ -223,9 +234,9 @@ select option {
 }
 
 .item-amount.positive {
-  color: #10b981; /* Green */
+  color: #059669 !important;
 }
 
 .item-amount.negative {
-  color: #ef4444; /* Red */
+  color: #dc2626 !important;
 }

@@ -29,7 +29,7 @@ export const STRINGS = {
     welcome: 'Hey, {name}!',
     pointsTitle: 'Your Points',
     rankTitle: 'Leaderboard Rank',
-    historyTitle: 'Recent Point History',
+    historyTitle: 'Points History',
     noHistory: 'No points earned yet. Go complete some side quests!',
     rankDisplay: '#{rank} of {total}',
     guestsSub: 'of {total} guests',

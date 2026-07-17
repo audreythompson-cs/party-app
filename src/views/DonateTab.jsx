@@ -17,6 +17,9 @@ export default function DonateTab({ profile, leaderboard, pointHistory = [], mod
 
   // Filter out the current user from potential recipients
   const recipients = leaderboard.filter(player => player.uid !== profile.uid);
+  const teamTotal = leaderboard
+    .filter((player) => player.team === profile.team)
+    .reduce((total, player) => total + (player.points ?? 0), 0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -89,9 +92,15 @@ export default function DonateTab({ profile, leaderboard, pointHistory = [], mod
     return (
       <div className="donate-tab points-tab animate-fade-in">
         <div className="points-total glass-panel">
-          <span>{STRINGS.dashboard.pointsTitle}</span>
-          <strong>{profile.points ?? 0}</strong>
-          <span>pts</span>
+          <div className="points-total-column">
+            <span>Your Team's Total</span>
+            <strong>{teamTotal}</strong>
+          </div>
+          <div className="points-total-divider" aria-hidden="true"></div>
+          <div className="points-total-column">
+            <span>Your Total</span>
+            <strong>{profile.points ?? 0}</strong>
+          </div>
         </div>
         {renderHistory()}
       </div>
