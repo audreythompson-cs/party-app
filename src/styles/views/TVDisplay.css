@@ -979,6 +979,36 @@
   --wobble-offset: -20px;
   --wobble-rot: 6deg;
 }
+.welcome-side-column .balloon-6 {
+  bottom: 215px;
+  left: 90px;
+  transform: rotate(-8deg);
+  --init-rot: -8deg;
+  --target-rot: -15deg;
+  --target-x: -60px;
+  --wobble-offset: -12px;
+  --wobble-rot: 4deg;
+}
+.welcome-side-column .balloon-7 {
+  bottom: 245px;
+  left: 35px;
+  transform: rotate(12deg);
+  --init-rot: 12deg;
+  --target-rot: 20deg;
+  --target-x: 80px;
+  --wobble-offset: 18px;
+  --wobble-rot: -4deg;
+}
+.welcome-side-column .balloon-8 {
+  bottom: 275px;
+  left: 125px;
+  transform: rotate(-5deg);
+  --init-rot: -5deg;
+  --target-rot: 0deg;
+  --target-x: 10px;
+  --wobble-offset: -8px;
+  --wobble-rot: 2deg;
+}
 
 /* Balloon Release Animation */
 .released .balloon-bundle .balloon-item {
@@ -992,6 +1022,9 @@
 .released .balloon-bundle .balloon-3 { animation-delay: 0.08s; animation-duration: 2.6s; }
 .released .balloon-bundle .balloon-4 { animation-delay: 0.3s; animation-duration: 2.9s; }
 .released .balloon-bundle .balloon-5 { animation-delay: 0.22s; animation-duration: 2.7s; }
+.released .balloon-bundle .balloon-6 { animation-delay: 0.35s; animation-duration: 2.6s; }
+.released .balloon-bundle .balloon-7 { animation-delay: 0.18s; animation-duration: 2.75s; }
+.released .balloon-bundle .balloon-8 { animation-delay: 0.28s; animation-duration: 2.55s; }
 
 @keyframes release-float-up {
   0% {
