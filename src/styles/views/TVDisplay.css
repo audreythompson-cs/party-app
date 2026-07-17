@@ -778,16 +778,22 @@
   z-index: 5;
 }
 
-/* Hand-drawn Welcome Header (Clickable return button) */
-.welcome-header-image {
-  width: 100%;
-  max-width: 1500px;
-  height: auto;
+/* Welcome Text Header (Clickable return button) */
+.welcome-title-text {
+  font-size: 120px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #0f172a 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  margin: 0;
+  padding: 10px 0;
 }
 
-.welcome-header-image:hover {
-  transform: scale(1.02);
+.welcome-header-container:hover .welcome-title-text {
+  transform: scale(1.05);
 }
 
 .welcome-redesign-grid {

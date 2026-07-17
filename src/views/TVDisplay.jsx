@@ -526,11 +526,7 @@ export default function TVDisplay() {
       <div className={`tv-welcome-screen-redesign ${isBalloonsReleased ? 'released' : ''}`}>
         {/* Hand-drawn Welcome Header at the top (Clickable return button) */}
         <div className="welcome-header-container" onClick={handleWelcomeClick}>
-          <img
-            src="/welcome-header.svg"
-            alt="Welcome Header"
-            className="welcome-header-image"
-          />
+          <h1 className="welcome-title-text">Welcome!</h1>
         </div>
 
         {/* Bottom Columns Layout */}
@@ -554,8 +550,8 @@ export default function TVDisplay() {
           {/* Center Column: Handwritten Message */}
           <div className="welcome-center-column">
             <img
-              src="/welcome-message.svg"
-              alt="Welcome Message"
+              src="/audrey-and-lisas.png"
+              alt="Audrey & Lisa's"
               className="welcome-message-image"
             />
           </div>
