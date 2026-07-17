@@ -812,20 +812,22 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end; /* Align bottom elements with the bottom of the grid */
+  justify-content: space-between; /* Space top, middle, and bottom symmetrically */
   flex: 1;
   height: 100%;
   max-width: 1100px;
   z-index: 5;
 }
 
-/* Symmetrical title spacing right above the graphic */
-.welcome-title-text.welcome-top-title {
-  margin-bottom: 55px; /* Matches the top margin of the graduation text inside the 220px box */
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+/* Symmetrical title containers centered at 110px from top and bottom */
+.welcome-top-title-container {
+  height: 220px; /* Same height as bottom container */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
-/* Graduation Party container to vertically center-align with side QR codes */
 .welcome-graduation-container {
   height: 220px; /* Sized exactly matching the 220px height of QR codes */
   display: flex;
@@ -834,16 +836,28 @@
   width: 100%;
 }
 
+.welcome-title-text.welcome-top-title,
 .welcome-title-text.welcome-sub-title {
   margin: 0;
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
 }
 
-/* Hand-drawn message block (now larger!) */
-.welcome-message-image {
+/* Image wrapper to fill the remaining middle space and center the image */
+.welcome-message-image-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  min-height: 0; /* Critical for flex shrinking/growing */
+}
+
+/* Hand-drawn message block - stretches to fill parent container */
+.welcome-message-image {
+  width: auto;
   height: auto;
-  max-height: 48vh; /* Scale up custom graphic */
+  max-width: 100%;
+  max-height: 100%; /* Fills parent wrapper perfectly */
   object-fit: contain;
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
 }
@@ -882,7 +896,7 @@
 .welcome-side-column .balloon-bundle {
   position: absolute;
   top: 0;
-  bottom: 380px;
+  bottom: calc(50vh - 80px); /* Center cluster around the halfway point between QR code center and screen top */
   width: 100%;
   pointer-events: none;
   transform-origin: bottom center;

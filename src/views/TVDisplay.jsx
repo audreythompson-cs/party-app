@@ -544,12 +544,16 @@ export default function TVDisplay() {
 
           {/* Center Column: Welcome to + Graphic + Graduation Party! */}
           <div className="welcome-center-column" onClick={handleWelcomeClick} style={{ cursor: 'pointer' }}>
-            <h1 className="welcome-title-text welcome-top-title">Welcome to</h1>
-            <img
-              src="/audrey-and-lisas.png"
-              alt="Audrey & Lisa's"
-              className="welcome-message-image"
-            />
+            <div className="welcome-top-title-container">
+              <h1 className="welcome-title-text welcome-top-title">Welcome to</h1>
+            </div>
+            <div className="welcome-message-image-wrapper">
+              <img
+                src="/audrey-and-lisas.png"
+                alt="Audrey & Lisa's"
+                className="welcome-message-image"
+              />
+            </div>
             <div className="welcome-graduation-container">
               <h1 className="welcome-title-text welcome-sub-title">Graduation Party!</h1>
             </div>
