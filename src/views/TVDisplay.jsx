@@ -494,11 +494,7 @@ export default function TVDisplay() {
     const isBuzzed = !!buzzedId;
 
     return (
-      <div 
-        onClick={resolveFeedback === 'correct' ? handleFeedbackClick : undefined}
-        className={`active-clue-screen animate-scale-up ${isBuzzed ? 'buzzed-state' : ''}`}
-        style={{ cursor: resolveFeedback === 'correct' ? 'pointer' : 'default' }}
-      >
+      <div className={`active-clue-screen animate-scale-up ${isBuzzed ? 'buzzed-state' : ''}`}>
         {/* Top Header Row */}
         <div className="active-clue-header">
           <button onClick={handleSkipClue} className="clue-back-arrow-btn" title="Skip/Time's Up">
@@ -518,28 +514,32 @@ export default function TVDisplay() {
 
         {/* Content Area with absolute Overlay Container */}
         <div className="active-clue-content-area">
-          {/* Giant Question / Answer Text */}
+          {/* Giant Question Text */}
           <div className="active-clue-question-container">
-            <p className="clue-text-giant">
-              {resolveFeedback === 'correct' ? clue.answer : clue.question}
-            </p>
+            <p className="clue-text-giant">{clue.question}</p>
           </div>
 
-          {/* Buzzed-in Overlay Card (Only visible when buzzed in AND not correct feedback) */}
-          {isBuzzed && resolveFeedback !== 'correct' && (
+          {/* Buzzed-in Overlay Card */}
+          {isBuzzed && (
             <div 
               onClick={resolveFeedback ? handleFeedbackClick : undefined}
               className={`buzzed-overlay-card ${resolveFeedback ? `feedback-${resolveFeedback} clickable-feedback-card` : ''}`}
               style={{
-                '--team-color': resolveFeedback === 'incorrect' ? '#ef4444' : playerTeam.color,
-                '--team-glow': resolveFeedback === 'incorrect' ? 'rgba(239, 68, 68, 0.4)' : playerTeam.glow,
+                '--team-color': resolveFeedback === 'incorrect' ? '#ef4444' : resolveFeedback === 'correct' ? '#10b981' : playerTeam.color,
+                '--team-glow': resolveFeedback === 'incorrect' ? 'rgba(239, 68, 68, 0.4)' : resolveFeedback === 'correct' ? 'rgba(16, 185, 129, 0.4)' : playerTeam.glow,
                 cursor: resolveFeedback ? 'pointer' : 'default'
               }}
             >
-              {/* Centered Player Name (Always Visible) */}
-              <div className="buzzed-card-text">
-                <h2>{buzzedName}</h2>
-              </div>
+              {resolveFeedback === 'correct' ? (
+                <div className="buzzed-card-feedback-correct animate-scale-up">
+                  <span className="points-feedback-large">+{clue.points}</span>
+                </div>
+              ) : (
+                /* Centered Player Name (Always Visible for Active and Incorrect states) */
+                <div className="buzzed-card-text">
+                  <h2>{buzzedName}</h2>
+                </div>
+              )}
 
               {/* Only show split-screen click zones when not in feedback mode */}
               {!resolveFeedback && (
