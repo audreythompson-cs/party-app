@@ -494,7 +494,11 @@ export default function TVDisplay() {
     const isBuzzed = !!buzzedId;
 
     return (
-      <div className={`active-clue-screen animate-scale-up ${isBuzzed ? 'buzzed-state' : ''}`}>
+      <div 
+        onClick={resolveFeedback === 'correct' ? handleFeedbackClick : undefined}
+        className={`active-clue-screen animate-scale-up ${isBuzzed ? 'buzzed-state' : ''}`}
+        style={{ cursor: resolveFeedback === 'correct' ? 'pointer' : 'default' }}
+      >
         {/* Top Header Row */}
         <div className="active-clue-header">
           <button onClick={handleSkipClue} className="clue-back-arrow-btn" title="Skip/Time's Up">
@@ -514,13 +518,15 @@ export default function TVDisplay() {
 
         {/* Content Area with absolute Overlay Container */}
         <div className="active-clue-content-area">
-          {/* Giant Question Text */}
+          {/* Giant Question / Answer Text */}
           <div className="active-clue-question-container">
-            <p className="clue-text-giant">{clue.question}</p>
+            <p className="clue-text-giant">
+              {resolveFeedback === 'correct' ? clue.answer : clue.question}
+            </p>
           </div>
 
-          {/* Buzzed-in Overlay Card */}
-          {isBuzzed && (
+          {/* Buzzed-in Overlay Card (Only visible when buzzed in AND not correct feedback) */}
+          {isBuzzed && resolveFeedback !== 'correct' && (
             <div 
               onClick={resolveFeedback ? handleFeedbackClick : undefined}
               className={`buzzed-overlay-card ${resolveFeedback ? `feedback-${resolveFeedback} clickable-feedback-card` : ''}`}
@@ -540,14 +546,20 @@ export default function TVDisplay() {
                 <div className="buzzed-card-interactive animate-scale-up">
                   {/* Left Half: Incorrect */}
                   <button 
-                    onClick={() => handleResolveClue(false)} 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleResolveClue(false);
+                    }} 
                     className="buzz-click-half left-half" 
                     title="Incorrect"
                   />
 
                   {/* Right Half: Correct */}
                   <button 
-                    onClick={() => handleResolveClue(true)} 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleResolveClue(true);
+                    }} 
                     className="buzz-click-half right-half" 
                     title="Correct"
                   />
