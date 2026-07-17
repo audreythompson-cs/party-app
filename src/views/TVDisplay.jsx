@@ -249,12 +249,7 @@ export default function TVDisplay() {
     if (fbClue && localBuzzedId && !fbBuzzedId && !resolveFeedback) {
       setResolveFeedback('incorrect');
       playIncorrect();
-      const timer = setTimeout(() => {
-        setLocalBuzzedId(null);
-        setLocalBuzzedName(null);
-        setResolveFeedback(null);
-      }, 1500);
-      return () => clearTimeout(timer);
+      return;
     }
 
     // Case 4: Player got it correct (fbClue becomes null, but active locally)
@@ -262,13 +257,6 @@ export default function TVDisplay() {
       if (localBuzzedId) {
         setResolveFeedback('correct');
         playCorrect();
-        const timer = setTimeout(() => {
-          setLocalActiveClue(null);
-          setLocalBuzzedId(null);
-          setLocalBuzzedName(null);
-          setResolveFeedback(null);
-        }, 1500);
-        return () => clearTimeout(timer);
       } else {
         // Just skipped or closed without buzzed player
         setLocalActiveClue(null);
@@ -278,6 +266,20 @@ export default function TVDisplay() {
       }
     }
   }, [gameState?.jeopardy, localActiveClue, localBuzzedId, resolveFeedback]);
+
+  const handleFeedbackClick = () => {
+    if (!resolveFeedback) return;
+    if (resolveFeedback === 'correct') {
+      setLocalActiveClue(null);
+      setLocalBuzzedId(null);
+      setLocalBuzzedName(null);
+      setResolveFeedback(null);
+    } else if (resolveFeedback === 'incorrect') {
+      setLocalBuzzedId(null);
+      setLocalBuzzedName(null);
+      setResolveFeedback(null);
+    }
+  };
 
 
   const handleStartJeopardy = async () => {
@@ -518,15 +520,18 @@ export default function TVDisplay() {
           {/* Buzzed-in Overlay Card */}
           {isBuzzed && (
             <div 
-              className={`buzzed-overlay-card ${resolveFeedback ? `feedback-${resolveFeedback}` : ''}`}
+              onClick={resolveFeedback ? handleFeedbackClick : undefined}
+              className={`buzzed-overlay-card ${resolveFeedback ? `feedback-${resolveFeedback} clickable-feedback-card` : ''}`}
               style={{
                 '--team-color': resolveFeedback === 'incorrect' ? '#ef4444' : playerTeam.color,
-                '--team-glow': resolveFeedback === 'incorrect' ? 'rgba(239, 68, 68, 0.4)' : playerTeam.glow
+                '--team-glow': resolveFeedback === 'incorrect' ? 'rgba(239, 68, 68, 0.4)' : playerTeam.glow,
+                cursor: resolveFeedback ? 'pointer' : 'default'
               }}
             >
               {resolveFeedback === 'correct' ? (
                 <div className="buzzed-card-feedback-correct animate-scale-up">
                   <span className="points-feedback-large">+{clue.points}</span>
+                  <span className="click-to-continue-label">Click anywhere to continue</span>
                 </div>
               ) : resolveFeedback === 'incorrect' ? (
                 <div className="buzzed-card-feedback-incorrect animate-scale-up">
@@ -534,6 +539,7 @@ export default function TVDisplay() {
                   {deductPoints && (
                     <span className="points-feedback-large">-{clue.points}</span>
                   )}
+                  <span className="click-to-continue-label">Click anywhere to resume</span>
                 </div>
               ) : (
                 <div className="buzzed-card-interactive animate-scale-up">

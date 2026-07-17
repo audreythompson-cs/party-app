@@ -1405,3 +1405,14 @@
   letter-spacing: 0.05em;
   margin-bottom: 10px;
 }
+
+.click-to-continue-label {
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 30px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  animation: heartbeat 1.5s infinite ease-in-out;
+}
