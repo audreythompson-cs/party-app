@@ -47,7 +47,9 @@
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.side-quests-icon {
+.side-quests-icon,
+.donate-icon,
+.custom-nav-icon {
   object-fit: contain;
 }
 

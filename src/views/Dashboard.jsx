@@ -80,7 +80,16 @@ export default function Dashboard() {
           <DonateTab
             profile={userProfile}
             leaderboard={leaderboard}
+            mode="donate"
+          />
+        );
+      case 'points':
+        return (
+          <DonateTab
+            profile={userProfile}
+            leaderboard={leaderboard}
             pointHistory={pointHistory}
+            mode="points"
           />
         );
       default:

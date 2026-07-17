@@ -3,7 +3,7 @@ import { STRINGS } from '../constants/strings';
 import '../styles/views/DonateTab.css';
 import { donatePoints } from '../firebase/db';
 
-export default function DonateTab({ profile, leaderboard, pointHistory = [] }) {
+export default function DonateTab({ profile, leaderboard, pointHistory = [], mode = 'donate' }) {
   const [recipientId, setRecipientId] = useState('');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
@@ -54,6 +54,49 @@ export default function DonateTab({ profile, leaderboard, pointHistory = [] }) {
       setLoading(false);
     }
   };
+
+  const renderHistory = () => (
+    <div className="history-section glass-panel">
+      <h3>{STRINGS.dashboard.historyTitle}</h3>
+
+      {pointHistory.length === 0 ? (
+        <div className="no-history-state">
+          <span className="no-history-icon">✨</span>
+          <p>{STRINGS.dashboard.noHistory}</p>
+        </div>
+      ) : (
+        <div className="history-list">
+          {pointHistory.map((item) => {
+            const isPositive = item.amount > 0;
+            return (
+              <div key={item.id} className="history-item animate-slide-in">
+                <div className="item-details">
+                  <span className="item-description">{item.description}</span>
+                  <span className="item-time">{formatTime(item.timestamp)}</span>
+                </div>
+                <span className={`item-amount ${isPositive ? 'positive' : 'negative'}`}>
+                  {isPositive ? '+' : ''}{item.amount}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+
+  if (mode === 'points') {
+    return (
+      <div className="donate-tab points-tab animate-fade-in">
+        <div className="points-total glass-panel">
+          <span>{STRINGS.dashboard.pointsTitle}</span>
+          <strong>{profile.points ?? 0}</strong>
+          <span>pts</span>
+        </div>
+        {renderHistory()}
+      </div>
+    );
+  }
 
   return (
     <div className="donate-tab animate-fade-in">
@@ -121,34 +164,6 @@ export default function DonateTab({ profile, leaderboard, pointHistory = [] }) {
         </form>
       </div>
 
-      {/* Point History Log */}
-      <div className="history-section glass-panel">
-        <h3>{STRINGS.dashboard.historyTitle}</h3>
-        
-        {pointHistory.length === 0 ? (
-          <div className="no-history-state">
-            <span className="no-history-icon">✨</span>
-            <p>{STRINGS.dashboard.noHistory}</p>
-          </div>
-        ) : (
-          <div className="history-list">
-            {pointHistory.map((item) => {
-              const isPositive = item.amount > 0;
-              return (
-                <div key={item.id} className="history-item animate-slide-in">
-                  <div className="item-details">
-                    <span className="item-description">{item.description}</span>
-                    <span className="item-time">{formatTime(item.timestamp)}</span>
-                  </div>
-                  <span className={`item-amount ${isPositive ? 'positive' : 'negative'}`}>
-                    {isPositive ? '+' : ''}{item.amount}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
     </div>
   );
 }

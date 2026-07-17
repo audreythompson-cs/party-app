@@ -2,6 +2,33 @@
   width: 100%;
 }
 
+.points-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.points-total {
+  padding: 24px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.points-total > span:first-child {
+  margin-right: auto;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.points-total strong {
+  font-family: var(--font-heading);
+  font-size: 36px;
+  line-height: 1;
+}
+
 .donate-container {
   padding: 24px 20px;
   display: flex;
@@ -110,7 +137,6 @@ select option {
   flex-direction: column;
   gap: 16px;
   flex: 1;
-  margin-top: 20px;
 }
 
 .history-section h3 {

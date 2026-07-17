@@ -16,10 +16,7 @@ export default function BottomNav({ activeTab, setActiveTab, position = 'bottom'
       id: 'jeopardy',
       label: 'Jeopardy',
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="nav-icon">
-          <rect x="2" y="2" width="20" height="20" rx="2" ry="2" />
-          <path d="M6 12h12M12 6v12" />
-        </svg>
+        <img src="/buzzer.png" alt="" className="nav-icon custom-nav-icon" />
       )
     },
     {
@@ -30,12 +27,19 @@ export default function BottomNav({ activeTab, setActiveTab, position = 'bottom'
       )
     },
     {
-      id: 'donate',
-      label: 'Send',
+      id: 'points',
+      label: 'Points',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="nav-icon">
           <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
         </svg>
+      )
+    },
+    {
+      id: 'donate',
+      label: 'Donate Points',
+      icon: (
+        <img src="/donate.png" alt="" className="nav-icon donate-icon" />
       )
     }
   ];
