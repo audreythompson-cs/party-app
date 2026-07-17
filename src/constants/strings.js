@@ -155,19 +155,19 @@ export const STRINGS = {
     jeopardySaveBtn: 'Save Category'
   },
   jeopardyBuzzer: {
-    buzz: 'BUZZ!',
-    buzzed: 'BUZZED!',
+    buzz: '',
+    buzzed: 'YOU GOT IT! ANSWER OUT LOUD!',
     tapToBuzz: 'TAP TO BUZZ IN!',
-    ready: 'Ready for next question...',
-    successMsg: 'YOU GOT IT! ANSWER OUT LOUD!',
-    locked: 'LOCKED',
-    incorrectLocked: 'Incorrect answer — you are locked out.',
+    ready: '',
+    successMsg: '',
+    locked: 'Locked :(',
+    incorrectLocked: 'Incorrect answer — no more buzzing this round.',
     someoneBuzzedFirst: '{name} buzzed first!',
     buzzerLocked: 'Buzzer is currently locked.',
     jeopardyBoardTitle: 'JEOPARDY BOARD',
     yourPoints: 'YOUR POINTS',
     currentTeam: 'CURRENT TEAM',
-    waitingBtn: 'WAITING FOR HOST...',
-    waitingStatus: 'Waiting for the host to activate the game board...'
+    waitingBtn: 'WAITING...',
+    waitingStatus: 'Come back when it\'s time to play Jeopardy!'
   }
 };
