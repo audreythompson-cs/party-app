@@ -517,167 +517,108 @@
 
 /* Active Clue Screen styles */
 .active-clue-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f8fafc; /* Clean off-white background */
+  z-index: 100; /* Cover everything else! */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 40px 60px;
+  box-sizing: border-box;
+}
+
+/* Header line in active clue screen */
+.active-clue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1400px;
+  margin-bottom: 20px;
+}
+
+/* Left Arrow button for skip */
+.clue-back-arrow-btn {
+  background: transparent;
+  border: none;
+  color: #0f172a;
+  cursor: pointer;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+
+.clue-back-arrow-btn:hover {
+  transform: translateX(-4px);
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.active-clue-header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+/* Category Title - black text with a white pill background, very large */
+.category-pill {
+  font-family: var(--font-heading);
+  font-size: 40px;
+  font-weight: 800;
+  color: #000000;
+  background: #ffffff;
+  padding: 12px 36px;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Points label - very large text, gold */
+.clue-points-value {
+  font-family: var(--font-heading);
+  font-size: 54px;
+  font-weight: 900;
+  color: #fbbf24;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.active-clue-header-spacer {
+  width: 64px; /* Matches back-arrow-btn size for perfect centering */
+}
+
+/* Giant Question container & text */
+.active-clue-question-container {
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 30px;
-  max-width: 800px;
-  margin: 0 auto;
   width: 100%;
-  z-index: 2;
+  max-width: 1400px;
+  padding: 40px 0;
+  box-sizing: border-box;
 }
 
-.clue-metadata {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
-}
-
-.category-title {
+.clue-text-giant {
   font-family: var(--font-heading);
-  font-size: 28px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #fbbf24;
-}
-
-.points-label {
-  background: rgba(251, 191, 36, 0.08);
-  border: 1.5px solid #fbbf24;
-  color: #fbbf24;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 13px;
+  font-size: 72px; /* Giant text size to utilize screen space */
   font-weight: 800;
-  letter-spacing: 0.05em;
-  box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);
-}
-
-.clue-card-main {
-  padding: 50px 40px;
-  width: 100%;
+  color: #000000;
   text-align: center;
-  border-radius: 24px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-}
-
-.clue-text {
-  font-family: var(--font-heading);
-  font-size: 34px;
-  font-weight: 600;
-  color: var(--text-bright);
-  line-height: 1.5;
-}
-
-.answer-hint-text {
-  font-size: 18px;
-  color: var(--accent);
-  margin-top: 25px;
-  font-style: italic;
-  opacity: 0.7;
-  border-top: 1px dashed rgba(255, 255, 255, 0.08);
-  padding-top: 15px;
-}
-
-/* Buzzer Screen Panel */
-.buzzer-status-panel {
-  width: 100%;
-  padding: 30px;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 180px;
-  border-radius: 24px;
-}
-
-.buzzers-active-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.glowing-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 15px #10b981, 0 0 30px #10b981;
-}
-
-.buzzers-active-state h2 {
-  font-size: 18px;
-  color: #10b981;
-  letter-spacing: 0.1em;
-}
-
-.buzzed-in-player-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-}
-
-.buzzed-halo {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: rgba(251, 191, 36, 0.1);
-  border: 2px solid #fbbf24;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
-  animation: scale-glow 1s infinite alternate;
-}
-
-.buzzed-icon {
-  font-size: 32px;
-  color: #fbbf24;
-}
-
-.buzzed-in-player-state h2 {
-  font-size: 24px;
-  background: linear-gradient(135deg, #fbbf24 0%, #fcd34d 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.host-actions {
-  display: flex;
-  gap: 15px;
-  margin-top: 5px;
-}
-
-.success-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.error-btn {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-  border-color: transparent;
-}
-
-.error-btn:hover {
-  background: #ef4444;
-  border-color: transparent;
-}
-
-.active-clue-footer {
-  margin-top: 10px;
-}
-
-.skip-clue-btn {
-  font-size: 13px;
-  padding: 10px 20px;
+  line-height: 1.3;
+  margin: 0;
+  word-wrap: break-word;
 }
 
 .tv-empty-board {

@@ -397,56 +397,29 @@ export default function TVDisplay() {
 
   const renderActiveClue = () => {
     const clue = gameState.jeopardy.activeClue;
-    const isBuzzed = !!gameState.jeopardy.buzzedPlayerId;
-    const buzzedName = gameState.jeopardy.buzzedPlayerName;
 
     return (
       <div className="active-clue-screen animate-scale-up">
-        <div className="clue-metadata">
-          <span className="category-title">{clue.categoryName}</span>
-          <span className="points-label">{STRINGS.tv.cluePoints.replace('{points}', clue.points)}</span>
-        </div>
-
-        <div className="glass-panel clue-card-main">
-          <p className="clue-text">“{clue.question}”</p>
-        </div>
-
-        {/* Buzzer Status Panel */}
-        <div className="glass-panel buzzer-status-panel">
-          {!isBuzzed ? (
-            <div className="buzzers-active-state animate-pulse">
-              <span className="glowing-dot"></span>
-              <h2>{STRINGS.tv.buzzersOpen}</h2>
-              <p>{STRINGS.tv.waitingForBuzz}</p>
-            </div>
-          ) : (
-            <div className="buzzed-in-player-state">
-              <div className="buzzed-halo">
-                <span className="buzzed-icon">!</span>
-              </div>
-              <h2>{STRINGS.tv.playerBuzzed.replace('{name}', buzzedName)}</h2>
-              <div className="host-actions">
-                <button 
-                  onClick={() => handleResolveClue(true)} 
-                  className="btn-primary success-btn"
-                >
-                  {STRINGS.tv.correctBtn.replace('{points}', clue.points)}
-                </button>
-                <button 
-                  onClick={() => handleResolveClue(false)} 
-                  className="btn-secondary error-btn"
-                >
-                  {STRINGS.tv.incorrectBtn.replace('{points}', deductPoints ? `-${clue.points}` : '0')}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="active-clue-footer">
-          <button onClick={handleSkipClue} className="btn-secondary skip-clue-btn">
-            {STRINGS.tv.skipBtn}
+        {/* Top Header Row */}
+        <div className="active-clue-header">
+          <button onClick={handleSkipClue} className="clue-back-arrow-btn" title="Skip/Time's Up">
+            <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
           </button>
+          
+          <div className="active-clue-header-center">
+            <div className="category-pill">{clue.categoryName}</div>
+            <span className="clue-points-value">{clue.points}</span>
+          </div>
+          
+          <div className="active-clue-header-spacer"></div>
+        </div>
+
+        {/* Giant Question Text Container */}
+        <div className="active-clue-question-container">
+          <p className="clue-text-giant">{clue.question}</p>
         </div>
       </div>
     );
@@ -767,7 +740,7 @@ export default function TVDisplay() {
   };
 
   const isLeaderboardScreen = currentScreen === null;
-  const showHeader = currentScreen !== 'welcome';
+  const showHeader = currentScreen !== 'welcome' && !(currentScreen === 'jeopardy' && gameState?.jeopardy?.activeClue);
 
   return (
     <div className="tv-page">
