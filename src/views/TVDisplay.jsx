@@ -531,7 +531,6 @@ export default function TVDisplay() {
               {resolveFeedback === 'correct' ? (
                 <div className="buzzed-card-feedback-correct animate-scale-up">
                   <span className="points-feedback-large">+{clue.points}</span>
-                  <span className="click-to-continue-label">Click anywhere to continue</span>
                 </div>
               ) : resolveFeedback === 'incorrect' ? (
                 <div className="buzzed-card-feedback-incorrect animate-scale-up">
@@ -539,37 +538,28 @@ export default function TVDisplay() {
                   {deductPoints && (
                     <span className="points-feedback-large">-{clue.points}</span>
                   )}
-                  <span className="click-to-continue-label">Click anywhere to resume</span>
                 </div>
               ) : (
                 <div className="buzzed-card-interactive animate-scale-up">
-                  {/* Thumbs Down Button */}
+                  {/* Left Half: Incorrect */}
                   <button 
                     onClick={() => handleResolveClue(false)} 
-                    className="buzz-feedback-btn thumbs-down-btn" 
+                    className="buzz-click-half left-half" 
                     title="Incorrect"
-                  >
-                    <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
-                    </svg>
-                  </button>
+                  />
 
-                  {/* Player Name and Text */}
+                  {/* Centered Player Name & State */}
                   <div className="buzzed-card-text">
                     <h2>{buzzedName}</h2>
                     <p>buzzed in</p>
                   </div>
 
-                  {/* Thumbs Up Button */}
+                  {/* Right Half: Correct */}
                   <button 
                     onClick={() => handleResolveClue(true)} 
-                    className="buzz-feedback-btn thumbs-up-btn" 
+                    className="buzz-click-half right-half" 
                     title="Correct"
-                  >
-                    <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-                    </svg>
-                  </button>
+                  />
                 </div>
               )}
             </div>
