@@ -68,7 +68,7 @@
   border-radius: 50%;
   border: none;
   font-family: var(--font-heading);
-  font-size: clamp(28px, 8vw, 36px);
+  font-size: clamp(20px, 5.5vw, 26px);
   font-weight: 900;
   letter-spacing: 0.05em;
   color: var(--text-bright);

@@ -161,7 +161,7 @@ export const STRINGS = {
     ready: '',
     successMsg: '',
     locked: 'Locked :(',
-    incorrectLocked: 'Incorrect answer — no more buzzing this round.',
+    incorrectLocked: 'Incorrect answer — no more buzzing for you this round.',
     someoneBuzzedFirst: '{name} buzzed first!',
     buzzerLocked: 'Buzzer is currently locked.',
     jeopardyBoardTitle: 'JEOPARDY BOARD',
