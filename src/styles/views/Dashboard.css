@@ -37,12 +37,24 @@
   text-align: left;
 }
 
-.welcome-tag {
-  font-size: 9px;
+.user-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-badge {
+  font-size: 10px;
   font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--accent);
+  letter-spacing: 0.05em;
+  color: #000000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .user-welcome h2 {

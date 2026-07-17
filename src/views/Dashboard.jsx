@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { onLeaderboardChange, onPointHistoryChange, listenToGameState } from '../firebase/db';
-import { STRINGS } from '../constants/strings';
+import { TEAMS } from '../constants/teams';
 import BottomNav from '../components/BottomNav';
 import '../styles/views/Dashboard.css';
 
@@ -13,7 +13,7 @@ import GoalsTab from './GoalsTab';
 import JeopardyBuzzerView from '../components/JeopardyBuzzerView';
 
 export default function Dashboard() {
-  const { userProfile, logout } = useAuth();
+  const { userProfile, logout, teamsMap } = useAuth();
   const [activeTab, setActiveTab] = useState('home');
   const [leaderboard, setLeaderboard] = useState([]);
   const [pointHistory, setPointHistory] = useState([]);
@@ -52,6 +52,12 @@ export default function Dashboard() {
 
   // Apply Team Accent Styling to Dashboard view wrapper
   const userTeam = userProfile?.team || 'blue';
+
+  const fallbackTeam = { 
+    name: 'No Team', 
+    color: '#cbd5e1'
+  };
+  const playerTeam = (teamsMap && userProfile?.team && teamsMap[userProfile.team]) || TEAMS[userProfile?.team] || fallbackTeam;
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -103,8 +109,14 @@ export default function Dashboard() {
       <header className="dashboard-header glass-panel">
         <div className="header-left">
           <div className="user-welcome">
-            <span className="welcome-tag">{STRINGS.dashboard.guestTag}</span>
-            <h2>{userProfile?.name}</h2>
+            <div className="user-info-row">
+              <h2>{userProfile?.name}</h2>
+              {playerTeam && (
+                <span className="team-badge" style={{ backgroundColor: playerTeam.color }}>
+                  {playerTeam.name}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
