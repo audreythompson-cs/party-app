@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { STRINGS } from '../constants/strings';
 import { onLeaderboardChange } from '../firebase/db';
+import { TEAMS, BALLOON_IMAGES } from '../constants/teams';
 import '../styles/views/Onboarding.css';
 
 export default function Onboarding() {
@@ -36,12 +37,7 @@ export default function Onboarding() {
       speed: Math.random() * 6 + 7,
       size: Math.random() * 40 + 60,
       swayName: ['login-float-left', 'login-float-right', 'login-float-straight'][i % 3],
-      filter: [
-        '',
-        'hue-rotate(120deg) brightness(1.2)',
-        'hue-rotate(240deg) brightness(1.2)',
-        'hue-rotate(320deg) brightness(1.2)'
-      ][i % 4]
+      imagePath: BALLOON_IMAGES[i % BALLOON_IMAGES.length]
     }));
   }, []);
 
@@ -54,12 +50,7 @@ export default function Onboarding() {
       speed: Math.random() * 1.2 + 1.6,
       size: Math.random() * 60 + 80,
       swayName: ['login-float-left', 'login-float-right', 'login-float-straight'][i % 3],
-      filter: [
-        '',
-        'hue-rotate(120deg) brightness(1.2)',
-        'hue-rotate(240deg) brightness(1.2)',
-        'hue-rotate(320deg) brightness(1.2)'
-      ][i % 4]
+      imagePath: BALLOON_IMAGES[i % BALLOON_IMAGES.length]
     }));
   }, []);
 
@@ -121,7 +112,7 @@ export default function Onboarding() {
       {backgroundBalloons.map((b) => (
         <img
           key={b.id}
-          src="/balloon.svg"
+          src={team && TEAMS[team] ? TEAMS[team].balloon : b.imagePath}
           alt="Floating Balloon"
           className="login-balloon"
           style={{
@@ -129,7 +120,6 @@ export default function Onboarding() {
             width: `${b.size}px`,
             animation: `${b.swayName} ${b.speed}s linear infinite`,
             animationDelay: `${b.delay}s`,
-            filter: b.filter,
             zIndex: isTransitioning ? 9999 : 2
           }}
         />
@@ -139,15 +129,14 @@ export default function Onboarding() {
       {isTransitioning && stormBalloons.map((b) => (
         <img
           key={b.id}
-          src="/balloon.svg"
+          src={team && TEAMS[team] ? TEAMS[team].balloon : b.imagePath}
           alt="Storm Balloon"
           className="storm-balloon"
           style={{
             left: `${b.left}%`,
             width: `${b.size}px`,
             animation: `${b.swayName} ${b.speed}s ease-in forwards`,
-            animationDelay: `${b.delay}s`,
-            filter: b.filter
+            animationDelay: `${b.delay}s`
           }}
         />
       ))}

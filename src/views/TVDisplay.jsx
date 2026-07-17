@@ -9,6 +9,7 @@ import {
 import { STRINGS } from '../constants/strings';
 import { useAuth } from '../context/AuthContext';
 import { auth } from '../firebase/config';
+import { BALLOON_IMAGES } from '../constants/teams';
 import '../styles/views/TVDisplay.css';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
@@ -535,7 +536,7 @@ export default function TVDisplay() {
               {balloonIndices.map((i) => (
                 <img
                   key={`left-${i}`}
-                  src="/balloon.svg"
+                  src={BALLOON_IMAGES[i % BALLOON_IMAGES.length]}
                   alt={`Left Balloon ${i}`}
                   className={`balloon-item balloon-${i}`}
                 />
@@ -559,7 +560,7 @@ export default function TVDisplay() {
               {balloonIndices.map((i) => (
                 <img
                   key={`right-${i}`}
-                  src="/balloon.svg"
+                  src={BALLOON_IMAGES[(i + 3) % BALLOON_IMAGES.length]}
                   alt={`Right Balloon ${i}`}
                   className={`balloon-item balloon-${i}`}
                 />
@@ -646,7 +647,7 @@ export default function TVDisplay() {
             {balloonIndices.map((i) => (
               <img
                 key={`left-${i}`}
-                src="/balloon.svg"
+                src={BALLOON_IMAGES[i % BALLOON_IMAGES.length]}
                 alt={`Left Balloon ${i}`}
                 className={`balloon-item balloon-${i}`}
               />
@@ -718,7 +719,7 @@ export default function TVDisplay() {
             {balloonIndices.map((i) => (
               <img
                 key={`right-${i}`}
-                src="/balloon.svg"
+                src={BALLOON_IMAGES[(i + 3) % BALLOON_IMAGES.length]}
                 alt={`Right Balloon ${i}`}
                 className={`balloon-item balloon-${i}`}
               />
