@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { onLeaderboardChange, onPointHistoryChange, listenToGameState } from '../firebase/db';
 import { TEAMS } from '../constants/teams';
@@ -12,8 +12,10 @@ import GoalsTab from './GoalsTab';
 import JeopardyBuzzerView from '../components/JeopardyBuzzerView';
 
 export default function Dashboard() {
-  const { userProfile, teamsMap } = useAuth();
+  const { userProfile, logout, teamsMap } = useAuth();
   const [activeTab, setActiveTab] = useState('home');
+  const [showLogout, setShowLogout] = useState(false);
+  const logoutTimerRef = useRef(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [pointHistory, setPointHistory] = useState([]);
   const [gameState, setGameState] = useState(null);
@@ -43,6 +45,14 @@ export default function Dashboard() {
       return () => unsubscribeHistory();
     }
   }, [userProfile?.uid]);
+
+  useEffect(() => () => clearTimeout(logoutTimerRef.current), []);
+
+  const revealLogout = () => {
+    clearTimeout(logoutTimerRef.current);
+    setShowLogout(true);
+    logoutTimerRef.current = setTimeout(() => setShowLogout(false), 4000);
+  };
 
   // Apply Team Accent Styling to Dashboard view wrapper
   const userTeam = userProfile?.team || 'blue';
@@ -104,7 +114,18 @@ export default function Dashboard() {
       <main className="app-container">
         <section className="dashboard-shell glass-panel is-active">
           <header className="dashboard-shell-header">
-            <h2 className="player-name">{userProfile?.name}</h2>
+            <button className="player-name" onClick={revealLogout} aria-label="Show logout option">
+              {userProfile?.name}
+            </button>
+            {showLogout && (
+              <button onClick={logout} className="header-logout-btn animate-scale-up" aria-label="Log out">
+                <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+              </button>
+            )}
             <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} position="top" />
           </header>
 
