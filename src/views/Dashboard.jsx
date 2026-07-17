@@ -1,9 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { onLeaderboardChange, onPointHistoryChange, listenToGameState } from '../firebase/db';
 import { STRINGS } from '../constants/strings';
 import BottomNav from '../components/BottomNav';
-import { TEAMS } from '../constants/teams';
 import '../styles/views/Dashboard.css';
 
 // Import Tabs
@@ -19,18 +18,6 @@ export default function Dashboard() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [pointHistory, setPointHistory] = useState([]);
   const [gameState, setGameState] = useState(null);
-
-  // Background floating balloons of the user's team color
-  const backgroundBalloons = useMemo(() => {
-    return Array.from({ length: 12 }, (_, i) => ({
-      id: i,
-      left: Math.random() * 90 + 5,
-      delay: Math.random() * 8,
-      speed: Math.random() * 6 + 7,
-      size: Math.random() * 40 + 60,
-      swayName: ['login-float-left', 'login-float-right', 'login-float-straight'][i % 3]
-    }));
-  }, []);
 
   // Listen to Game State
   useEffect(() => {
@@ -64,7 +51,7 @@ export default function Dashboard() {
   const totalPlayers = leaderboard.length;
 
   // Apply Team Accent Styling to Dashboard view wrapper
-  const userTeam = userProfile?.team || "audrey's_friends";
+  const userTeam = userProfile?.team || 'blue';
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -112,22 +99,6 @@ export default function Dashboard() {
 
   return (
     <div className={`dashboard-page themed-background theme-${userTeam}`}>
-      {/* Background balloons floating constantly */}
-      {backgroundBalloons.map((b) => (
-        <img
-          key={b.id}
-          src={TEAMS[userTeam]?.balloon || '/balloon.svg'}
-          alt="Floating Balloon"
-          className="login-balloon"
-          style={{
-            left: `${b.left}%`,
-            width: `${b.size}px`,
-            animation: `${b.swayName} ${b.speed}s linear infinite`,
-            animationDelay: `${b.delay}s`,
-            zIndex: 1
-          }}
-        />
-      ))}
       {/* Dashboard Top Header */}
       <header className="dashboard-header glass-panel">
         <div className="header-left">
