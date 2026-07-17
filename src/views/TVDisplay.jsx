@@ -526,7 +526,7 @@ export default function TVDisplay() {
       <div className={`tv-welcome-screen-redesign ${isBalloonsReleased ? 'released' : ''}`}>
         {/* Hand-drawn Welcome Header at the top (Clickable return button) */}
         <div className="welcome-header-container" onClick={handleWelcomeClick}>
-          <h1 className="welcome-title-text">Welcome!</h1>
+          <h1 className="welcome-title-text">Welcome to</h1>
         </div>
 
         {/* Bottom Columns Layout */}
@@ -548,12 +548,13 @@ export default function TVDisplay() {
           </div>
 
           {/* Center Column: Handwritten Message */}
-          <div className="welcome-center-column">
+          <div className="welcome-center-column" onClick={handleWelcomeClick} style={{ cursor: 'pointer' }}>
             <img
               src="/audrey-and-lisas.png"
               alt="Audrey & Lisa's"
               className="welcome-message-image"
             />
+            <h1 className="welcome-title-text welcome-sub-title">Graduation Party!</h1>
           </div>
 
           {/* Right Side Column: Balloon Bundle + QR Anchor */}
