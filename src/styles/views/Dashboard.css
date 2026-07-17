@@ -13,13 +13,43 @@
 }
 
 .dashboard-shell {
+  position: relative;
   width: 100%;
   min-height: calc(100svh - 40px);
-  background: var(--player-team-color) !important;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.08) 34%, rgba(0, 0, 0, 0.12) 100%),
+    var(--player-team-color) !important;
+  backdrop-filter: blur(24px) saturate(135%);
+  -webkit-backdrop-filter: blur(24px) saturate(135%);
+  border: 1px solid rgba(255, 255, 255, 0.68) !important;
+  border-radius: 24px;
+  box-shadow:
+    0 24px 55px rgba(15, 23, 42, 0.22),
+    0 8px 18px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 1px 0 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.14) !important;
   display: flex;
   flex-direction: column;
   padding: 24px;
   overflow: hidden;
+}
+
+.dashboard-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 12% 4%, rgba(255, 255, 255, 0.5), transparent 28%),
+    linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.16) 48%, transparent 61%);
+  opacity: 0.8;
+}
+
+.dashboard-shell > * {
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard-shell-header {
