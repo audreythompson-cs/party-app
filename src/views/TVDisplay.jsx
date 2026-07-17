@@ -530,18 +530,13 @@ export default function TVDisplay() {
                 cursor: resolveFeedback ? 'pointer' : 'default'
               }}
             >
-              {resolveFeedback === 'correct' ? (
-                <div className="buzzed-card-feedback-correct animate-scale-up">
-                  <span className="points-feedback-large">+{clue.points}</span>
-                </div>
-              ) : resolveFeedback === 'incorrect' ? (
-                <div className="buzzed-card-feedback-incorrect animate-scale-up">
-                  <span className="feedback-label-large">INCORRECT</span>
-                  {deductPoints && (
-                    <span className="points-feedback-large">-{clue.points}</span>
-                  )}
-                </div>
-              ) : (
+              {/* Centered Player Name (Always Visible) */}
+              <div className="buzzed-card-text">
+                <h2>{buzzedName}</h2>
+              </div>
+
+              {/* Only show split-screen click zones when not in feedback mode */}
+              {!resolveFeedback && (
                 <div className="buzzed-card-interactive animate-scale-up">
                   {/* Left Half: Incorrect */}
                   <button 
@@ -549,12 +544,6 @@ export default function TVDisplay() {
                     className="buzz-click-half left-half" 
                     title="Incorrect"
                   />
-
-                  {/* Centered Player Name & State */}
-                  <div className="buzzed-card-text">
-                    <h2>{buzzedName}</h2>
-                    <p>buzzed in</p>
-                  </div>
 
                   {/* Right Half: Correct */}
                   <button 
