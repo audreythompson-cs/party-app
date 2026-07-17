@@ -520,7 +520,7 @@ export default function TVDisplay() {
       }, 2000);
     };
 
-    const balloonIndices = [1, 2, 3, 4, 5, 6, 7, 8];
+    const balloonIndices = [1, 2, 3, 4, 5];
 
     return (
       <div className={`tv-welcome-screen-redesign ${isBalloonsReleased ? 'released' : ''}`}>
@@ -639,7 +639,7 @@ export default function TVDisplay() {
   };
 
   const renderStandardLeaderboard = () => {
-    const balloonIndices = [1, 2, 3, 4, 5, 6, 7, 8];
+    const balloonIndices = [1, 2, 3, 4, 5];
     return (
       <div className="tv-content">
         {/* Left Side: Balloon Bundle + QR Anchor */}
