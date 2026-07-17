@@ -347,6 +347,27 @@ export default function TVDisplay() {
     }
   };
 
+  const handleResetJeopardyState = async () => {
+    if (window.confirm("Are you sure you want to restart Jeopardy fresh? This will clear all completed questions.")) {
+      try {
+        await updateGameState({
+          jeopardy: {
+            ...(gameState?.jeopardy || {}),
+            activeClue: null,
+            buzzedPlayerId: null,
+            buzzedPlayerName: null,
+            buzzedTimestamp: null,
+            buzzerLocked: false,
+            completedClues: [],
+            failedPlayers: []
+          }
+        });
+      } catch (err) {
+        console.error("Failed to reset Jeopardy state:", err);
+      }
+    }
+  };
+
   const handleSelectClue = async (cat, clueIndex, clue) => {
     const clueId = `${cat.id}_${clue.points}`;
     if (gameState?.jeopardy?.completedClues?.includes(clueId)) return;
@@ -583,6 +604,17 @@ export default function TVDisplay() {
 
     return (
       <div className="jeopardy-container animate-fade-in">
+        {/* Floating Refresh Button in Top-Right Corner */}
+        <button 
+          onClick={handleResetJeopardyState} 
+          className="jeopardy-refresh-btn"
+          title="Reset Jeopardy Game"
+        >
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+        </button>
+
         {/* The Grid */}
         <div className="jeopardy-board glass-panel">
           <div className="jeopardy-grid" style={{ gridTemplateColumns: `repeat(${sortedCategories.length}, 1fr)` }}>

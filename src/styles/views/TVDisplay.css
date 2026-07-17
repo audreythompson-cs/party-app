@@ -346,12 +346,38 @@
   gap: 25px;
   min-height: 0;
   z-index: 2;
+  position: relative;
 }
 
-.jeopardy-controls-row {
+/* Floating Jeopardy Refresh Button in Top-Right */
+.jeopardy-refresh-btn {
+  position: absolute;
+  top: -85px; /* Offset upwards to sit neatly in line with header row elements */
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-bright);
+  opacity: 0.35;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+  width: 44px;
+  height: 44px;
+}
+
+.jeopardy-refresh-btn:hover {
+  opacity: 1;
+  transform: rotate(45deg);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.jeopardy-refresh-btn:active {
+  transform: scale(0.9) rotate(90deg);
 }
 
 .deduct-toggle {
