@@ -7,9 +7,6 @@ export default function GoalsTab({ profile }) {
   const [goals, setGoals] = useState([]);
   const [userGoals, setUserGoals] = useState({});
   const [submittingId, setSubmittingId] = useState(null);
-  const [acknowledged, setAcknowledged] = useState(() => {
-    return localStorage.getItem('goals_acknowledged') === 'true';
-  });
 
   // Subscribe to all goals & user goal history
   useEffect(() => {
@@ -43,31 +40,6 @@ export default function GoalsTab({ profile }) {
   const myGoals = goals.filter(
     (g) => g.assignedTo && g.assignedTo.includes(profile.uid)
   );
-
-  if (!acknowledged) {
-    return (
-      <div className="goals-tab animate-fade-in">
-        <div className="goals-header">
-          <h3>{STRINGS.goals.title}</h3>
-        </div>
-        <div className="glass-panel goals-popup-card animate-scale-up">
-          <h2>{STRINGS.goals.popupTitle}</h2>
-          <div className="popup-body-content">
-            <p style={{ color: '#334155', margin: 0 }}>{STRINGS.goals.popupBody}</p>
-          </div>
-          <button 
-            className="btn-primary popup-ack-btn" 
-            onClick={() => {
-              localStorage.setItem('goals_acknowledged', 'true');
-              setAcknowledged(true);
-            }}
-          >
-            {STRINGS.goals.popupButton}
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="goals-tab animate-fade-in">
