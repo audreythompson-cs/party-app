@@ -843,6 +843,25 @@
   bottom: 380px;
   width: 100%;
   pointer-events: none;
+  transform-origin: bottom center;
+}
+
+.welcome-side-column.left-side .balloon-bundle {
+  animation: bundle-gentle-sway 8s ease-in-out infinite alternate;
+}
+
+.welcome-side-column.right-side .balloon-bundle {
+  animation: bundle-gentle-sway 8s ease-in-out infinite alternate;
+  animation-delay: -4s; /* Halfway phase shift to avoid lockstep */
+}
+
+@keyframes bundle-gentle-sway {
+  0% {
+    transform: rotate(-2deg) translateX(-3px);
+  }
+  100% {
+    transform: rotate(2deg) translateX(3px);
+  }
 }
 
 /* Individual Balloon placeholders inside side columns */
