@@ -59,7 +59,7 @@ export default function DonateTab({ profile, leaderboard, pointHistory = [], mod
   };
 
   const renderHistory = () => (
-    <div className="history-section glass-panel">
+    <div className="history-section">
       <h3>{STRINGS.dashboard.historyTitle}</h3>
 
       {pointHistory.length === 0 ? (

@@ -3,9 +3,12 @@
 }
 
 .points-tab {
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow: hidden;
 }
 
 .points-total {
@@ -145,17 +148,20 @@ select option {
 
 /* History Section styling */
 .history-section {
-  padding: 22px 20px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
   flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .history-section h3 {
   font-size: 16px;
   font-weight: 700;
   color: var(--text-bright);
+  text-align: center;
 }
 
 .no-history-state {
@@ -182,7 +188,12 @@ select option {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-right: 4px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 14px;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
 }
 
 /* custom scrollbar */
@@ -199,14 +210,15 @@ select option {
   justify-content: space-between;
   align-items: center;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.75);
   border-radius: var(--radius-md);
+  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.1);
   transition: background 0.2s ease;
 }
 
 .history-item:hover {
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .item-details {
