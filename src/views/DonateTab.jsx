@@ -93,7 +93,7 @@ export default function DonateTab({ profile, leaderboard, pointHistory = [], mod
       <div className="donate-tab points-tab animate-fade-in">
         <div className="points-total glass-panel">
           <div className="points-total-column">
-            <span>Your Team's Total</span>
+            <span>Team Total</span>
             <strong>{teamTotal}</strong>
           </div>
           <div className="points-total-divider" aria-hidden="true"></div>
