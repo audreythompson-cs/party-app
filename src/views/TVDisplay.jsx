@@ -11,7 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { auth } from '../firebase/config';
 import { BALLOON_IMAGES } from '../constants/teams';
 import '../styles/views/TVDisplay.css';
-import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 
 // Web Audio API Synthesizer helpers
 function playTone(freq, type, duration) {
@@ -62,6 +62,9 @@ export default function TVDisplay() {
   const fallbackTeam = { name: 'No Team', color: '#cbd5e1', glow: 'rgba(203,213,225,0.1)', accentBg: 'rgba(203,213,225,0.01)' };
   const [leaderboard, setLeaderboard] = useState([]);
   const [isAuthed, setIsAuthed] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [authError, setAuthError] = useState('');
   const [isBalloonsReleased, setIsBalloonsReleased] = useState(false);
 
   // Jeopardy State variables
@@ -165,20 +168,32 @@ export default function TVDisplay() {
     }
   }, [currentScreen, gameState?.welcomeState]);
 
-  // Monitor Auth state & log in anonymously behind the scenes
+  // The TV uses a real Google session instead of creating anonymous accounts.
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setIsAuthed(true);
-      } else {
-        setIsAuthed(false);
-        signInAnonymously(auth).catch((err) => {
-          console.error('Error authenticating TV display:', err);
-        });
-      }
+      setIsAuthed(Boolean(user && !user.isAnonymous));
+      setAuthReady(true);
     });
     return () => unsubscribe();
   }, []);
+
+  const handleGoogleSignIn = async () => {
+    setIsSigningIn(true);
+    setAuthError('');
+
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error('Error signing into TV display:', error);
+      if (error.code !== 'auth/popup-closed-by-user') {
+        setAuthError('Google sign-in failed. Please try again.');
+      }
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
 
   // Subscribe to real-time Leaderboard, game state and categories ONLY when authenticated
   useEffect(() => {
@@ -888,6 +903,33 @@ export default function TVDisplay() {
 
   const isLeaderboardScreen = currentScreen === null;
   const showHeader = currentScreen !== 'welcome' && !(currentScreen === 'jeopardy' && localActiveClue);
+
+  if (!authReady || !isAuthed) {
+    return (
+      <div className="tv-page tv-login-page">
+        <div className="tv-login-card glass-panel">
+          <h1>Party TV</h1>
+          {!authReady ? (
+            <p>Checking sign-in...</p>
+          ) : (
+            <>
+              <p>Sign in with Google to open the TV display.</p>
+              {authError && <div className="tv-login-error">{authError}</div>}
+              <button className="tv-google-signin-btn" onClick={handleGoogleSignIn} disabled={isSigningIn}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.4-.18-2.07H12v3.92h5.38a4.6 4.6 0 0 1-2 3.02v2.54h3.24c1.9-1.75 2.98-4.32 2.98-7.41Z" />
+                  <path fill="#34A853" d="M12 22c2.7 0 4.97-.9 6.62-2.36l-3.24-2.54c-.9.6-2.05.96-3.38.96-2.6 0-4.81-1.76-5.6-4.13H3.05v2.62A10 10 0 0 0 12 22Z" />
+                  <path fill="#FBBC05" d="M6.4 13.93A6.02 6.02 0 0 1 6.08 12c0-.67.12-1.32.32-1.93V7.45H3.05A10 10 0 0 0 2 12c0 1.64.39 3.2 1.05 4.55l3.35-2.62Z" />
+                  <path fill="#EA4335" d="M12 5.94c1.47 0 2.79.5 3.83 1.5l2.87-2.88A9.64 9.64 0 0 0 12 2a10 10 0 0 0-8.95 5.45l3.35 2.62C7.19 7.7 9.4 5.94 12 5.94Z" />
+                </svg>
+                {isSigningIn ? 'Signing in...' : 'Sign in with Google'}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="tv-page">
