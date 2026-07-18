@@ -35,18 +35,13 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-right: 14px;
+  padding-right: 0;
   padding-bottom: 4px;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 
 .goals-list::-webkit-scrollbar {
-  width: 5px;
-}
-
-.goals-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 999px;
+  display: none;
 }
 
 .goal-card {

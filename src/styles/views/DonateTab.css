@@ -191,18 +191,14 @@ select option {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-right: 14px;
+  padding-right: 0;
   padding-bottom: 4px;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 
 /* custom scrollbar */
 .history-list::-webkit-scrollbar {
-  width: 4px;
-}
-.history-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 2px;
+  display: none;
 }
 
 .history-item {
