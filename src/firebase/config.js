@@ -1,5 +1,9 @@
 import { initializeApp } from 'firebase/app';
-import { initializeAuth, browserSessionPersistence } from 'firebase/auth';
+import {
+  initializeAuth,
+  browserSessionPersistence,
+  browserPopupRedirectResolver
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -16,7 +20,8 @@ const app = initializeApp(firebaseConfig);
 // Keep authentication isolated to each browser tab. This allows a player
 // dashboard and the admin/TV views to use different accounts simultaneously.
 export const auth = initializeAuth(app, {
-  persistence: browserSessionPersistence
+  persistence: browserSessionPersistence,
+  popupRedirectResolver: browserPopupRedirectResolver
 });
 export const db = getFirestore(app);
 export default app;

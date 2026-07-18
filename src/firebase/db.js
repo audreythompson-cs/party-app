@@ -38,6 +38,14 @@ export async function verifyPasscode(passcode) {
 }
 
 /**
+ * Checks whether a signed-in Google user is authorized for the admin area.
+ */
+export async function verifyAdminAccess(uid) {
+  const adminDoc = await getDoc(doc(db, 'admins', uid));
+  return adminDoc.exists() && adminDoc.data().active === true;
+}
+
+/**
  * Creates the user profile document in Firestore.
  */
 export async function createUserProfile(userId, name, team, photoUrl, sideQuest = '') {
@@ -690,19 +698,4 @@ export function onAllCompletedGoals(callback) {
   }, (error) => {
     console.error('Error listening to all completed goals:', error);
   });
-}
-
-/**
- * Bootstraps the admin profile in the users collection.
- */
-export async function bootstrapAdmin(uid) {
-  const userRef = doc(db, 'users', uid);
-  await setDoc(userRef, {
-    uid: uid,
-    name: 'Host',
-    team: 'blue',
-    points: 0,
-    isAdmin: true,
-    createdAt: serverTimestamp()
-  }, { merge: true });
 }

@@ -17,22 +17,20 @@ import {
   saveGoalTemplate,
   onPointHistoryChange,
   onAllCompletedGoals,
-  bootstrapAdmin
+  verifyAdminAccess
 } from '../firebase/db';
 import { useAuth } from '../context/AuthContext';
 import { STRINGS } from '../constants/strings';
 import { auth } from '../firebase/config';
-import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import '../styles/views/AdminDashboard.css';
 
 export default function AdminDashboard() {
   const { teams, teamsMap } = useAuth();
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
-    return sessionStorage.getItem('admin_authenticated') === 'true';
-  });
-  const [adminPasscode, setAdminPasscode] = useState('');
-  const [passcodeError, setPasscodeError] = useState('');
-  const [isFirebaseAuthed, setIsFirebaseAuthed] = useState(false);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   // Admin Sub-Page Navigation State
   const [adminView, setAdminView] = useState('menu'); // 'menu' | 'remote' | 'teams' | 'players' | 'quests' | 'jeopardy'
@@ -101,21 +99,31 @@ export default function AdminDashboard() {
     accentBg: 'rgba(203, 213, 225, 0.05)' 
   };
 
-  // Monitor Firebase Auth state & log in anonymously behind the scenes
+  // Authenticate the admin with Google and authorize the UID separately.
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setIsFirebaseAuthed(true);
-        if (sessionStorage.getItem('admin_authenticated') === 'true') {
-          bootstrapAdmin(user.uid).catch((err) => {
-            console.error('Failed to bootstrap admin profile on refresh:', err);
-          });
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setAuthReady(false);
+      setIsAdminAuthenticated(false);
+
+      if (!user || user.isAnonymous) {
+        setAuthReady(true);
+        return;
+      }
+
+      try {
+        const isAuthorized = await verifyAdminAccess(user.uid);
+        if (isAuthorized) {
+          setIsAdminAuthenticated(true);
+          setAuthError('');
+        } else {
+          setAuthError('This Google account is not authorized as an admin.');
+          await signOut(auth);
         }
-      } else {
-        setIsFirebaseAuthed(false);
-        signInAnonymously(auth).catch((err) => {
-          console.error('Error authenticating admin session:', err);
-        });
+      } catch (error) {
+        console.error('Failed to verify admin access:', error);
+        setAuthError('Unable to verify admin access. Check Firestore rules and try again.');
+      } finally {
+        setAuthReady(true);
       }
     });
     return () => unsubscribe();
@@ -133,9 +141,9 @@ export default function AdminDashboard() {
     }
   }, [activeHistoryUserId]);
 
-  // Subscribe to collections once BOTH panel is unlocked and Firebase is authed
+  // Subscribe to collections once the Google account is authorized.
   useEffect(() => {
-    if (isAdminAuthenticated && isFirebaseAuthed) {
+    if (isAdminAuthenticated) {
       const unsubPlayers = onLeaderboardChange((data) => {
         setPlayers(data);
       });
@@ -160,25 +168,22 @@ export default function AdminDashboard() {
         unsubGame();
       };
     }
-  }, [isAdminAuthenticated, isFirebaseAuthed]);
+  }, [isAdminAuthenticated]);
 
-  // Check Admin Login
-  const handleAdminLogin = async (e) => {
-    e.preventDefault();
-    if (adminPasscode.trim().toUpperCase() === 'ADMIN2026') {
-      setIsAdminAuthenticated(true);
-      sessionStorage.setItem('admin_authenticated', 'true');
-      setPasscodeError('');
-      if (auth.currentUser) {
-        try {
-          await bootstrapAdmin(auth.currentUser.uid);
-          console.log("Admin profile bootstrapped successfully.");
-        } catch (err) {
-          console.error("Failed to bootstrap admin profile:", err);
-        }
+  const handleAdminGoogleSignIn = async () => {
+    setIsSigningIn(true);
+    setAuthError('');
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error('Admin Google sign-in failed:', error);
+      if (error.code !== 'auth/popup-closed-by-user') {
+        setAuthError('Google sign-in failed. Please try again.');
       }
-    } else {
-      setPasscodeError(STRINGS.admin.gateError);
+    } finally {
+      setIsSigningIn(false);
     }
   };
 
@@ -595,23 +600,23 @@ export default function AdminDashboard() {
     }
   };
 
-  // Render Passcode Gatekeep Page
+  // Render Google sign-in gate.
   if (!isAdminAuthenticated) {
     return (
       <div className="admin-gate-page themed-background">
         <div className="admin-gate-card glass-panel animate-scale-up">
           <h2>{STRINGS.admin.gateTitle}</h2>
-          <form onSubmit={handleAdminLogin} className="gate-form">
-            <input
-              type="password"
-              placeholder={STRINGS.admin.gatePlaceholder}
-              value={adminPasscode}
-              onChange={(e) => setAdminPasscode(e.target.value)}
-              autoFocus
-            />
-            {passcodeError && <div className="error-message">{passcodeError}</div>}
-            <button type="submit" className="btn-primary">{STRINGS.admin.gateButton}</button>
-          </form>
+          {!authReady ? (
+            <p>Checking admin access...</p>
+          ) : (
+            <>
+              <p>Sign in with an authorized Google account.</p>
+              {authError && <div className="error-message">{authError}</div>}
+              <button className="admin-google-signin-btn" onClick={handleAdminGoogleSignIn} disabled={isSigningIn}>
+                {isSigningIn ? 'Signing in...' : 'Sign in with Google'}
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
