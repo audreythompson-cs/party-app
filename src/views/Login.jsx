@@ -1,14 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { STRINGS } from '../constants/strings';
-import { auth } from '../firebase/config';
-import { signInAnonymously } from 'firebase/auth';
-import { verifyPasscode } from '../firebase/db';
 import { BALLOON_IMAGES } from '../constants/teams';
 import '../styles/views/Login.css';
 
 export default function Login() {
-  const { loginWithPasscode } = useAuth();
+  const { loginWithPasscode, completeLogin } = useAuth();
   const [passcode, setPasscode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -48,16 +45,8 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // 1. Sign in anonymously if not already signed in
-      if (!auth.currentUser) {
-        await signInAnonymously(auth);
-      }
-
-      // 2. Verify passcode locally first so we can control transition delay
-      const isValid = await verifyPasscode(passcode);
-      if (!isValid) {
-        throw new Error('Invalid passcode');
-      }
+      // Authenticate and verify exactly once before beginning the transition.
+      await loginWithPasscode(passcode);
 
       // Passcode is valid! Start the transition animation
       setIsLoggingIn(true);
@@ -65,11 +54,11 @@ export default function Login() {
       // Wait for 2.5 seconds for the balloon storm animation to cover the screen
       await new Promise(resolve => setTimeout(resolve, 2500));
 
-      // 3. Now trigger the context login to update isPasscodeVerified and trigger redirection
-      await loginWithPasscode(passcode);
+      // Mark the verified session complete and allow routing to continue.
+      completeLogin();
     } catch (err) {
       console.error(err);
-      setError(STRINGS.login.errorInvalid);
+      setError(err.message === 'Invalid passcode' ? STRINGS.login.errorInvalid : STRINGS.login.errorUnavailable);
       setLoading(false);
       setIsLoggingIn(false);
     }

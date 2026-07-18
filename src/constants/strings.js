@@ -8,7 +8,8 @@ export const STRINGS = {
     passcodePlaceholder: 'Passcode',
     buttonSubmit: 'Submit',
     buttonSubmitEntering: 'Entering...',
-    errorInvalid: 'Oops! That passcode doesn\'t match. Ask the host!'
+    errorInvalid: 'Oops! That passcode doesn\'t match. Ask the host!',
+    errorUnavailable: 'We couldn\'t verify the passcode right now. Check your connection and try again.'
   },
   onboarding: {
     title: 'Let\'s get set up!',

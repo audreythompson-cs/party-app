@@ -33,8 +33,7 @@ export async function verifyPasscode(passcode) {
     return passcode.trim().toUpperCase() === 'GRAD2026';
   } catch (error) {
     console.error('Error verifying passcode:', error);
-    // If it's a new database and no config is present, fallback to local verification
-    return passcode.trim().toUpperCase() === 'GRAD2026';
+    throw new Error('Unable to verify the passcode right now.', { cause: error });
   }
 }
 

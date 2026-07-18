@@ -82,8 +82,6 @@ export function AuthProvider({ children }) {
       const isValid = await verifyPasscode(passcode);
       
       if (isValid) {
-        sessionStorage.setItem('passcode_verified', 'true');
-        setIsPasscodeVerified(true);
         return true;
       } else {
         // Sign out if passcode is incorrect
@@ -100,6 +98,11 @@ export function AuthProvider({ children }) {
       throw new Error(err.message || 'Invalid passcode', { cause: err });
     }
   };
+
+  const completeLogin = useCallback(() => {
+    sessionStorage.setItem('passcode_verified', 'true');
+    setIsPasscodeVerified(true);
+  }, []);
 
   // Complete registration by writing profile to Firestore (custom write-in name)
   const registerProfile = async (name, team, photoUrl, sideQuest = '') => {
@@ -138,6 +141,7 @@ export function AuthProvider({ children }) {
     loading,
     isPasscodeVerified,
     loginWithPasscode,
+    completeLogin,
     registerProfile,
     claimProfile,
     logout,
