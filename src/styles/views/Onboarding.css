@@ -5,6 +5,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px 0;
+  background: radial-gradient(circle at center, #ffffff 0%, #cbd5e1 100%);
   position: relative;
   overflow: hidden;
   z-index: 1;

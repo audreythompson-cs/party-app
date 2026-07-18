@@ -107,10 +107,7 @@ export default function Onboarding() {
   const selectedTeamObj = teams.find(t => t.id === team);
 
   return (
-    <div 
-      className={`onboarding-page theme-${team}`}
-      style={selectedTeamObj ? { backgroundColor: selectedTeamObj.color, background: selectedTeamObj.color } : {}}
-    >
+    <div className="onboarding-page">
       {/* Background balloons floating constantly */}
       {backgroundBalloons.map((b) => (
         <img
