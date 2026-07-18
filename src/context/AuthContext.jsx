@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { auth } from '../firebase/config';
 import { signInAnonymously, signOut, onAuthStateChanged } from 'firebase/auth';
 import { 
@@ -26,26 +26,29 @@ export function AuthProvider({ children }) {
 
   // Listen to Auth State changes
   useEffect(() => {
+    let unsubscribeProfile = () => {};
+
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      unsubscribeProfile();
+      unsubscribeProfile = () => {};
       setCurrentUser(user);
       
       if (user) {
         // Sign-in successful, listen to profile changes in Firestore
-        const unsubscribeProfile = onUserProfileChange(user.uid, (profile) => {
+        unsubscribeProfile = onUserProfileChange(user.uid, (profile) => {
           setUserProfile(profile);
           setLoading(false);
         });
-        
-        return () => {
-          unsubscribeProfile();
-        };
       } else {
         setUserProfile(null);
         setLoading(false);
       }
     });
 
-    return () => unsubscribeAuth();
+    return () => {
+      unsubscribeProfile();
+      unsubscribeAuth();
+    };
   }, []);
 
   // Listen to dynamic teams in Firestore
@@ -116,15 +119,18 @@ export function AuthProvider({ children }) {
     await claimPlaceholderPlayer(currentUser, placeholderId, name, team);
   };
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     setLoading(true);
     sessionStorage.removeItem('passcode_verified');
     setIsPasscodeVerified(false);
-    await signOut(auth);
-    setUserProfile(null);
-    setCurrentUser(null);
-    setLoading(false);
-  };
+    try {
+      await signOut(auth);
+    } finally {
+      setUserProfile(null);
+      setCurrentUser(null);
+      setLoading(false);
+    }
+  }, []);
 
   const value = {
     currentUser,
