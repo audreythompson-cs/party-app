@@ -659,7 +659,10 @@ export async function claimPlaceholderPlayer(currentUser, placeholderId, name, t
   await runTransaction(db, async (transaction) => {
     // 1. Read placeholder data
     const placeholderDoc = await transaction.get(placeholderRef);
-    const placeholderData = placeholderDoc.exists() ? placeholderDoc.data() : {};
+    if (!placeholderDoc.exists()) {
+      throw new Error('Placeholder profile does not exist or has already been claimed.');
+    }
+    const placeholderData = placeholderDoc.data();
     
     // Copy existing fields or fallback to default values
     const nameVal = name ? name.trim() : (placeholderData.name || '').trim();

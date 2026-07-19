@@ -66,6 +66,7 @@ export default function Onboarding() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
     
     const finalName = isCustomName ? customName.trim() : selectedGuestName.trim();
     if (!finalName) {
