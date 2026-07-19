@@ -17,7 +17,8 @@ import {
   saveGoalTemplate,
   onPointHistoryChange,
   onAllCompletedGoals,
-  verifyAdminAccess
+  verifyAdminAccess,
+  resetPlayerPredefinedStatus
 } from '../firebase/db';
 import { useAuth } from '../context/AuthContext';
 import { STRINGS } from '../constants/strings';
@@ -966,6 +967,33 @@ export default function AdminDashboard() {
                         >
                           {p.team ? pTeam.name : 'None'}
                         </span>
+                      </div>
+
+                      {/* Predefined / Reset Login status action */}
+                      <div>
+                        {p.isPlaceholder ? (
+                          <span style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Predefined
+                          </span>
+                        ) : (
+                          <button
+                            onClick={async () => {
+                              if (window.confirm(`Reset predefined status for "${p.name}"? This will allow them to log back in from a new device/browser while keeping their points and progress.`)) {
+                                try {
+                                  await resetPlayerPredefinedStatus(p.uid);
+                                  alert('Status reset. The player can now select their name in the setup area to log in.');
+                                } catch (err) {
+                                  console.error(err);
+                                  alert('Failed to reset status: ' + err.message);
+                                }
+                              }
+                            }}
+                            className="btn-secondary"
+                            style={{ fontSize: '11px', padding: '6px 10px', textTransform: 'none' }}
+                          >
+                            Reset Predefined
+                          </button>
+                        )}
                       </div>
                     </div>
 

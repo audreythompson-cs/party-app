@@ -627,6 +627,14 @@ export async function updatePlayerTeam(userId, teamId) {
 }
 
 /**
+ * Resets a player's predefined status so they show up in the onboarding setup area.
+ */
+export async function resetPlayerPredefinedStatus(userId) {
+  const userRef = doc(db, 'users', userId);
+  await setDoc(userRef, { isPlaceholder: true }, { merge: true });
+}
+
+/**
  * Saves or updates a goal/side quest template in Firestore.
  */
 export async function saveGoalTemplate(goalId, { title, description, points, assignedTo = [], isRepeatable = false }) {
@@ -649,22 +657,36 @@ export async function claimPlaceholderPlayer(currentUser, placeholderId, name, t
   const placeholderRef = doc(db, 'users', placeholderId);
   
   await runTransaction(db, async (transaction) => {
-    // 1. Create the new user profile
+    // 1. Read placeholder data
+    const placeholderDoc = await transaction.get(placeholderRef);
+    const placeholderData = placeholderDoc.exists() ? placeholderDoc.data() : {};
+    
+    // Copy existing fields or fallback to default values
+    const nameVal = name ? name.trim() : (placeholderData.name || '').trim();
+    const teamVal = team || placeholderData.team || '';
+    const pointsVal = typeof placeholderData.points === 'number' ? placeholderData.points : 0;
+    const photoUrlVal = placeholderData.photoUrl || '';
+    const sideQuestVal = placeholderData.sideQuest || '';
+    const isAdminVal = placeholderData.isAdmin || false;
+    const createdAtVal = placeholderData.createdAt || serverTimestamp();
+
+    // 2. Create the new user profile
     transaction.set(userRef, {
       uid: currentUser.uid,
-      name: name.trim(),
-      team: team || '',
-      photoUrl: '',
-      points: 0,
-      isAdmin: false,
-      createdAt: serverTimestamp()
+      name: nameVal,
+      team: teamVal,
+      photoUrl: photoUrlVal,
+      points: pointsVal,
+      sideQuest: sideQuestVal,
+      isAdmin: isAdminVal,
+      createdAt: createdAtVal
     });
     
-    // 2. Delete the placeholder
+    // 3. Delete the placeholder
     transaction.delete(placeholderRef);
   });
 
-  // 3. Remap all goals assigned to the placeholder to the real uid
+  // 4. Remap all goals assigned to the placeholder to the real uid
   try {
     const goalsRef = collection(db, 'goals');
     const q = query(goalsRef, where('assignedTo', 'array-contains', placeholderId));
@@ -680,6 +702,54 @@ export async function claimPlaceholderPlayer(currentUser, placeholderId, name, t
     await Promise.all(batchPromises);
   } catch (err) {
     console.error('Error remapping guest quests during onboarding claim:', err);
+  }
+
+  // 5. Remap all userGoals (completed/pending quests) from placeholderId to currentUser.uid
+  try {
+    const userGoalsRef = collection(db, 'userGoals');
+    const q = query(userGoalsRef, where('userId', '==', placeholderId));
+    const snapshot = await getDocs(q);
+    const batchPromises = [];
+    
+    snapshot.forEach(ugDoc => {
+      const data = ugDoc.data();
+      
+      // Compute new document ID: replace the placeholderId prefix in the document ID
+      const newDocId = ugDoc.id.startsWith(placeholderId) 
+        ? ugDoc.id.replace(placeholderId, currentUser.uid) 
+        : `${currentUser.uid}_${data.goalId}_${Date.now()}`;
+      
+      const newDocRef = doc(db, 'userGoals', newDocId);
+      
+      // Write the new document with updated userId
+      batchPromises.push(setDoc(newDocRef, {
+        ...data,
+        userId: currentUser.uid
+      }));
+      
+      // Delete the old document
+      batchPromises.push(deleteDoc(ugDoc.ref));
+    });
+    
+    await Promise.all(batchPromises);
+  } catch (err) {
+    console.error('Error remapping userGoals during onboarding claim:', err);
+  }
+
+  // 6. Remap all pointHistory logs from placeholderId to currentUser.uid
+  try {
+    const historyColRef = collection(db, 'pointHistory');
+    const q = query(historyColRef, where('userId', '==', placeholderId));
+    const snapshot = await getDocs(q);
+    const batchPromises = [];
+    
+    snapshot.forEach(histDoc => {
+      batchPromises.push(setDoc(histDoc.ref, { userId: currentUser.uid }, { merge: true }));
+    });
+    
+    await Promise.all(batchPromises);
+  } catch (err) {
+    console.error('Error remapping pointHistory logs during onboarding claim:', err);
   }
 }
 

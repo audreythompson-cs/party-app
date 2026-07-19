@@ -39,7 +39,12 @@ service cloud.firestore {
     match /pointHistory/{logId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update, delete: if isAdmin();
+      allow update, delete: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        (exists(/databases/$(database)/documents/users/$(resource.data.userId)) &&
+         get(/databases/$(database)/documents/users/$(resource.data.userId)).data.get('isPlaceholder', false) == true) ||
+        isAdmin()
+      );
     }
 
     // Goals collection rules
@@ -66,7 +71,12 @@ service cloud.firestore {
       allow read: if request.auth != null;
       // Users can submit/update their own checklist status
       allow create, update: if request.auth != null && (request.resource.data.userId == request.auth.uid || isAdmin());
-      allow delete: if isAdmin();
+      allow delete: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        (exists(/databases/$(database)/documents/users/$(resource.data.userId)) &&
+         get(/databases/$(database)/documents/users/$(resource.data.userId)).data.get('isPlaceholder', false) == true) ||
+        isAdmin()
+      );
     }
   }
 }
