@@ -415,10 +415,13 @@ export default function TVDisplay() {
   };
 
   const handleResolveClue = async (isCorrect) => {
+    if (isResolving) return;
+    setIsResolving(true);
     try {
       if (!gameState?.jeopardy) return;
       const clue = gameState.jeopardy.activeClue;
       const playerId = gameState.jeopardy.buzzedPlayerId;
+      if (!clue || !playerId) return;
       const clueId = `${clue.categoryId}_${clue.points}`;
 
       if (isCorrect) {
@@ -431,6 +434,7 @@ export default function TVDisplay() {
         const completed = [...(gameState.jeopardy.completedClues || []), clueId];
         await updateGameState({
           jeopardy: {
+            ...gameState.jeopardy,
             activeClue: null,
             buzzedPlayerId: null,
             buzzedPlayerName: null,
@@ -464,6 +468,8 @@ export default function TVDisplay() {
     } catch (globalErr) {
       console.error("Error in handleResolveClue:", globalErr);
       alert("Error resolving clue: " + globalErr.message);
+    } finally {
+      setIsResolving(false);
     }
   };
 
@@ -567,6 +573,7 @@ export default function TVDisplay() {
                     }} 
                     className="buzz-click-half left-half" 
                     title="Incorrect"
+                    disabled={isResolving}
                   />
 
                   {/* Right Half: Correct */}
@@ -577,6 +584,7 @@ export default function TVDisplay() {
                     }} 
                     className="buzz-click-half right-half" 
                     title="Correct"
+                    disabled={isResolving}
                   />
                 </div>
               )}
